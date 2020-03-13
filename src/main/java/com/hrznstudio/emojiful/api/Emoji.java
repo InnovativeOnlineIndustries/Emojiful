@@ -4,7 +4,7 @@ import com.hrznstudio.emojiful.Emojiful;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.FileUtils;
 
@@ -40,7 +40,7 @@ public class Emoji implements Predicate<String> {
 
         img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/HrznStudio/Emojiful/master/" + location, loading_texture);
         resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name + "-" + version);
-        Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, img);
+        Minecraft.getMinecraft().renderEngine.loadTexture(resourceLocation, img);
     }
 
     public ResourceLocation getResourceLocationForBinding() {
@@ -120,7 +120,7 @@ public class Emoji implements Predicate<String> {
                     HttpURLConnection httpurlconnection = null;
 
                     try {
-                        httpurlconnection = (HttpURLConnection) (new URL(DownloadImageData.this.imageUrl)).openConnection(Minecraft.getInstance().getProxy());
+                        httpurlconnection = (HttpURLConnection) (new URL(DownloadImageData.this.imageUrl)).openConnection(Minecraft.getMinecraft().getProxy());
                         httpurlconnection.setDoInput(true);
                         httpurlconnection.setDoOutput(false);
                         httpurlconnection.connect();
@@ -133,7 +133,7 @@ public class Emoji implements Predicate<String> {
                                 FileUtils.copyInputStreamToFile(httpurlconnection.getInputStream(), DownloadImageData.this.cacheFile);
                                 bufferedimage = ImageIO.read(DownloadImageData.this.cacheFile);
                             } else {
-                                bufferedimage = TextureUtil.readToBuffer(httpurlconnection.getInputStream());
+                                bufferedimage = TextureUtil.readBufferedImage(httpurlconnection.getInputStream());
                             }
 
                             DownloadImageData.this.setBufferedImage(bufferedimage);

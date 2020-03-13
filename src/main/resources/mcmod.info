@@ -1,0 +1,14 @@
+[
+  {
+    "modid": "emojiful",
+    "name": "Emojiful",
+    "description": "",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "authorList": [
+      "Horizon Studio",
+      "Coded",
+      "Gegy1000"
+    ]
+  }
+]

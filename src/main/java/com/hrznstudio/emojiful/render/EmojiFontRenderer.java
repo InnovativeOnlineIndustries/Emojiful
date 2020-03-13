@@ -1,12 +1,12 @@
 package com.hrznstudio.emojiful.render;
 
 import com.hrznstudio.emojiful.Emojiful;
+import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.api.Emoji;
-import com.mojang.blaze3d.platform.GlStateManager;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.tuple.Pair;
@@ -183,7 +183,7 @@ public class EmojiFontRenderer extends FontRenderer {
         float offsetY = 1.0F;
         float offsetX = 0.0F;
         GlStateManager.enableBlend();
-        RenderHelper.enableAlpha();
+        GlStateManager.enableAlpha();
 
         GlStateManager.color(1, 1, 1);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -204,6 +204,4 @@ public class EmojiFontRenderer extends FontRenderer {
         setColor(this.red, this.green, this.blue, this.alpha);
         return 10f;
     }
-
-
 }
