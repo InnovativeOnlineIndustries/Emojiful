@@ -79,7 +79,6 @@ public class Emoji implements Predicate<String> {
                     if (this.textureLocation != null) {
                         this.deleteGlTexture();
                     }
-
                     TextureUtil.uploadTextureImage(super.getGlTextureId(), this.bufferedImage);
                     this.textureUploaded = true;
                 }

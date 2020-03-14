@@ -1,11 +1,14 @@
 package com.hrznstudio.emojiful.render;
 
 import com.hrznstudio.emojiful.Emojiful;
+import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -33,7 +36,7 @@ public class EmojiFontRenderer extends FontRenderer {
     }
 
     private String getEmojiFormattedString(String text) {
-        if (EmojifulConfig.renderEmoji && !StringUtil.isNullOrEmpty(text)) {
+        if (EmojifulConfig.getInstance().renderEmoji.get() && !StringUtil.isNullOrEmpty(text)) {
             String unformattedText = TextFormatting.getTextWithoutFormattingCodes(text);
             if (StringUtil.isNullOrEmpty(unformattedText))
                 return text;
@@ -64,10 +67,15 @@ public class EmojiFontRenderer extends FontRenderer {
     }
 
     @Override
-    public int getCharWidth(char character) {
+    public float getCharWidth(char character) {
         if (character == '\u2603')
-            return 10;
+            return 10f;
         return super.getCharWidth(character);
+    }
+
+    @Override
+    public int renderString(String p_228079_1_, float p_228079_2_, float p_228079_3_, int p_228079_4_, boolean p_228079_5_, Matrix4f p_228079_6_, IRenderTypeBuffer p_228079_7_, boolean p_228079_8_, int p_228079_9_, int p_228079_10_) {
+        return super.renderString(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
     }
 
     @Override
@@ -159,7 +167,7 @@ public class EmojiFontRenderer extends FontRenderer {
     }
 
     private float renderChar(char c, boolean italic, int index) {
-        if (EmojifulConfig.renderEmoji) {
+        if (EmojifulConfig.getInstance().renderEmoji.get()) {
             Emoji emoji = this.emojis.get(index);
             if (emoji != null) {
                 bindTexture(emoji.getResourceLocationForBinding());

@@ -8,16 +8,20 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath "com.wynprice.cursemaven:CurseMaven:2.1.1"
+        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "java"
 apply plugin: "idea"
 apply plugin: "com.wynprice.cursemaven"
+apply plugin: "com.github.johnrengelman.shadow"
 
 version = "${minecraft_version}-" + "${version}"
 group = "${group}"
 archivesBaseName = "${archive}"
+
+
 
 repositories {
     maven {
@@ -59,15 +63,37 @@ minecraft {
 
 repositories {
     mavenLocal()
-
+    mavenCentral()
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compile fg.deobf("com.github.johnrengelman.shadow")
+    compile group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'
 }
 
+reobf {
+    shadowJar {}
+}
 
+shadowJar{
+
+}
+
+shadowJar {
+    dependencies {
+        include(dependency(group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'))
+    }
+    classifier ''
+}
+
+jar {
+    manifest {
+        attributes "FMLAT": "emojiful_at.cfg"
+    }
+}
+artifacts {
+    archives shadowJar
+}
 
 jar {
     manifest {

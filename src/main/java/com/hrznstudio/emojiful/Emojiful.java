@@ -1,16 +1,23 @@
 package com.hrznstudio.emojiful;
 
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.stream.JsonReader;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.util.JSONException;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
@@ -45,15 +52,7 @@ public class Emojiful {
     private void setup(final FMLCommonSetupEvent event) {
         preInitEmojis();
         initEmojis();
-    }
-
-    private void doClientStuff(final FMLClientSetupEvent event) {
-
-    }
-
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, EmojifulConfig.init());
     }
 
     private void preInitEmojis() {
