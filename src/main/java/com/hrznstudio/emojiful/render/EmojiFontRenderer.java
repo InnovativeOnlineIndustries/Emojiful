@@ -7,9 +7,12 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.fonts.Font;
+import net.minecraft.client.gui.fonts.FontResourceManager;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,8 +28,15 @@ public class EmojiFontRenderer extends FontRenderer {
     private Map<Integer, Emoji> emojis = new HashMap<>();
 
     public EmojiFontRenderer(Minecraft minecraft) {
-        super(minecraft.gameSettings, new ResourceLocation("textures/font/ascii.png"), minecraft.renderEngine, false);
-        super.onResourceManagerReload(minecraft.getResourceManager());
+        super(Minecraft.getInstance().fontResourceMananger.textureManager, new Font(Minecraft.getInstance().fontResourceMananger.textureManager, new ResourceLocation("textures/font/ascii.png")));
+        //super.onResourceManagerReload(minecraft.getResourceManager());
+    }
+
+    private TextureAtlasSprite sprite;
+
+    public void setSprite(TextureAtlasSprite sprite)
+    {
+        this.sprite = sprite;
     }
 
     @Override
@@ -78,9 +88,23 @@ public class EmojiFontRenderer extends FontRenderer {
         return super.renderString(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
     }
 
+    /**
+     *
+     * @param text text object to render
+     * @param p_228081_2_ float possibly posX
+     * @param p_228081_3_ float possibly posY
+     * @param p_228081_4_ int color value
+     * @param p_228081_5_ boolean dropShadow?
+     * @param p_228081_6_ Matrix4F
+     * @param p_228081_7_ IRenderTypeBuffer check what this does
+     * @param p_228081_8_ boolean
+     * @param p_228081_9_ int
+     * @param p_228081_10_ int
+     * @return
+     */
     @Override
-    protected void renderStringAtPos(String text, boolean hasShadow) {
-        if (text.isEmpty())
+    protected float renderStringAtPos(String text, float p_228081_2_, float p_228081_3_, int p_228081_4_, boolean p_228081_5_, Matrix4f p_228081_6_, IRenderTypeBuffer p_228081_7_, boolean p_228081_8_, int p_228081_9_, int p_228081_10_) {
+        /*if (text.isEmpty())
             return;
         this.emojis.clear();
         text = getEmojiFormattedString(text);
@@ -163,14 +187,14 @@ public class EmojiFontRenderer extends FontRenderer {
                 }
                 doDraw(offset);
             }
-        }
+        }*/
     }
 
     private float renderChar(char c, boolean italic, int index) {
         if (EmojifulConfig.getInstance().renderEmoji.get()) {
             Emoji emoji = this.emojis.get(index);
             if (emoji != null) {
-                bindTexture(emoji.getResourceLocationForBinding());
+                this.textureManager.bindTexture(emoji.getResourceLocationForBinding());
                 return this.renderEmoji(emoji);
             }
         }
