@@ -1,19 +1,22 @@
 modLoader="javafml"
 loaderVersion="[31,)"
 issueTrackerURL="https://github.com/InnovativeOnlineIndustries/Emojiful/issues"
+side="CLIENT"
 
 [[mods]]
     modId="emojiful"
     version="${file.jarVersion}"
     displayName="Emojiful"
-    authors="Lanse505, Amadornes"
+    authors="HRZN"
     description='''
     Adds Emotes to the Game Chat!!!
     '''
+    mandatory=false
+    side="CLIENT"
 
-[[dependencies.essence]]
+[[dependencies.emojiful]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
+    versionRange="[1.15.2,)"
     ordering="NONE"
-    side="BOTH"
+    side="CLIENT"

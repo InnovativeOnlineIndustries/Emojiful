@@ -58,7 +58,7 @@ minecraft {
             }
         }
     }
-    accessTransformer = file('src/main/resources/META-INF/emojiful_at.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
 repositories {

@@ -11,38 +11,28 @@ import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.FileUtils;
 
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-public class Emoji implements Predicate<String> {
-    public static final ResourceLocation loading_texture = new ResourceLocation(Emojiful.MODID, "textures/26a0.png");
-    public static final ResourceLocation noSignal_texture = new ResourceLocation(Emojiful.MODID, "textures/26d4.png");
-    public static final ResourceLocation error_texture = new ResourceLocation(Emojiful.MODID, "textures/26d4.png");
+public class EmojiFromEmojipedia extends Emoji {
 
-    public static final AtomicInteger threadDownloadCounter = new AtomicInteger(0);
-    public String name;
-    public List<String> strings;
-    public String location;
-    public int version = 1;
-
-    public boolean deleteOldTexture;
-
-    public DownloadImageData img;
+    public SimpleTexture img;
     public ResourceLocation resourceLocation = loading_texture;
 
+    @Override
     public void checkLoad() {
         if (img != null)
             return;
 
-        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/HrznStudio/Emojiful/master/" + location, loading_texture);
-        resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase() + "_" + version);
+        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://cdn.emojidex.com/emoji/px32/" + location + ".png", loading_texture);
+        resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + location.toLowerCase() + "_" + version);
         Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, img);
     }
 
@@ -52,7 +42,7 @@ public class Emoji implements Predicate<String> {
             img.deleteGlTexture();
             deleteOldTexture = false;
         }
-        return img != null && img.textureUploaded ? resourceLocation : loading_texture;
+        return resourceLocation;
     }
 
     @Override
@@ -68,7 +58,7 @@ public class Emoji implements Predicate<String> {
         private final String imageUrl;
         private NativeImage nativeImage;
         private Thread imageThread;
-        public boolean textureUploaded;
+        private boolean textureUploaded;
 
         public DownloadImageData(File cacheFileIn, String imageUrlIn, ResourceLocation textureResourceLocation) {
             super(textureResourceLocation);
@@ -161,15 +151,14 @@ public class Emoji implements Predicate<String> {
 
                             DownloadImageData.this.setImage(DownloadImageData.this.loadTexture(inputStream));
                         } else {
-                            Emoji.this.resourceLocation = noSignal_texture;
-                            Emoji.this.deleteOldTexture = true;
-                            DownloadImageData.this.textureUploaded = true;
+                            EmojiFromEmojipedia.this.resourceLocation = noSignal_texture;
+                            EmojiFromEmojipedia.this.deleteOldTexture = true;
                         }
                     } catch (Exception exception) {
                         exception.printStackTrace();
-                        Emoji.this.resourceLocation = error_texture;
-                        Emoji.this.deleteOldTexture = true;
-                        DownloadImageData.this.textureUploaded = true;
+                        EmojiFromEmojipedia.this.resourceLocation = error_texture;
+                        EmojiFromEmojipedia.this.deleteOldTexture = true;
+
                     } finally {
                         if (httpurlconnection != null) {
                             httpurlconnection.disconnect();
