@@ -46,7 +46,7 @@ public class ClientProxy {
     @OnlyIn(Dist.CLIENT)
     public void guiInit(GuiScreenEvent.InitGuiEvent event){
         if (event.getGui() instanceof ChatScreen){
-            int x = event.getGui().width - 100;
+            int x = event.getGui().width - 160;
             int y = event.getGui().height - 40;
             int amountPage = 5*5;
             List<Button> child = new ArrayList<>();
@@ -113,7 +113,7 @@ public class ClientProxy {
 
     private void loadCustomEmojis(){
         try {
-            YamlReader reader = new YamlReader(new StringReader(Emojiful.readStringFromURL("https://raw.githubusercontent.com/HrznStudio/Emojiful/master/Categories.yml")));
+            YamlReader reader = new YamlReader(new StringReader(Emojiful.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
             ArrayList<String> categories = (ArrayList<String>) reader.read();
             for (String category : categories) {
                 List<Emoji> emojis = Emojiful.readCategory(category);

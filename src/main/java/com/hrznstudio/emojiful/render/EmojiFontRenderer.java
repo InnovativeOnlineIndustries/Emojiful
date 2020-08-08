@@ -58,7 +58,7 @@ public class EmojiFontRenderer extends FontRenderer {
     @Override
     public int getStringWidth(String text) {
         try {
-            text = RECENT_STRINGS.get(text).getKey();
+            text = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb:")).getKey();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
@@ -113,7 +113,7 @@ public class EmojiFontRenderer extends FontRenderer {
             return 0;
         HashMap<Integer,Emoji> emojis = new LinkedHashMap<>();
         try {
-            Pair<String, HashMap<Integer,Emoji>> cache = RECENT_STRINGS.get(text);
+            Pair<String, HashMap<Integer,Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb:"));
             text = cache.getLeft();
             emojis = cache.getRight();
         } catch (ExecutionException e) {
@@ -130,7 +130,7 @@ public class EmojiFontRenderer extends FontRenderer {
             String text = textProperties.getString();
             HashMap<Integer,Emoji> emojis = new LinkedHashMap<>();
             try {
-                Pair<String, HashMap<Integer,Emoji>> cache = RECENT_STRINGS.get(text);
+                Pair<String, HashMap<Integer,Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb:"));
                 text = cache.getLeft();
                 emojis = cache.getRight();
             } catch (ExecutionException e) {

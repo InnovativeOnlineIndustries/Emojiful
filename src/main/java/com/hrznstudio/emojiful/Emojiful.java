@@ -64,7 +64,7 @@ public class Emojiful {
     }
 
     public static void main(String[] s) throws YamlException {
-        //YamlReader reader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/HrznStudio/Emojiful/master/Categories.yml")));
+        //YamlReader reader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
         //ArrayList<String> categories = (ArrayList<String>) reader.read();
         //for (String category : categories) {
         //    List<Emoji> emojis = readCategory(category);
@@ -87,7 +87,7 @@ public class Emojiful {
     }
 
     public static List<Emoji> readCategory(String cat) throws YamlException {
-        YamlReader categoryReader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/HrznStudio/Emojiful/master/" + cat)));
+        YamlReader categoryReader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + cat)));
         return Lists.newArrayList(categoryReader.read(Emoji[].class));
     }
 
