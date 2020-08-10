@@ -12,10 +12,16 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.fonts.*;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.gui.fonts.EmptyGlyph;
+import net.minecraft.client.gui.fonts.Font;
+import net.minecraft.client.gui.fonts.IGlyph;
+import net.minecraft.client.gui.fonts.TexturedGlyph;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static net.minecraft.util.text.TextProcessing.func_238339_a_;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 
@@ -36,9 +43,9 @@ public class EmojiFontRenderer extends FontRenderer {
 
     //<+(\w)+:+(\w)+>
 
-    public static LoadingCache<String, Pair<String, HashMap<Integer,Emoji>>> RECENT_STRINGS = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(new CacheLoader<String,  Pair<String, HashMap<Integer,Emoji>>>() {
+    public static LoadingCache<String, Pair<String, HashMap<Integer, Emoji>>> RECENT_STRINGS = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(new CacheLoader<String, Pair<String, HashMap<Integer, Emoji>>>() {
         @Override
-        public Pair<String, HashMap<Integer,Emoji>> load(String key) throws Exception {
+        public Pair<String, HashMap<Integer, Emoji>> load(String key) throws Exception {
             return getEmojiFormattedString(key);
         }
     });
@@ -50,17 +57,18 @@ public class EmojiFontRenderer extends FontRenderer {
 
     private TextureAtlasSprite sprite;
 
-    public void setSprite(TextureAtlasSprite sprite)
-    {
+    public void setSprite(TextureAtlasSprite sprite) {
         this.sprite = sprite;
     }
 
     @Override
     public int getStringWidth(String text) {
-        try {
-            text = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb:")).getKey();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        if (text != null) {
+            try {
+                text = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb: ")).getKey();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return super.getStringWidth(text);
     }
@@ -70,7 +78,7 @@ public class EmojiFontRenderer extends FontRenderer {
         return this.getStringWidth(textProperties.getString());
     }
 
-    public static Pair<String, HashMap<Integer,Emoji>> getEmojiFormattedString(String text) {
+    public static Pair<String, HashMap<Integer, Emoji>> getEmojiFormattedString(String text) {
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
         if (EmojifulConfig.getInstance().renderEmoji.get() && !StringUtil.isNullOrEmpty(text)) {
             String unformattedText = TextFormatting.getTextWithoutFormattingCodes(text);
@@ -111,9 +119,9 @@ public class EmojiFontRenderer extends FontRenderer {
     protected float renderStringAtPos(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
         if (text.isEmpty())
             return 0;
-        HashMap<Integer,Emoji> emojis = new LinkedHashMap<>();
+        HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
         try {
-            Pair<String, HashMap<Integer,Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb:"));
+            Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb: "));
             text = cache.getLeft();
             emojis = cache.getRight();
         } catch (ExecutionException e) {
@@ -126,21 +134,21 @@ public class EmojiFontRenderer extends FontRenderer {
 
     @Override
     protected float func_238426_c_(ITextProperties textProperties, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
-        if (textProperties instanceof TextComponent) {
-            String text = textProperties.getString();
-            HashMap<Integer,Emoji> emojis = new LinkedHashMap<>();
+        final HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
+        EmojiCharacterRenderer fontrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, isShadow, matrix, isTransparent, packedLight);
+        textProperties.func_230439_a_((p_238337_1_, text) -> {
             try {
-                Pair<String, HashMap<Integer,Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb:"));
+                Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb: "));
                 text = cache.getLeft();
-                emojis = cache.getRight();
+                cache.getRight().forEach(emojis::put);
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, isShadow, matrix, isTransparent, packedLight);
-            TextProcessing.func_238343_a_(new StringTextComponent(text).setStyle(((TextComponent) textProperties).getStyle()), Style.EMPTY, fontrenderer$characterrenderer);
-            return fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
-        }
-        return this.renderStringAtPos(textProperties.getString(), x, y, color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
+            Optional<?> optional = func_238339_a_(text, 0, p_238337_1_, fontrenderer) ? Optional.empty() : Optional.of(Unit.INSTANCE);
+            emojis.clear();
+            return optional;
+        }, Style.EMPTY).isPresent();
+        return fontrenderer.func_238441_a_(colorBackgroundIn, x);
     }
 
     //protected float func_238426_c_(ITextProperties textProperties, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
@@ -268,10 +276,10 @@ public class EmojiFontRenderer extends FontRenderer {
 
         IVertexBuilder builder = buffer.getBuffer(createRenderType(emoji));
 
-        builder.pos(matrix, x-offsetX, y-offsetY, 0.0f).color(255,255,255,255).tex(textureX, textureY).lightmap(packedLight).endVertex();
-        builder.pos(matrix,x - offsetX, y+ size - offsetY, 0.0F).color(255,255,255,255).tex(textureX, textureY + textureOffset).lightmap(packedLight).endVertex();
-        builder.pos(matrix,  x- offsetX + size, y+ size - offsetY, 0.0F).color(255,255,255,255).tex(textureX + textureOffset, textureY + textureOffset).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x- offsetX + size, y- offsetY, 0.0F).color(255,255,255,255).tex(textureX + textureOffset, textureY / textureSize).lightmap(packedLight).endVertex();
+        builder.pos(matrix, x - offsetX, y - offsetY, 0.0f).color(255, 255, 255, 255).tex(textureX, textureY).lightmap(packedLight).endVertex();
+        builder.pos(matrix, x - offsetX, y + size - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX, textureY + textureOffset).lightmap(packedLight).endVertex();
+        builder.pos(matrix, x - offsetX + size, y + size - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX + textureOffset, textureY + textureOffset).lightmap(packedLight).endVertex();
+        builder.pos(matrix, x - offsetX + size, y - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX + textureOffset, textureY / textureSize).lightmap(packedLight).endVertex();
         return 10f;
     }
 
