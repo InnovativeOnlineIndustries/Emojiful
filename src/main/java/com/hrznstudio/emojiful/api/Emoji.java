@@ -41,7 +41,7 @@ public class Emoji implements Predicate<String> {
         if (img != null)
             return;
 
-        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/HrznStudio/Emojiful/master/" + location, loading_texture);
+        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + location, loading_texture);
         resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase() + "_" + version);
         Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, img);
     }
