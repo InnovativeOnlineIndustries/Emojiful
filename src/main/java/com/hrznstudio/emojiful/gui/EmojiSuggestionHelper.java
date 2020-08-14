@@ -42,7 +42,7 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
             return true;
         } else if (keyCode == 258) {
             this.updateSuggestionList(false);
-            return true;
+            return suggestions != null;
         } else {
             return false;
         }
