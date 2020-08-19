@@ -8,11 +8,16 @@ import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import com.hrznstudio.emojiful.api.EmojiFromTwitmoji;
 import com.hrznstudio.emojiful.gui.*;
 import com.hrznstudio.emojiful.render.EmojiFontRenderer;
+import com.hrznstudio.emojiful.util.ProfanityFilter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.util.text.TextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -22,6 +27,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.StringReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ClientProxy {
@@ -112,11 +118,21 @@ public class ClientProxy {
         if (emojiSelectionGui != null && emojiSelectionGui.charTyped(event.getCodePoint(), event.getModifiers())) event.setCanceled(true);
     }
 
+    @SubscribeEvent
+    public void onChatRecieved(ClientChatReceivedEvent event){
+        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage() instanceof TranslationTextComponent){
+            TextComponent component = (TextComponent) ((TranslationTextComponent) event.getMessage()).getFormatArgs()[1];
+            TranslationTextComponent translationTextComponent = new TranslationTextComponent("chat.type.text", ((TranslationTextComponent) event.getMessage()).getFormatArgs()[0], net.minecraftforge.common.ForgeHooks.newChatWithLinks(ProfanityFilter.filterText(component.getString())));
+            event.setMessage(translationTextComponent);
+        }
+    }
+
     private void preInitEmojis() {
         CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags"));
         loadCustomEmojis();
         //loadGithubEmojis();
         loadTwitmojis();
+        if (EmojifulConfig.getInstance().profanityFilter.get()) ProfanityFilter.loadConfigs();
     }
 
     private void loadCustomEmojis(){
@@ -165,6 +181,9 @@ public class ClientProxy {
                 element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> strings.add(":" + jsonElement.getAsString() + ":"));
                 if (!element.getAsJsonObject().get("text").isJsonNull()){
                     strings.add(element.getAsJsonObject().get("text").getAsString());
+                }
+                if (strings.contains(":face_with_symbols_on_mouth:")){
+                    strings.add(":swear:");
                 }
                 if (!element.getAsJsonObject().get("texts").isJsonNull()){
                     element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> strings.add(jsonElement.getAsString()));

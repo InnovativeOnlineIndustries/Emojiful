@@ -47,4 +47,8 @@ public class EmojiUtil {
         return 10f;
     }
 
+    public static String cleanStringForRegex(String string){
+        return  string.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*");
+    }
+
 }

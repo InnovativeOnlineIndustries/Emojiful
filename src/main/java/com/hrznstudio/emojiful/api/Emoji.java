@@ -1,6 +1,7 @@
 package com.hrznstudio.emojiful.api;
 
 import com.hrznstudio.emojiful.Emojiful;
+import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.NativeImage;
@@ -94,7 +95,7 @@ public class Emoji implements Predicate<String> {
             if (first >= 97 && first <= 122){
                 s = "\\b" + s;
             }
-            processed.add(s.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*"));
+            processed.add(EmojiUtil.cleanStringForRegex(s));
         }
         regex = String.join("|", processed);
         return regex;
