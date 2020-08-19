@@ -9,47 +9,27 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class Emoji implements Predicate<String> {
-    public static final ResourceLocation loading_texture = new ResourceLocation(Emojiful.MODID, "textures/26a0.png");
-    public static final ResourceLocation noSignal_texture = new ResourceLocation(Emojiful.MODID, "textures/26d4.png");
-    public static final ResourceLocation error_texture = new ResourceLocation(Emojiful.MODID, "textures/26d4.png");
+public class EmojiFromTwitmoji extends Emoji {
 
-    public static final AtomicInteger threadDownloadCounter = new AtomicInteger(0);
-    public String name;
-    public List<String> strings;
-    public String location;
-    public int version = 1;
-    public int sort = 0;
-    private String shortString;
-    private String regex;
-
-    public boolean deleteOldTexture;
-
-    public DownloadImageData img;
+    public SimpleTexture img;
     public ResourceLocation resourceLocation = loading_texture;
 
+    @Override
     public void checkLoad() {
         if (img != null)
             return;
 
-        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + location, loading_texture);
-        resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase() + "_" + version);
+        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/iamcal/emoji-data/master/img-twitter-64/" + location, loading_texture);
+        resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + location.toLowerCase() + "_" + version);
         Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, img);
     }
 
@@ -59,7 +39,7 @@ public class Emoji implements Predicate<String> {
             img.deleteGlTexture();
             deleteOldTexture = false;
         }
-        return img != null && img.textureUploaded ? resourceLocation : loading_texture;
+        return resourceLocation;
     }
 
     @Override
@@ -70,42 +50,12 @@ public class Emoji implements Predicate<String> {
         return false;
     }
 
-    public String getShorterString(){
-        if (shortString != null) return shortString;
-        shortString = strings.get(0);
-        for (String string : strings) {
-            if (string.length() <  shortString.length() && string.length() >= 3){
-                shortString = string;
-            }
-        }
-        return shortString;
-    }
-
-    public String getRegex(){
-        if (regex != null) return regex;
-        List<String> processed = new ArrayList<>();
-        for (String string : strings) {
-            char last = string.toLowerCase().charAt(string.length() - 1);
-            String s = string;
-            if (last >= 97 && last <= 122){
-                s = string + "\\b";
-            }
-            char first = string.toLowerCase().charAt(0);
-            if (first >= 97 && first <= 122){
-                s = "\\b" + s;
-            }
-            processed.add(s.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*"));
-        }
-        regex = String.join("|", processed);
-        return regex;
-    }
-
     public class DownloadImageData extends SimpleTexture {
         private final File cacheFile;
         private final String imageUrl;
         private NativeImage nativeImage;
         private Thread imageThread;
-        public boolean textureUploaded;
+        private boolean textureUploaded;
 
         public DownloadImageData(File cacheFileIn, String imageUrlIn, ResourceLocation textureResourceLocation) {
             super(textureResourceLocation);
@@ -198,15 +148,14 @@ public class Emoji implements Predicate<String> {
 
                             DownloadImageData.this.setImage(DownloadImageData.this.loadTexture(inputStream));
                         } else {
-                            Emoji.this.resourceLocation = noSignal_texture;
-                            Emoji.this.deleteOldTexture = true;
-                            DownloadImageData.this.textureUploaded = true;
+                            EmojiFromTwitmoji.this.resourceLocation = noSignal_texture;
+                            EmojiFromTwitmoji.this.deleteOldTexture = true;
                         }
                     } catch (Exception exception) {
                         exception.printStackTrace();
-                        Emoji.this.resourceLocation = error_texture;
-                        Emoji.this.deleteOldTexture = true;
-                        DownloadImageData.this.textureUploaded = true;
+                        EmojiFromTwitmoji.this.resourceLocation = error_texture;
+                        EmojiFromTwitmoji.this.deleteOldTexture = true;
+
                     } finally {
                         if (httpurlconnection != null) {
                             httpurlconnection.disconnect();

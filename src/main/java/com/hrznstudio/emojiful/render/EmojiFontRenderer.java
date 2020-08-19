@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.hrznstudio.emojiful.Emojiful;
 import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import io.netty.util.internal.StringUtil;
@@ -26,6 +27,7 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 
@@ -33,6 +35,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.minecraft.util.text.TextProcessing.func_238339_a_;
@@ -50,8 +53,7 @@ public class EmojiFontRenderer extends FontRenderer {
         }
     });
 
-
-    public EmojiFontRenderer(Minecraft minecraft, FontRenderer fontRenderer) {
+    public EmojiFontRenderer(FontRenderer fontRenderer) {
         super(fontRenderer.font);
     }
 
@@ -85,26 +87,27 @@ public class EmojiFontRenderer extends FontRenderer {
             if (StringUtil.isNullOrEmpty(unformattedText))
                 return Pair.of(text, emojis);
             String[] split = unformattedText.split(" ");
-            List<Pair<Emoji, String>> addedEmojis = new ArrayList<>();
-            for (String word : split) {
-                Emoji wordEmoji = null;
-                for (Emoji emoji : Emojiful.EMOJI_LIST) {
-                    if (emoji.test(word.trim())) {
-                        wordEmoji = emoji;
-                        break;
+            for (Emoji emoji : Emojiful.EMOJI_LIST) {
+                Pattern pattern = Pattern.compile(emoji.getRegex());
+                Matcher matcher = pattern.matcher(unformattedText);
+                while (matcher.find()){
+                    if (!matcher.group().isEmpty()){
+                        String emojiText = matcher.group();
+                        int index = unformattedText.indexOf(emojiText);
+                        emojis.put(index, emoji);
+                        HashMap<Integer, Emoji> clean = new LinkedHashMap<>();
+                        for (Integer integer : new ArrayList<>(emojis.keySet())) {
+                            if (integer > index){
+                                Emoji e = emojis.get(integer);
+                                emojis.remove(integer);
+                                clean.put(integer-emojiText.length() +1, e);
+                            }
+                        }
+                        emojis.putAll(clean);
+                        unformattedText = unformattedText.replaceFirst(Pattern.quote(emojiText), "\u2603");
+                        text = text.replaceFirst("(?i)" + Pattern.quote(emojiText), "\u2603");
                     }
                 }
-                if (wordEmoji != null) {
-                    addedEmojis.add(Pair.of(wordEmoji, word));
-                }
-            }
-            String fomattingText = text.toLowerCase(Locale.ENGLISH);
-            for (Pair<Emoji, String> entry : addedEmojis) {
-                String emojiText = entry.getValue().toLowerCase(Locale.ENGLISH);
-                int index = fomattingText.indexOf(emojiText);
-                emojis.put(index, entry.getKey());
-                fomattingText = fomattingText.replaceFirst(Pattern.quote(emojiText), "\u2603");
-                text = text.replaceFirst("(?i)" + Pattern.quote(emojiText), "\u2603");
             }
         }
         return Pair.of(text, emojis);
@@ -149,38 +152,6 @@ public class EmojiFontRenderer extends FontRenderer {
             return optional;
         }, Style.EMPTY).isPresent();
         return fontrenderer.func_238441_a_(colorBackgroundIn, x);
-    }
-
-    public static RenderType createRenderType(Emoji emoji) {
-        RenderType.State state = RenderType.State.getBuilder().texture(new RenderState.TextureState(emoji.getResourceLocationForBinding(), false, false)).transparency(new RenderState.TransparencyState("translucent_transparency", () -> {
-            RenderSystem.enableBlend();
-            RenderSystem.enableAlphaTest();
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        }, () -> {
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            RenderSystem.disableBlend();
-        })).build(true);
-        return RenderType.makeType("portal_render", DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP, 7, 256, false, true, state);
-    }
-
-    private float renderEmoji(Emoji emoji, float x, float y, Matrix4f matrix, IRenderTypeBuffer buffer, int packedLight) {
-        float textureSize = 16;
-        float textureX = 0 / textureSize;
-        float textureY = 0 / textureSize;
-        float textureOffset = 16.0F / textureSize;
-        float size = 10f;
-        float offsetY = 1.0F;
-        float offsetX = 0.0F;
-
-        IVertexBuilder builder = buffer.getBuffer(createRenderType(emoji));
-
-        builder.pos(matrix, x - offsetX, y - offsetY, 0.0f).color(255, 255, 255, 255).tex(textureX, textureY).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x - offsetX, y + size - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX, textureY + textureOffset).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x - offsetX + size, y + size - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX + textureOffset, textureY + textureOffset).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x - offsetX + size, y - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX + textureOffset, textureY / textureSize).lightmap(packedLight).endVertex();
-        return 10f;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -230,7 +201,7 @@ public class EmojiFontRenderer extends FontRenderer {
             if (EmojifulConfig.getInstance().renderEmoji.get() && this.emojis.get(p_onChar_1_) != null) {
                 Emoji emoji = this.emojis.get(p_onChar_1_);
                 if (emoji != null) {
-                    EmojiFontRenderer.this.renderEmoji(emoji, this.field_238438_l_, this.field_238439_m_, matrix, buffer, packedLight);
+                    EmojiUtil.renderEmoji(emoji, this.field_238438_l_, this.field_238439_m_, matrix, buffer, packedLight);
                     this.field_238438_l_ += 10;
                     return true;
                 }

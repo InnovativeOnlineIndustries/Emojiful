@@ -61,28 +61,11 @@ public class Emojiful {
 
     public Emojiful() {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::registerClient);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, EmojifulConfig.init());
     }
 
     public static void main(String[] s) throws YamlException {
-        //YamlReader reader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
-        //ArrayList<String> categories = (ArrayList<String>) reader.read();
-        //for (String category : categories) {
-        //    List<Emoji> emojis = readCategory(category);
-        //    EMOJI_LIST.addAll(emojis);
-        //    EMOJI_MAP.put(category, emojis);
-        //}
-        for (JsonElement categories : readJsonFromUrl("https://www.emojidex.com/api/v1/categories").getAsJsonObject().getAsJsonArray("categories")) {
-            EMOJI_MAP.put(categories.getAsJsonObject().get("code").getAsString(), new ArrayList<>());
-        }
-        for (JsonElement jsonElement : readJsonFromUrl("https://cdn.emojidex.com/static/utf_emoji.json").getAsJsonArray()) {
-            JsonObject obj = jsonElement.getAsJsonObject();
-            EmojiFromEmojipedia emoji = new EmojiFromEmojipedia();
-            emoji.name = obj.get("code").getAsString();
-            emoji.strings = Arrays.asList(emoji.name);
-            emoji.location = emoji.name;
-            EMOJI_MAP.get(obj.get("category").getAsString()).add(emoji);
-            EMOJI_LIST.add(emoji);
-        }
+        ClientProxy.PROXY.loadTwitmojis();
         //{"code":"at","moji":"🇦🇹","unicode":"1f1e6-1f1f9","category":"symbols","tags":[],"link":null,"base":"at","variants":["at"],"score":0,"r18":false,"customizations":[],"combinations":[]}
     }
 

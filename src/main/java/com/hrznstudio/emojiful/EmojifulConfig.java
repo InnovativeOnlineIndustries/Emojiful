@@ -10,8 +10,8 @@ public class EmojifulConfig {
     private final ForgeConfigSpec spec;
 
     private EmojifulConfig(ForgeConfigSpec.Builder builder) {
-        builder.push("Config");
-        renderEmoji = builder.comment("Enable Emoji Rendering?").define("renderEmoji", true);
+        builder.push("Emojiful");
+        renderEmoji = builder.comment("Enable Emoji Rendering").define("renderEmoji", true);
         builder.pop();
         this.spec = builder.build();
     }

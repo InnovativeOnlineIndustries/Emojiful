@@ -5,31 +5,23 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.gson.JsonElement;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
-import com.hrznstudio.emojiful.gui.EmojiButton;
-import com.hrznstudio.emojiful.gui.EmojiSuggestionHelper;
-import com.hrznstudio.emojiful.gui.ParentButton;
-import com.hrznstudio.emojiful.gui.TranslucentButton;
+import com.hrznstudio.emojiful.api.EmojiFromTwitmoji;
+import com.hrznstudio.emojiful.gui.*;
 import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientProxy {
@@ -37,6 +29,9 @@ public class ClientProxy {
     public static ClientProxy PROXY = new ClientProxy();
     public static FontRenderer oldFontRenderer;
     public static List<String> ALL_EMOJIS = new ArrayList<>();
+    public static HashMap<String, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
+    public static final List<String> CATEGORIES = new ArrayList<>();
+    public static int lineAmount;
 
     public static void registerClient(){
         FMLJavaModLoadingContext.get().getModEventBus().addListener(PROXY::setup);
@@ -44,13 +39,32 @@ public class ClientProxy {
     }
 
     public static EmojiSuggestionHelper emojiSuggestionHelper;
+    public static EmojiSelectionGui emojiSelectionGui;
 
     @OnlyIn(Dist.CLIENT)
     public void setup(final FMLClientSetupEvent event) {
         preInitEmojis();
         initEmojis();
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, EmojifulConfig.init());
         ALL_EMOJIS = Emojiful.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
+        for (String category : CATEGORIES) {
+            ++lineAmount;
+            Emoji[] array = new Emoji[9];
+            int i = 0;
+            for (Emoji emoji : Emojiful.EMOJI_MAP.getOrDefault(category, new ArrayList<>())) {
+                array[i] = emoji;
+                ++i;
+                if (i >= array.length){
+                    SORTED_EMOJIS_FOR_SELECTION.computeIfAbsent(category, s -> new ArrayList<>()).add(array);
+                    array = new Emoji[9];
+                    i = 0;
+                    ++lineAmount;
+                }
+            }
+            if (i > 0){
+                SORTED_EMOJIS_FOR_SELECTION.computeIfAbsent(category, s -> new ArrayList<>()).add(array);
+                ++lineAmount;
+            }
+        }
         Emojiful.LOGGER.info("Loaded " + Emojiful.EMOJI_LIST.size() + " emojis");
     }
 
@@ -59,79 +73,50 @@ public class ClientProxy {
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event){
         if (event.getGui() instanceof ChatScreen){
             emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
-            int x = event.getGui().width - 160;
-            int y = event.getGui().height - 40;
-            int amountPage = 5*5;
-            List<Button> child = new ArrayList<>();
-            List<Button> allExtraChild = new ArrayList<>();
-            Emojiful.EMOJI_MAP.keySet().forEach(s -> {
-                List<EmojiButton> extraChild = new ArrayList<>();
-                List<Button> arrowButtons = new ArrayList<>();
-                Emojiful.EMOJI_MAP.get(s).forEach(emoji -> {
-                    if (emoji != null && emoji.strings != null){
-                        EmojiButton button = new EmojiButton(x - 82 - 42 - 42*(extraChild.size() % 5), y - 22 *((extraChild.size()%amountPage )/ 5), 40, 20, emoji.strings.get(0), p_onPress_2_ -> {
-                            ((ChatScreen) event.getGui()).inputField.setText(((ChatScreen) event.getGui()).inputField.getText() + " " + emoji.strings.get(0));
-                        }, extraChild.size() / amountPage);
-                        button.visible = false;
-                        event.addWidget(button);
-                        extraChild.add(button);
-                        allExtraChild.add(button);
-                    }
-                });
-                ParentButton button = new ParentButton(x - 82, y - 22 * child.size(), 80, 20, s.replace(".yml", ""), b -> {
-                    allExtraChild.forEach(ec -> ec.visible = false);
-                    arrowButtons.forEach(ec-> ec.visible = true);
-                    extraChild.forEach(ec -> ec.visible = false);
-                    for (EmojiButton emojiButton : extraChild) {
-                        if (emojiButton.getPage() == ((ParentButton) b).getPage()){
-                            emojiButton.visible = true;
-                        }
-                    }
-                });
-                if (extraChild.size() > amountPage){
-                    TranslucentButton rightButton = new TranslucentButton(x - 82 - 42, y - 22*6, 40, 20, ">", p_onPress_1_ -> {
-                        int page = button.getPage() + 1;
-                        if (page > extraChild.size() / amountPage) page = 0;
-                        button.setPage(page);
-                    });
-                    TranslucentButton leftButton = new TranslucentButton(x - 82 - 42 - 42*4, y - 22*6, 40, 20, "<", p_onPress_1_ -> {
-                        int page = button.getPage() - 1;
-                        if (page < 0) page = extraChild.size() / amountPage;
-                        button.setPage(page);
-                    });
-                    rightButton.visible = false;
-                    leftButton.visible = false;
-                    arrowButtons.add(rightButton);
-                    arrowButtons.add(leftButton);
-                    allExtraChild.add(rightButton);
-                    allExtraChild.add(leftButton);
-                    event.addWidget(rightButton);
-                    event.addWidget(leftButton);
-                }
-                button.visible = false;
-                event.addWidget(button);
-                child.add(button);
-            });
-            event.addWidget(new TranslucentButton(x, y, 40, 20, "Emoji", p_onPress_1_ -> {
-                child.forEach(button -> button.visible = true);
-            }));
-
+            emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
         }
     }
 
     @SubscribeEvent
     public void render(GuiScreenEvent.DrawScreenEvent.Post event){
         if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(event.getMatrixStack());
+        if (emojiSelectionGui != null){
+            emojiSelectionGui.mouseMoved(event.getMouseX(), event.getMouseY());
+            emojiSelectionGui.render(event.getMatrixStack());
+        }
     }
 
     @SubscribeEvent
     public void onKeyPressed(GuiScreenEvent.KeyboardKeyPressedEvent event){
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) event.setCanceled(true);
+        if (emojiSelectionGui != null && emojiSelectionGui.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void onClick(GuiScreenEvent.MouseClickedEvent.Pre event){
+        if (emojiSelectionGui != null) emojiSelectionGui.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton());
+    }
+
+    @SubscribeEvent
+    public void onScroll(GuiScreenEvent.MouseScrollEvent.Pre event){
+        if (emojiSelectionGui != null) emojiSelectionGui.mouseScrolled(event.getMouseX(), event.getMouseY(), event.getScrollDelta());
+    }
+
+    @SubscribeEvent
+    public void onClose(TickEvent.ClientTickEvent event){
+        if (emojiSelectionGui != null && Minecraft.getInstance().currentScreen != emojiSelectionGui.getChatScreen()) emojiSelectionGui = null;
+    }
+
+    @SubscribeEvent
+    public void onCharTyped(GuiScreenEvent.KeyboardCharTypedEvent event){
+        if (emojiSelectionGui != null && emojiSelectionGui.charTyped(event.getCodePoint(), event.getModifiers())) event.setCanceled(true);
     }
 
     private void preInitEmojis() {
+        CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags"));
         loadCustomEmojis();
-        loadGithubEmojis();
+        //loadGithubEmojis();
+        loadTwitmojis();
     }
 
     private void loadCustomEmojis(){
@@ -139,9 +124,10 @@ public class ClientProxy {
             YamlReader reader = new YamlReader(new StringReader(Emojiful.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
             ArrayList<String> categories = (ArrayList<String>) reader.read();
             for (String category : categories) {
+                CATEGORIES.add(0, category.replace(".yml", ""));
                 List<Emoji> emojis = Emojiful.readCategory(category);
                 Emojiful.EMOJI_LIST.addAll(emojis);
-                Emojiful.EMOJI_MAP.put(category, emojis);
+                Emojiful.EMOJI_MAP.put(category.replace(".yml", ""), emojis);
             }
         } catch (YamlException e) {
             Emojiful.error = true;
@@ -152,10 +138,9 @@ public class ClientProxy {
         for (JsonElement categories : Emojiful.readJsonFromUrl("https://www.emojidex.com/api/v1/categories").getAsJsonObject().getAsJsonArray("categories")) {
             Emojiful.EMOJI_MAP.put(categories.getAsJsonObject().get("code").getAsString(), new ArrayList<>());
         }
-
     }
 
-    private void loadGithubEmojis(){
+    public void loadGithubEmojis(){
         Emojiful.EMOJI_MAP.put("Github", new ArrayList<>());
         for (Map.Entry<String, JsonElement> entry : Emojiful.readJsonFromUrl("https://api.github.com/emojis").getAsJsonObject().entrySet()) {
             EmojiFromGithub emoji = new EmojiFromGithub();
@@ -169,11 +154,34 @@ public class ClientProxy {
         }
     }
 
+    public void loadTwitmojis(){
+        for (JsonElement element : Emojiful.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()){
+            if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()){
+                EmojiFromTwitmoji emoji = new EmojiFromTwitmoji();
+                emoji.name = element.getAsJsonObject().get("short_name").getAsString();
+                emoji.location = element.getAsJsonObject().get("image").getAsString();
+                emoji.sort =  element.getAsJsonObject().get("sort_order").getAsInt();
+                List<String> strings = new ArrayList<>();
+                element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> strings.add(":" + jsonElement.getAsString() + ":"));
+                if (!element.getAsJsonObject().get("text").isJsonNull()){
+                    strings.add(element.getAsJsonObject().get("text").getAsString());
+                }
+                if (!element.getAsJsonObject().get("texts").isJsonNull()){
+                    element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> strings.add(jsonElement.getAsString()));
+                }
+                emoji.strings = strings;
+                Emojiful.EMOJI_MAP.computeIfAbsent(element.getAsJsonObject().get("category").getAsString(), s -> new ArrayList<>()).add(emoji);
+                Emojiful.EMOJI_LIST.add(emoji);
+            }
+        }
+        Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.sort(Comparator.comparingInt(o -> o.sort)));
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void initEmojis() {
         if (!Emojiful.error) {
             oldFontRenderer = Minecraft.getInstance().fontRenderer;
-            Minecraft.getInstance().fontRenderer = new EmojiFontRenderer(Minecraft.getInstance(), Minecraft.getInstance().fontRenderer);
+            Minecraft.getInstance().fontRenderer = new EmojiFontRenderer(Minecraft.getInstance().fontRenderer);
             Minecraft.getInstance().getRenderManager().textRenderer = Minecraft.getInstance().fontRenderer;
         }
     }
