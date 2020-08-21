@@ -17,6 +17,7 @@ import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,6 +37,7 @@ public class ClientProxy {
     public static FontRenderer oldFontRenderer;
     public static List<String> ALL_EMOJIS = new ArrayList<>();
     public static HashMap<String, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
+    public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
     public static final List<String> CATEGORIES = new ArrayList<>();
     public static int lineAmount;
 
@@ -127,6 +129,15 @@ public class ClientProxy {
         }
     }
 
+    @SubscribeEvent
+    public void onChatSend(ClientChatEvent event){
+        String message = event.getMessage();
+        for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
+            if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
+        }
+        event.setMessage(message);
+    }
+
     private void preInitEmojis() {
         CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags"));
         loadCustomEmojis();
@@ -177,20 +188,21 @@ public class ClientProxy {
                 emoji.name = element.getAsJsonObject().get("short_name").getAsString();
                 emoji.location = element.getAsJsonObject().get("image").getAsString();
                 emoji.sort =  element.getAsJsonObject().get("sort_order").getAsInt();
-                List<String> strings = new ArrayList<>();
-                element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> strings.add(":" + jsonElement.getAsString() + ":"));
-                if (!element.getAsJsonObject().get("text").isJsonNull()){
-                    strings.add(element.getAsJsonObject().get("text").getAsString());
+                element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> emoji.strings.add(":" + jsonElement.getAsString() + ":"));
+                if (emoji.strings.contains(":face_with_symbols_on_mouth:")){
+                    emoji.strings.add(":swear:");
                 }
-                if (strings.contains(":face_with_symbols_on_mouth:")){
-                    strings.add(":swear:");
+                if (!element.getAsJsonObject().get("text").isJsonNull()){
+                    emoji.texts.add(element.getAsJsonObject().get("text").getAsString());
                 }
                 if (!element.getAsJsonObject().get("texts").isJsonNull()){
-                    element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> strings.add(jsonElement.getAsString()));
+                    element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> emoji.texts.add(jsonElement.getAsString()));
                 }
-                emoji.strings = strings;
                 Emojiful.EMOJI_MAP.computeIfAbsent(element.getAsJsonObject().get("category").getAsString(), s -> new ArrayList<>()).add(emoji);
                 Emojiful.EMOJI_LIST.add(emoji);
+                if (emoji.texts.size() > 0){
+                    ClientProxy.EMOJI_WITH_TEXTS.add(emoji);
+                }
             }
         }
         Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.sort(Comparator.comparingInt(o -> o.sort)));

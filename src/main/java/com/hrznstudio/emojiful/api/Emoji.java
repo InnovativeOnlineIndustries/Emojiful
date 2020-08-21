@@ -34,12 +34,14 @@ public class Emoji implements Predicate<String> {
 
     public static final AtomicInteger threadDownloadCounter = new AtomicInteger(0);
     public String name;
-    public List<String> strings;
+    public List<String> strings = new ArrayList<>();
+    public List<String> texts = new ArrayList<>();
     public String location;
     public int version = 1;
     public int sort = 0;
     private String shortString;
     private String regex;
+    private String textRegex;
 
     public boolean deleteOldTexture;
 
@@ -79,7 +81,7 @@ public class Emoji implements Predicate<String> {
         if (shortString != null) return shortString;
         shortString = strings.get(0);
         for (String string : strings) {
-            if (string.length() <  shortString.length() && string.length() >= 3){
+            if (string.length() <  shortString.length()){
                 shortString = string;
             }
         }
@@ -103,6 +105,25 @@ public class Emoji implements Predicate<String> {
         }
         regex = String.join("|", processed);
         return regex;
+    }
+
+    public String getTextRegex(){
+        if (textRegex != null) return textRegex;
+        List<String> processed = new ArrayList<>();
+        for (String string : texts) {
+            char last = string.toLowerCase().charAt(string.length() - 1);
+            String s = string;
+            if (last >= 97 && last <= 122){
+                s = string + "\\b";
+            }
+            char first = string.toLowerCase().charAt(0);
+            if (first >= 97 && first <= 122){
+                s = "\\b" + s;
+            }
+            processed.add(EmojiUtil.cleanStringForRegex(s));
+        }
+        textRegex = String.join("|", processed);
+        return textRegex;
     }
 
     private void loadImage(){
