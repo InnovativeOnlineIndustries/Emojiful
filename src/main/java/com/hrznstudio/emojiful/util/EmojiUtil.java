@@ -10,6 +10,16 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 
@@ -49,6 +59,32 @@ public class EmojiUtil {
 
     public static String cleanStringForRegex(String string){
         return  string.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*");
+    }
+
+    public static List<BufferedImage> splitGif(File file) throws IOException {
+        List<BufferedImage> images = new ArrayList<>();
+        ImageReader reader = ImageIO.getImageReadersBySuffix("gif").next();
+        reader.setInput(ImageIO.createImageInputStream(new FileInputStream(file)), false);
+        BufferedImage lastImage = reader.read(0);
+        images.add(lastImage);
+
+        for (int i = 1; i < reader.getNumImages(true); i++) {
+            BufferedImage image = makeImageForIndex(reader, i, lastImage);
+            images.add(image);
+        }
+        return images;
+    }
+
+    private static BufferedImage makeImageForIndex(ImageReader reader, int index, BufferedImage lastImage) throws IOException {
+        BufferedImage image = reader.read(index);
+        BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+
+        if(lastImage != null) {
+            newImage.getGraphics().drawImage(lastImage, 0, 0, null);
+        }
+        newImage.getGraphics().drawImage(image, 0, 0, null);
+
+        return newImage;
     }
 
 }

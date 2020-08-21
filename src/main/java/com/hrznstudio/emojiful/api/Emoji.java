@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -42,25 +43,28 @@ public class Emoji implements Predicate<String> {
 
     public boolean deleteOldTexture;
 
-    public DownloadImageData img;
-    public ResourceLocation resourceLocation = loading_texture;
+    public List<DownloadImageData> img = new ArrayList<>();
+    public List<ResourceLocation> frames = new ArrayList<>();
+    public boolean finishedLoading = false;
+    public boolean loadedTextures = false;
+    private Thread imageThread;
 
     public void checkLoad() {
-        if (img != null)
-            return;
+        if (imageThread == null && !finishedLoading) {
+            loadImage();
+        } else if (!loadedTextures) {
+            loadedTextures = true;
+        }
 
-        img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + location, loading_texture);
-        resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase() + "_" + version);
-        Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, img);
     }
 
     public ResourceLocation getResourceLocationForBinding() {
         checkLoad();
         if (deleteOldTexture) {
-            img.deleteGlTexture();
+            img.forEach(Texture::deleteGlTexture);
             deleteOldTexture = false;
         }
-        return img != null && img.textureUploaded ? resourceLocation : loading_texture;
+        return finishedLoading && frames.size() > 0 ? frames.get((int) (System.currentTimeMillis() / 50 % frames.size())) : loading_texture;
     }
 
     @Override
@@ -101,17 +105,102 @@ public class Emoji implements Predicate<String> {
         return regex;
     }
 
+    private void loadImage(){
+        File cache = getCache();
+        if (cache.exists()){
+            if (getUrl().endsWith(".gif")){
+                try {
+                    int i = 0;
+                    for (BufferedImage bufferedImage : EmojiUtil.splitGif(cache)) {
+                        DownloadImageData imageData = new DownloadImageData(bufferedImage, loading_texture);
+                        ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
+                        Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
+                        img.add(imageData);
+                        frames.add(resourceLocation);
+                        ++i;
+                    }
+                    this.finishedLoading = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    DownloadImageData imageData = new DownloadImageData(ImageIO.read(cache),  loading_texture);
+                    ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version);
+                    Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
+                    img.add(imageData);
+                    frames.add(resourceLocation);
+                    this.finishedLoading = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (this.imageThread == null){
+            loadTextureFromServer();
+        }
+    }
+
+    public String getUrl(){
+        return "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + location;
+    }
+
+    public File getCache(){
+        return new File("emojiful/cache/" + name + "-" + version);
+    }
+
+    protected void loadTextureFromServer() {
+        this.imageThread = new Thread("Emojiful Texture Downloader #" + threadDownloadCounter.incrementAndGet()) {
+            @Override
+            public void run() {
+                HttpURLConnection httpurlconnection = null;
+                try {
+                    httpurlconnection = (HttpURLConnection) (new URL(getUrl()).openConnection(Minecraft.getInstance().getProxy()));
+                    httpurlconnection.setDoInput(true);
+                    httpurlconnection.setDoOutput(false);
+                    httpurlconnection.connect();
+                    if (httpurlconnection.getResponseCode() / 100 == 2) {
+                        int contentLength = httpurlconnection.getContentLength();
+                        InputStream inputStream;
+
+                        if (getCache() != null) {
+                            FileUtils.copyInputStreamToFile(httpurlconnection.getInputStream(), getCache());
+                            inputStream = new FileInputStream(getCache());
+                        } else {
+                            inputStream = httpurlconnection.getInputStream();
+                        }
+                        Emoji.this.finishedLoading = true;
+                        loadImage();
+                    } else {
+                        Emoji.this.frames = new ArrayList<>();
+                        Emoji.this.frames.add(noSignal_texture);
+                        Emoji.this.deleteOldTexture = true;
+                        Emoji.this.finishedLoading = true;
+                    }
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                    Emoji.this.frames = new ArrayList<>();
+                    Emoji.this.frames.add(error_texture);
+                    Emoji.this.deleteOldTexture = true;
+                    Emoji.this.finishedLoading = true;
+                } finally {
+                    if (httpurlconnection != null) {
+                        httpurlconnection.disconnect();
+                    }
+                }
+            }
+        };
+        this.imageThread.setDaemon(true);
+        this.imageThread.start();
+    }
+
     public class DownloadImageData extends SimpleTexture {
-        private final File cacheFile;
-        private final String imageUrl;
+        private final BufferedImage cacheFile;
         private NativeImage nativeImage;
-        private Thread imageThread;
         public boolean textureUploaded;
 
-        public DownloadImageData(File cacheFileIn, String imageUrlIn, ResourceLocation textureResourceLocation) {
+        public DownloadImageData(BufferedImage cacheFileIn, ResourceLocation textureResourceLocation) {
             super(textureResourceLocation);
             this.cacheFile = cacheFileIn;
-            this.imageUrl = imageUrlIn;
         }
 
         private void checkTextureUploaded() {
@@ -149,74 +238,21 @@ public class Emoji implements Predicate<String> {
         @Nullable
         private NativeImage loadTexture(InputStream inputStreamIn) {
             NativeImage nativeimage = null;
-
             try {
                 nativeimage = NativeImage.read(inputStreamIn);
             } catch (IOException ioexception) {
                 Emojiful.LOGGER.warn("Error while loading the skin texture", (Throwable)ioexception);
             }
-
             return nativeimage;
         }
 
         @Override
         public void loadTexture(IResourceManager resourceManager) throws IOException {
-            if (this.imageThread == null) {
-                if (this.cacheFile != null && this.cacheFile.isFile()) {
-                    try {
-                        FileInputStream fileinputstream = new FileInputStream(this.cacheFile);
-                        setImage(this.loadTexture(fileinputstream));
-                    } catch (IOException ioexception) {
-                        this.loadTextureFromServer();
-                    }
-                } else {
-                    this.loadTextureFromServer();
-                }
-            }
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(this.cacheFile, "png", os);
+            InputStream is = new ByteArrayInputStream(os.toByteArray());
+            setImage(this.loadTexture(is));
         }
 
-        protected void loadTextureFromServer() {
-            this.imageThread = new Thread("Emojiful Texture Downloader #" + threadDownloadCounter.incrementAndGet()) {
-                @Override
-                public void run() {
-                    HttpURLConnection httpurlconnection = null;
-
-                    try {
-                        httpurlconnection = (HttpURLConnection) (new URL(DownloadImageData.this.imageUrl)).openConnection(Minecraft.getInstance().getProxy());
-                        httpurlconnection.setDoInput(true);
-                        httpurlconnection.setDoOutput(false);
-                        httpurlconnection.connect();
-                        if (httpurlconnection.getResponseCode() / 100 == 2) {
-                            int contentLength = httpurlconnection.getContentLength();
-                            InputStream inputStream;
-
-                            if (DownloadImageData.this.cacheFile != null) {
-                                FileUtils.copyInputStreamToFile(httpurlconnection.getInputStream(), DownloadImageData.this.cacheFile);
-                                inputStream = new FileInputStream(DownloadImageData.this.cacheFile);
-                            } else {
-                                inputStream = httpurlconnection.getInputStream();
-                            }
-
-                            DownloadImageData.this.setImage(DownloadImageData.this.loadTexture(inputStream));
-                        } else {
-                            Emoji.this.resourceLocation = noSignal_texture;
-                            Emoji.this.deleteOldTexture = true;
-                            DownloadImageData.this.textureUploaded = true;
-                        }
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                        Emoji.this.resourceLocation = error_texture;
-                        Emoji.this.deleteOldTexture = true;
-                        DownloadImageData.this.textureUploaded = true;
-                    } finally {
-                        if (httpurlconnection != null) {
-                            httpurlconnection.disconnect();
-                        }
-                    }
-                }
-            };
-            this.imageThread.setDaemon(true);
-            this.imageThread.start();
-        }
     }
 }
