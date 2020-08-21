@@ -120,7 +120,7 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatRecieved(ClientChatReceivedEvent event){
-        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage() instanceof TranslationTextComponent){
+        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage() instanceof TranslationTextComponent && ((TranslationTextComponent) event.getMessage()).getKey().equals("chat.type.text")){
             TextComponent component = (TextComponent) ((TranslationTextComponent) event.getMessage()).getFormatArgs()[1];
             TranslationTextComponent translationTextComponent = new TranslationTextComponent("chat.type.text", ((TranslationTextComponent) event.getMessage()).getFormatArgs()[0], net.minecraftforge.common.ForgeHooks.newChatWithLinks(ProfanityFilter.filterText(component.getString())));
             event.setMessage(translationTextComponent);
