@@ -138,18 +138,7 @@ public class Emoji implements Predicate<String> {
                        @Override
                        public void run() {
                            try {
-                               int i = 0;
-                               for (Pair<BufferedImage, Integer> bufferedImage : EmojiUtil.splitGif(cache)) {
-                                   DownloadImageData imageData = new DownloadImageData(bufferedImage.getKey(), loading_texture);
-                                   ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
-                                   Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
-                                   img.add(imageData);
-                                   for (Integer integer = 0; integer < bufferedImage.getValue(); integer++) {
-                                       frames.add(resourceLocation);
-                                   }
-                                   ++i;
-                               }
-                               Emoji.this.finishedLoading = true;
+                               loadTextureFrames(EmojiUtil.splitGif(cache));
                            } catch (IOException e) {
                                e.printStackTrace();
                            }
@@ -181,6 +170,23 @@ public class Emoji implements Predicate<String> {
 
     public File getCache(){
         return new File("emojiful/cache/" + name + "-" + version);
+    }
+
+    public void loadTextureFrames(List<Pair<BufferedImage, Integer>> framesPair){
+        Minecraft.getInstance().runImmediately(() -> {
+            int i = 0;
+            for (Pair<BufferedImage, Integer> bufferedImage : framesPair) {
+                DownloadImageData imageData = new DownloadImageData(bufferedImage.getKey(), loading_texture);
+                ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
+                Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
+                img.add(imageData);
+                for (Integer integer = 0; integer < bufferedImage.getValue(); integer++) {
+                    frames.add(resourceLocation);
+                }
+                ++i;
+            }
+            Emoji.this.finishedLoading = true;
+        });
     }
 
     protected void loadTextureFromServer() {
