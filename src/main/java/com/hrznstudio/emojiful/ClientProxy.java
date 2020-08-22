@@ -131,11 +131,13 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatSend(ClientChatEvent event){
-        String message = event.getMessage();
-        for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
-            if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
+        if (EmojifulConfig.getInstance().renderEmoji.get()){
+            String message = event.getMessage();
+            for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
+                if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
+            }
+            event.setMessage(message);
         }
-        event.setMessage(message);
     }
 
     private void preInitEmojis() {

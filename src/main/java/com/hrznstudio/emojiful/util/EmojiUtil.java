@@ -8,16 +8,21 @@ import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Matrix4f;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
+import org.w3c.dom.Node;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
@@ -61,30 +66,32 @@ public class EmojiUtil {
         return  string.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*");
     }
 
-    public static List<BufferedImage> splitGif(File file) throws IOException {
-        List<BufferedImage> images = new ArrayList<>();
+    public static List<Pair<BufferedImage, Integer>> splitGif(File file) throws IOException {
+        List<Pair<BufferedImage, Integer>>  images = new ArrayList<>();
         ImageReader reader = ImageIO.getImageReadersBySuffix("gif").next();
         reader.setInput(ImageIO.createImageInputStream(new FileInputStream(file)), false);
-        BufferedImage lastImage = reader.read(0);
-        images.add(lastImage);
-
-        for (int i = 1; i < reader.getNumImages(true); i++) {
-            BufferedImage image = makeImageForIndex(reader, i, lastImage);
-            images.add(image);
+        IIOMetadata metadata = reader.getImageMetadata(0);
+        String metaFormatName = metadata.getNativeMetadataFormatName();
+        for (int i = 0; i < reader.getNumImages(true); i++) {
+            int frameLength = 1;
+            BufferedImage image = reader.read(i);
+            BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            newImage.getGraphics().drawImage(image, 0, 0, null);
+            IIOMetadataNode root = (IIOMetadataNode)reader.getImageMetadata(i).getAsTree(metaFormatName);
+            // Find GraphicControlExtension node
+            int nNodes = root.getLength();
+            for (int j = 0; j < nNodes; j++) {
+                Node node = root.item(j);
+                if (node.getNodeName().equalsIgnoreCase("GraphicControlExtension")) {
+                    // Get delay value
+                    frameLength = Integer.parseInt(((IIOMetadataNode)node).getAttribute("delayTime"));
+                    // Check if delay is bugged
+                    break;
+                }
+            }
+            images.add(Pair.of(newImage, frameLength));
         }
         return images;
-    }
-
-    private static BufferedImage makeImageForIndex(ImageReader reader, int index, BufferedImage lastImage) throws IOException {
-        BufferedImage image = reader.read(index);
-        BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-
-        if(lastImage != null) {
-            newImage.getGraphics().drawImage(lastImage, 0, 0, null);
-        }
-        newImage.getGraphics().drawImage(image, 0, 0, null);
-
-        return newImage;
     }
 
 }

@@ -12,6 +12,7 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
@@ -33,6 +34,7 @@ public class Emoji implements Predicate<String> {
     public static final ResourceLocation error_texture = new ResourceLocation(Emojiful.MODID, "textures/26d4.png");
 
     public static final AtomicInteger threadDownloadCounter = new AtomicInteger(0);
+    public static final AtomicInteger threadFileLoaderCounter = new AtomicInteger(0);
     public String name;
     public List<String> strings = new ArrayList<>();
     public List<String> texts = new ArrayList<>();
@@ -50,6 +52,7 @@ public class Emoji implements Predicate<String> {
     public boolean finishedLoading = false;
     public boolean loadedTextures = false;
     private Thread imageThread;
+    private Thread gifLoaderThread;
 
     public void checkLoad() {
         if (imageThread == null && !finishedLoading) {
@@ -66,7 +69,7 @@ public class Emoji implements Predicate<String> {
             img.forEach(Texture::deleteGlTexture);
             deleteOldTexture = false;
         }
-        return finishedLoading && frames.size() > 0 ? frames.get((int) (System.currentTimeMillis() / 50 % frames.size())) : loading_texture;
+        return finishedLoading && frames.size() > 0 ? frames.get((int) (System.currentTimeMillis() / 10D % frames.size())) : loading_texture;
     }
 
     @Override
@@ -130,20 +133,31 @@ public class Emoji implements Predicate<String> {
         File cache = getCache();
         if (cache.exists()){
             if (getUrl().endsWith(".gif")){
-                try {
-                    int i = 0;
-                    for (BufferedImage bufferedImage : EmojiUtil.splitGif(cache)) {
-                        DownloadImageData imageData = new DownloadImageData(bufferedImage, loading_texture);
-                        ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
-                        Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
-                        img.add(imageData);
-                        frames.add(resourceLocation);
-                        ++i;
-                    }
-                    this.finishedLoading = true;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+               if (gifLoaderThread == null){
+                   gifLoaderThread = new Thread("Emojiful Texture Downloader #" + threadDownloadCounter.incrementAndGet()){
+                       @Override
+                       public void run() {
+                           try {
+                               int i = 0;
+                               for (Pair<BufferedImage, Integer> bufferedImage : EmojiUtil.splitGif(cache)) {
+                                   DownloadImageData imageData = new DownloadImageData(bufferedImage.getKey(), loading_texture);
+                                   ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
+                                   Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
+                                   img.add(imageData);
+                                   for (Integer integer = 0; integer < bufferedImage.getValue(); integer++) {
+                                       frames.add(resourceLocation);
+                                   }
+                                   ++i;
+                               }
+                               Emoji.this.finishedLoading = true;
+                           } catch (IOException e) {
+                               e.printStackTrace();
+                           }
+                       }
+                   };
+                   this.gifLoaderThread.setDaemon(true);
+                   this.gifLoaderThread.start();
+               }
             } else {
                 try {
                     DownloadImageData imageData = new DownloadImageData(ImageIO.read(cache),  loading_texture);
