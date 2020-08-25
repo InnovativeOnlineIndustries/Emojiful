@@ -93,7 +93,7 @@ public class EmojiFontRenderer extends FontRenderer {
                 while (matcher.find()){
                     if (!matcher.group().isEmpty()){
                         String emojiText = matcher.group();
-                        int index = unformattedText.indexOf(emojiText);
+                        int index = text.indexOf(emojiText);
                         emojis.put(index, emoji);
                         HashMap<Integer, Emoji> clean = new LinkedHashMap<>();
                         for (Integer integer : new ArrayList<>(emojis.keySet())) {
