@@ -13,7 +13,7 @@ public class EmojifulConfig {
     private EmojifulConfig(ForgeConfigSpec.Builder builder) {
         builder.push("Emojiful");
         renderEmoji = builder.comment("Enable Emoji Rendering").define("renderEmoji", true);
-        profanityFilter = builder.comment("Enable Profanity Filter, this will replace bad words with the :swear: emoji").define("profanityFilter", true);
+        profanityFilter = builder.comment("Enable Profanity Filter, this will replace bad words with the :swear: emoji").define("profanityFilterEnabled", false);
         builder.pop();
         this.spec = builder.build();
     }
