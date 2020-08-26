@@ -4,8 +4,11 @@ import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.gson.JsonElement;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import com.hrznstudio.emojiful.api.EmojiFromTwitmoji;
+import com.hrznstudio.emojiful.datapack.EmojiRecipe;
+import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
 import com.hrznstudio.emojiful.gui.*;
 import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import com.hrznstudio.emojiful.util.ProfanityFilter;
@@ -13,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.WorldLoadProgressScreen;
 import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,6 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -36,9 +41,9 @@ public class ClientProxy {
     public static ClientProxy PROXY = new ClientProxy();
     public static FontRenderer oldFontRenderer;
     public static List<String> ALL_EMOJIS = new ArrayList<>();
-    public static HashMap<String, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
+    public static HashMap<EmojiCategory, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
     public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
-    public static final List<String> CATEGORIES = new ArrayList<>();
+    public static final List<EmojiCategory> CATEGORIES = new ArrayList<>();
     public static int lineAmount;
 
     public static void registerClient(){
@@ -53,12 +58,27 @@ public class ClientProxy {
     public void setup(final FMLClientSetupEvent event) {
         preInitEmojis();
         initEmojis();
+        indexEmojis();
+        Emojiful.LOGGER.info("Loaded " + Emojiful.EMOJI_LIST.size() + " emojis");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public void guiInit(GuiScreenEvent.InitGuiEvent.Post event){
+        if (event.getGui() instanceof ChatScreen){
+            emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
+            emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
+        }
+    }
+
+    private void indexEmojis(){
         ALL_EMOJIS = Emojiful.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
-        for (String category : CATEGORIES) {
+        SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
+        for (EmojiCategory category : CATEGORIES) {
             ++lineAmount;
             Emoji[] array = new Emoji[9];
             int i = 0;
-            for (Emoji emoji : Emojiful.EMOJI_MAP.getOrDefault(category, new ArrayList<>())) {
+            for (Emoji emoji : Emojiful.EMOJI_MAP.getOrDefault(category.getName(), new ArrayList<>())) {
                 array[i] = emoji;
                 ++i;
                 if (i >= array.length){
@@ -72,16 +92,6 @@ public class ClientProxy {
                 SORTED_EMOJIS_FOR_SELECTION.computeIfAbsent(category, s -> new ArrayList<>()).add(array);
                 ++lineAmount;
             }
-        }
-        Emojiful.LOGGER.info("Loaded " + Emojiful.EMOJI_LIST.size() + " emojis");
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public void guiInit(GuiScreenEvent.InitGuiEvent.Post event){
-        if (event.getGui() instanceof ChatScreen){
-            emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
-            emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
         }
     }
 
@@ -140,8 +150,31 @@ public class ClientProxy {
         }
     }
 
+    @SubscribeEvent
+    public void onRecipesUpdated(RecipesUpdatedEvent event){
+        CATEGORIES.removeIf(EmojiCategory::isWorldBased);
+        Emojiful.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
+        Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
+        for (EmojiRecipe emojiRecipe : event.getRecipeManager().func_241447_a_(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
+            EmojiFromGithub emoji = new EmojiFromGithub();
+            emoji.name = emojiRecipe.getName();
+            emoji.strings = new ArrayList<>();
+            emoji.strings.add(":" + emojiRecipe.getName() + ":");
+            emoji.location = emojiRecipe.getName();
+            emoji.url = emojiRecipe.getUrl();
+            emoji.worldBased = true;
+            System.out.println(emoji.getUrl());
+            Emojiful.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
+            Emojiful.EMOJI_LIST.add(emoji);
+            if (CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.getName().equalsIgnoreCase(emojiRecipe.getCategory()))){
+                CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+            }
+        }
+        indexEmojis();
+    }
+
     private void preInitEmojis() {
-        CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags"));
+        CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
         loadCustomEmojis();
         //loadGithubEmojis();
         loadTwitmojis();
@@ -153,7 +186,7 @@ public class ClientProxy {
             YamlReader reader = new YamlReader(new StringReader(Emojiful.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
             ArrayList<String> categories = (ArrayList<String>) reader.read();
             for (String category : categories) {
-                CATEGORIES.add(0, category.replace(".yml", ""));
+                CATEGORIES.add(0, new EmojiCategory(category.replace(".yml", ""), false));
                 List<Emoji> emojis = Emojiful.readCategory(category);
                 Emojiful.EMOJI_LIST.addAll(emojis);
                 Emojiful.EMOJI_MAP.put(category.replace(".yml", ""), emojis);

@@ -41,6 +41,7 @@ public class Emoji implements Predicate<String> {
     public String location;
     public int version = 1;
     public int sort = 0;
+    public boolean worldBased = false;
     private String shortString;
     private String regex;
     private String textRegex;
@@ -196,18 +197,13 @@ public class Emoji implements Predicate<String> {
                 HttpURLConnection httpurlconnection = null;
                 try {
                     httpurlconnection = (HttpURLConnection) (new URL(getUrl()).openConnection(Minecraft.getInstance().getProxy()));
+                    httpurlconnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
                     httpurlconnection.setDoInput(true);
                     httpurlconnection.setDoOutput(false);
                     httpurlconnection.connect();
                     if (httpurlconnection.getResponseCode() / 100 == 2) {
-                        int contentLength = httpurlconnection.getContentLength();
-                        InputStream inputStream;
-
                         if (getCache() != null) {
                             FileUtils.copyInputStreamToFile(httpurlconnection.getInputStream(), getCache());
-                            inputStream = new FileInputStream(getCache());
-                        } else {
-                            inputStream = httpurlconnection.getInputStream();
                         }
                         Emoji.this.finishedLoading = true;
                         loadImage();

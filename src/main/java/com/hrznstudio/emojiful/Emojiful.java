@@ -11,6 +11,7 @@ import com.google.gson.stream.JsonReader;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiFromEmojipedia;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
+import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
 import com.hrznstudio.emojiful.gui.EmojiButton;
 import com.hrznstudio.emojiful.gui.ParentButton;
 import com.hrznstudio.emojiful.gui.TranslucentButton;
@@ -22,11 +23,13 @@ import net.minecraft.client.gui.NewChatGui;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.util.JSONException;
+import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
@@ -62,6 +65,7 @@ public class Emojiful {
     public Emojiful() {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::registerClient);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, EmojifulConfig.init());
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(IRecipeSerializer.class, EventPriority.NORMAL, false, RegistryEvent.Register.class, this::registerSerializable );
     }
 
     public static void main(String[] s) throws YamlException {
@@ -91,6 +95,10 @@ public class Emojiful {
         String jsonText = readStringFromURL(url);
         JsonElement json = new JsonParser().parse(jsonText);
         return json;
+    }
+
+    public void registerSerializable(RegistryEvent.Register<IRecipeSerializer<?>> registryEvent){
+        registryEvent.getRegistry().register(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER);
     }
 
 }

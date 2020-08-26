@@ -3,6 +3,8 @@ package com.hrznstudio.emojiful.gui;
 import com.hrznstudio.emojiful.ClientProxy;
 import com.hrznstudio.emojiful.Emojiful;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.api.EmojiCategory;
+import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -54,7 +56,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
         this.openSelectionAreaEmoji = new Random().nextInt(Emojiful.EMOJI_MAP.get("Smileys & Emotion").size());
         this.showingSelectionArea = false;
         int offset = 0;
-        if (ModList.get().isLoaded("quark")) offset = -100;
+        if (ModList.get().isLoaded("quark")) offset = -80;
         this.openSelectionArea = new Rectangle2d(chatScreen.width - 14, chatScreen.height - 12, 12, 12);
         this.selectionArea = new Rectangle2d(chatScreen.width - 14 - 11*12 + offset , chatScreen.height - 16 - 10*11 - 4, 11*12 + 4, 10*11 + 4);
         this.categorySelectionArea = new Rectangle2d(this.selectionArea.getX(), this.selectionArea.getY() + 20, 22, this.selectionArea.getHeight() - 20);
@@ -96,17 +98,17 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
             }
             progressY = (int) ((( this.categorySelectionArea.getHeight() - 10) / ((double)ClientProxy.CATEGORIES.size() -7)) * (categoryPointer)) ;
             drawRectangle(stack, new Rectangle2d(this.categorySelectionArea.getX() + this.categorySelectionArea.getWidth() - 2, this.categorySelectionArea.getY() + progressY + 2, 1,5), 0xff525252);
-            String firstCategory = getCategory(selectionPointer);
+            EmojiCategory firstCategory = getCategory(selectionPointer);
             for (int i = 0; i < 7; i++) {
                 int selCategory = i + categoryPointer;
                 if (selCategory < ClientProxy.CATEGORIES.size()){
-                    String category = ClientProxy.CATEGORIES.get(selCategory);
+                    EmojiCategory category = ClientProxy.CATEGORIES.get(selCategory);
                     Rectangle2d rec = new Rectangle2d(categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 11, 11);
                     if (category.equals(firstCategory)){
                         AbstractGui.fill(stack, rec.getX()-1, rec.getY()-2, rec.getX() + rec.getWidth(), rec.getY() + rec.getHeight() -1, -2130706433);
                     }
                     if (rec.contains((int)lastMouseX, (int)lastMouseY) && Minecraft.getInstance().currentScreen != null){
-                        Minecraft.getInstance().currentScreen.renderToolTip(stack, Arrays.asList(new StringTextComponent(category)),(int) lastMouseX,(int) lastMouseY, Minecraft.getInstance().fontRenderer);
+                        Minecraft.getInstance().currentScreen.renderToolTip(stack, Arrays.asList(new StringTextComponent(category.getName())),(int) lastMouseX,(int) lastMouseY, Minecraft.getInstance().fontRenderer);
                     }
                     Minecraft.getInstance().fontRenderer.drawString(stack, ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
                 }
@@ -129,7 +131,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                     if (selCategory < ClientProxy.CATEGORIES.size()){
                         Rectangle2d rec = new Rectangle2d(categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 11, 11);
                         if (rec.contains((int)mouseX, (int)mouseY)){
-                            String name = ClientProxy.CATEGORIES.get(selCategory);
+                            String name = ClientProxy.CATEGORIES.get(selCategory).getName();
                             for (int i1 = 0; i1 < getLineAmount(); i1++) {
                                 if (name.equals(getLineToDraw(i1))){
                                     this.selectionPointer = i1;
@@ -225,10 +227,10 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
     public void drawLine(MatrixStack stack, float height, int line){
         Object lineToDraw = getLineToDraw(line);
         if (lineToDraw != null){
-            if (lineToDraw instanceof String){
+            if (lineToDraw instanceof EmojiCategory){
                 float textScale = 1f;
                 RenderSystem.scaled(textScale, textScale, textScale);
-                Minecraft.getInstance().fontRenderer.drawString(stack, (String) lineToDraw, (categorySelectionArea.getX() + categorySelectionArea.getWidth() + 2) * (1/textScale), (categorySelectionArea.getY() + height + 2)* (1/textScale), 0x969696);
+                Minecraft.getInstance().fontRenderer.drawString(stack, ((EmojiCategory) lineToDraw).getName(), (categorySelectionArea.getX() + categorySelectionArea.getWidth() + 2) * (1/textScale), (categorySelectionArea.getY() + height + 2)* (1/textScale), 0x969696);
                 RenderSystem.scaled(1,1,1);
             } else {
                 Emoji[] emojis = (Emoji[]) lineToDraw;
@@ -250,7 +252,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
 
     public Object getLineToDraw(int line){
         if (fieldWidget.getText().isEmpty()){
-            for (String category : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
+            for (EmojiCategory category : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
                 --line;
                 if (line == 0) return category;
                 for (Emoji[] emojis : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category)) {
@@ -292,8 +294,8 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
         return fieldWidget.getText().isEmpty() ? ClientProxy.lineAmount : filteredEmojis.size();
     }
 
-    public String getCategory(int line){
-        for (String category : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
+    public EmojiCategory getCategory(int line){
+        for (EmojiCategory category : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
             --line;
             if (line == 0) return category;
             for (Emoji[] emojis : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category)) {
