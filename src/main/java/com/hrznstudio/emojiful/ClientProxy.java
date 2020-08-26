@@ -227,9 +227,6 @@ public class ClientProxy {
                 if (emoji.strings.contains(":face_with_symbols_on_mouth:")){
                     emoji.strings.add(":swear:");
                 }
-                if (!element.getAsJsonObject().get("text").isJsonNull()){
-                    emoji.texts.add(element.getAsJsonObject().get("text").getAsString());
-                }
                 if (!element.getAsJsonObject().get("texts").isJsonNull()){
                     element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> emoji.texts.add(jsonElement.getAsString()));
                 }
@@ -240,6 +237,7 @@ public class ClientProxy {
                 }
             }
         }
+        ClientProxy.EMOJI_WITH_TEXTS.sort(Comparator.comparingInt(o -> o.sort));
         Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.sort(Comparator.comparingInt(o -> o.sort)));
     }
 
