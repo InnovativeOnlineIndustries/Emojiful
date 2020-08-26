@@ -131,7 +131,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                     if (selCategory < ClientProxy.CATEGORIES.size()){
                         Rectangle2d rec = new Rectangle2d(categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 11, 11);
                         if (rec.contains((int)mouseX, (int)mouseY)){
-                            String name = ClientProxy.CATEGORIES.get(selCategory).getName();
+                            EmojiCategory name = ClientProxy.CATEGORIES.get(selCategory);
                             for (int i1 = 0; i1 < getLineAmount(); i1++) {
                                 if (name.equals(getLineToDraw(i1))){
                                     this.selectionPointer = i1;
