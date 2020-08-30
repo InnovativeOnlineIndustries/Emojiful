@@ -1,6 +1,7 @@
 package com.hrznstudio.emojiful.api;
 
 import com.hrznstudio.emojiful.Emojiful;
+import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -133,7 +134,7 @@ public class Emoji implements Predicate<String> {
     private void loadImage(){
         File cache = getCache();
         if (cache.exists()){
-            if (getUrl().endsWith(".gif")){
+            if (getUrl().endsWith(".gif") && EmojifulConfig.getInstance().loadGifEmojis.get()){
                if (gifLoaderThread == null){
                    gifLoaderThread = new Thread("Emojiful Texture Downloader #" + threadDownloadCounter.incrementAndGet()){
                        @Override
@@ -278,7 +279,7 @@ public class Emoji implements Predicate<String> {
             try {
                 nativeimage = NativeImage.read(inputStreamIn);
             } catch (IOException ioexception) {
-                Emojiful.LOGGER.warn("Error while loading the skin texture", (Throwable)ioexception);
+                Emojiful.LOGGER.warn("Error while loading the skin texture", ioexception);
             }
             return nativeimage;
         }

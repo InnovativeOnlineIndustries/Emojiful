@@ -14,9 +14,7 @@ import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import com.hrznstudio.emojiful.util.ProfanityFilter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.WorldLoadProgressScreen;
 import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,12 +26,12 @@ import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.StringReader;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ClientProxy {
@@ -66,8 +64,8 @@ public class ClientProxy {
     @SubscribeEvent
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event){
         if (event.getGui() instanceof ChatScreen){
-            emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
-            emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
+            if (EmojifulConfig.getInstance().showEmojiAutocomplete.get()) emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
+            if (EmojifulConfig.getInstance().showEmojiSelector.get()) emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
         }
     }
 
@@ -141,7 +139,7 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatSend(ClientChatEvent event){
-        if (EmojifulConfig.getInstance().renderEmoji.get()){
+        if (EmojifulConfig.getInstance().renderEmoji.get() && EmojifulConfig.getInstance().shortEmojiReplacement.get()){
             String message = event.getMessage();
             for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
                 if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
@@ -155,29 +153,31 @@ public class ClientProxy {
         CATEGORIES.removeIf(EmojiCategory::isWorldBased);
         Emojiful.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
         Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
-        for (EmojiRecipe emojiRecipe : event.getRecipeManager().func_241447_a_(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
-            EmojiFromGithub emoji = new EmojiFromGithub();
-            emoji.name = emojiRecipe.getName();
-            emoji.strings = new ArrayList<>();
-            emoji.strings.add(":" + emojiRecipe.getName() + ":");
-            emoji.location = emojiRecipe.getName();
-            emoji.url = emojiRecipe.getUrl();
-            emoji.worldBased = true;
-            System.out.println(emoji.getUrl());
-            Emojiful.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
-            Emojiful.EMOJI_LIST.add(emoji);
-            if (CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.getName().equalsIgnoreCase(emojiRecipe.getCategory()))){
-                CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+        if (EmojifulConfig.getInstance().loadDatapack.get()){
+            for (EmojiRecipe emojiRecipe : event.getRecipeManager().func_241447_a_(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
+                EmojiFromGithub emoji = new EmojiFromGithub();
+                emoji.name = emojiRecipe.getName();
+                emoji.strings = new ArrayList<>();
+                emoji.strings.add(":" + emojiRecipe.getName() + ":");
+                emoji.location = emojiRecipe.getName();
+                emoji.url = emojiRecipe.getUrl();
+                emoji.worldBased = true;
+                System.out.println(emoji.getUrl());
+                Emojiful.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
+                Emojiful.EMOJI_LIST.add(emoji);
+                if (CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.getName().equalsIgnoreCase(emojiRecipe.getCategory()))){
+                    CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+                }
             }
+            indexEmojis();
         }
-        indexEmojis();
     }
 
     private void preInitEmojis() {
         CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
-        loadCustomEmojis();
+        if (EmojifulConfig.getInstance().loadCustom.get())loadCustomEmojis();
         //loadGithubEmojis();
-        loadTwitmojis();
+        if (EmojifulConfig.getInstance().loadTwemoji.get())loadTwemojis();
         if (EmojifulConfig.getInstance().profanityFilter.get()) ProfanityFilter.loadConfigs();
     }
 
@@ -216,7 +216,7 @@ public class ClientProxy {
         }
     }
 
-    public void loadTwitmojis(){
+    public void loadTwemojis(){
         for (JsonElement element : Emojiful.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()){
             if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()){
                 EmojiFromTwitmoji emoji = new EmojiFromTwitmoji();

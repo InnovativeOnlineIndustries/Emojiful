@@ -1,6 +1,7 @@
 package com.hrznstudio.emojiful.util;
 
 import com.hrznstudio.emojiful.Emojiful;
+import com.hrznstudio.emojiful.EmojifulConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -96,7 +97,7 @@ public class ProfanityFilter {
         List<String> badWords = badWordsFound(input);
         if(badWords.size() > 0) {
             for (String badWord : badWords) {
-                input = input.replaceAll(EmojiUtil.cleanStringForRegex(badWord), ":swear:");
+                input = input.replaceAll(EmojiUtil.cleanStringForRegex(badWord), EmojifulConfig.getInstance().profanityFilterReplacement.get());
             }
             return input;
         }
