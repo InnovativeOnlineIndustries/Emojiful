@@ -1,0 +1,4 @@
+# Config
+
+config.emojiful.emoji_render=Emoji de demostrar
+config.emojiful.emoji_render.tooltip=¿Deberían demostrar los emojis?
