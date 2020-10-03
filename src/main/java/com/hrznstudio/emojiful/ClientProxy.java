@@ -162,7 +162,7 @@ public class ClientProxy {
                 emoji.location = emojiRecipe.getName();
                 emoji.url = emojiRecipe.getUrl();
                 emoji.worldBased = true;
-                System.out.println(emoji.getUrl());
+                Emojiful.LOGGER.debug(emoji.getUrl());
                 Emojiful.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
                 Emojiful.EMOJI_LIST.add(emoji);
                 if (CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.getName().equalsIgnoreCase(emojiRecipe.getCategory()))){
