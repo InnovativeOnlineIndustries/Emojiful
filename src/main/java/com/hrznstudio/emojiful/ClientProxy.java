@@ -142,7 +142,7 @@ public class ClientProxy {
         if (EmojifulConfig.getInstance().renderEmoji.get() && EmojifulConfig.getInstance().shortEmojiReplacement.get()){
             String message = event.getMessage();
             for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
-                if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
+                if (!emoji.texts.isEmpty()) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
             }
             event.setMessage(message);
         }
@@ -232,7 +232,7 @@ public class ClientProxy {
                 }
                 Emojiful.EMOJI_MAP.computeIfAbsent(element.getAsJsonObject().get("category").getAsString(), s -> new ArrayList<>()).add(emoji);
                 Emojiful.EMOJI_LIST.add(emoji);
-                if (emoji.texts.size() > 0){
+                if (!emoji.texts.isEmpty()){
                     ClientProxy.EMOJI_WITH_TEXTS.add(emoji);
                 }
             }

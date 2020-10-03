@@ -95,7 +95,7 @@ public class ProfanityFilter {
 
     public static String filterText(String input) {
         List<String> badWords = badWordsFound(input);
-        if(badWords.size() > 0) {
+        if(!badWords.isEmpty()) {
             for (String badWord : badWords) {
                 input = input.replaceAll(EmojiUtil.cleanStringForRegex(badWord), EmojifulConfig.getInstance().profanityFilterReplacement.get());
             }

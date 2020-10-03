@@ -71,7 +71,7 @@ public class Emoji implements Predicate<String> {
             img.forEach(Texture::deleteGlTexture);
             deleteOldTexture = false;
         }
-        return finishedLoading && frames.size() > 0 ? frames.get((int) (System.currentTimeMillis() / 10D % frames.size())) : loading_texture;
+        return finishedLoading && !frames.isEmpty() ? frames.get((int) (System.currentTimeMillis() / 10D % frames.size())) : loading_texture;
     }
 
     @Override
