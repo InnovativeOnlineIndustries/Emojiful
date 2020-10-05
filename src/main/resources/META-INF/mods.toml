@@ -2,6 +2,7 @@ modLoader="javafml"
 loaderVersion="[31,)"
 issueTrackerURL="https://github.com/InnovativeOnlineIndustries/Emojiful/issues"
 side="CLIENT"
+license="ARR"
 
 [[mods]]
     modId="emojiful"

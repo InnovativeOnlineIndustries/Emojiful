@@ -13,6 +13,7 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.renderer.Rectangle2d;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextProperties;
@@ -85,12 +86,17 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                 StringBuilder builder = new StringBuilder();
                 lastEmoji.strings.forEach(s -> builder.append(s).append(" "));
                 float textScale = 0.5f;
-                List<ITextProperties> iTextPropertiesList = ClientProxy.oldFontRenderer.func_238425_b_(new StringTextComponent(builder.toString()), (int) ((emojiInfoArea.getWidth() - 18) *  (1/textScale)));
+                List<IReorderingProcessor> iTextPropertiesList = ClientProxy.oldFontRenderer.trimStringToWidth(new StringTextComponent(builder.toString()), (int) ((emojiInfoArea.getWidth() - 18) *  (1/textScale)));
                 float i = -iTextPropertiesList.size() / 2;
                 stack.push();
                 stack.scale(textScale, textScale, textScale);
-                for (ITextProperties iTextProperties : iTextPropertiesList) {
-                    ClientProxy.oldFontRenderer.drawString(stack, iTextProperties.getString(), (emojiInfoArea.getX() + 15) * (1/textScale), (emojiInfoArea.getY() + 8 + 4 * i)  * (1/textScale), 0x969696);
+                for (IReorderingProcessor reorderingProcessor : iTextPropertiesList) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
+                        stringBuilder.append((char) ch);
+                        return true;
+                    });
+                    ClientProxy.oldFontRenderer.drawString(stack, stringBuilder.toString(), (emojiInfoArea.getX() + 15) * (1/textScale), (emojiInfoArea.getY() + 8 + 4 * i)  * (1/textScale), 0x969696);
                     ++i;
                 }
                 stack.scale(1,1,1);
@@ -108,7 +114,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                         AbstractGui.fill(stack, rec.getX()-1, rec.getY()-2, rec.getX() + rec.getWidth(), rec.getY() + rec.getHeight() -1, -2130706433);
                     }
                     if (rec.contains((int)lastMouseX, (int)lastMouseY) && Minecraft.getInstance().currentScreen != null){
-                        Minecraft.getInstance().currentScreen.renderToolTip(stack, Arrays.asList(new StringTextComponent(category.getName())),(int) lastMouseX,(int) lastMouseY, Minecraft.getInstance().fontRenderer);
+                        Minecraft.getInstance().currentScreen.func_243308_b(stack, Arrays.asList(new StringTextComponent(category.getName())),(int) lastMouseX,(int) lastMouseY);
                     }
                     Minecraft.getInstance().fontRenderer.drawString(stack, ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
                 }

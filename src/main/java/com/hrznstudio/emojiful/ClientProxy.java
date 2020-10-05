@@ -154,7 +154,7 @@ public class ClientProxy {
         Emojiful.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
         Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
         if (EmojifulConfig.getInstance().loadDatapack.get()){
-            for (EmojiRecipe emojiRecipe : event.getRecipeManager().func_241447_a_(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
+            for (EmojiRecipe emojiRecipe : event.getRecipeManager().getRecipesForType(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
                 EmojiFromGithub emoji = new EmojiFromGithub();
                 emoji.name = emojiRecipe.getName();
                 emoji.strings = new ArrayList<>();
