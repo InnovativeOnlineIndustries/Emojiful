@@ -38,6 +38,8 @@ public class EmojiFontRenderer extends FontRenderer {
 
     //<+(\w)+:+(\w)+>
 
+    private static String MY_NAME = "DevNotWorkingRn";
+
     public static LoadingCache<String, Pair<String, HashMap<Integer, Emoji>>> RECENT_STRINGS = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(new CacheLoader<String, Pair<String, HashMap<Integer, Emoji>>>() {
         @Override
         public Pair<String, HashMap<Integer, Emoji>> load(String key) throws Exception {
@@ -59,7 +61,7 @@ public class EmojiFontRenderer extends FontRenderer {
     public int getStringWidth(String text) {
         if (text != null) {
             try {
-                text = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb: ")).getKey();
+                text = RECENT_STRINGS.get(text.replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -69,6 +71,13 @@ public class EmojiFontRenderer extends FontRenderer {
 
     @Override
     public int getStringPropertyWidth(ITextProperties textProperties) {
+        if (textProperties instanceof StringTextComponent){
+            try {
+                return super.getStringPropertyWidth(new StringTextComponent(RECENT_STRINGS.get(textProperties.getString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey()).setStyle(((StringTextComponent) textProperties).getStyle()));
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
         return this.getStringWidth(textProperties.getString());
     }
 
@@ -125,7 +134,7 @@ public class EmojiFontRenderer extends FontRenderer {
             return 0;
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
         try {
-            Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb: "));
+            Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text.replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: "));
             text = cache.getLeft();
             emojis = cache.getRight();
         } catch (ExecutionException e) {
@@ -143,12 +152,12 @@ public class EmojiFontRenderer extends FontRenderer {
             builder.append((char) ch);
             return true;
         });
-        String text = builder.toString();
+        String text = builder.toString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb:");
         if (text.length() > 0){
             color = (color & -67108864) == 0 ? color | -16777216 : color;
             HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
             try {
-                Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text.replaceAll("Buuz135", "Buuz135 :blobcatbolb: "));
+                Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text);
                 text = cache.getLeft();
                 emojis = cache.getRight();
             } catch (ExecutionException e) {
