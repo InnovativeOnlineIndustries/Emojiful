@@ -64,11 +64,14 @@ minecraft {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven { url 'https://maven.blamejared.com' }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compile group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'
+    compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
+    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")
 }
 
 reobf {
