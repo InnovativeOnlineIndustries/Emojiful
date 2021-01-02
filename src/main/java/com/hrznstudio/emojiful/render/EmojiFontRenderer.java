@@ -98,7 +98,7 @@ public class EmojiFontRenderer extends FontRenderer {
             if (StringUtil.isNullOrEmpty(unformattedText))
                 return Pair.of(text, emojis);
             for (Emoji emoji : Emojiful.EMOJI_LIST) {
-                Pattern pattern = Pattern.compile(emoji.getRegex());
+                Pattern pattern = emoji.getRegex();
                 Matcher matcher = pattern.matcher(unformattedText);
                 while (matcher.find()){
                     if (!matcher.group().isEmpty()){

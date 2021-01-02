@@ -45,6 +45,7 @@ public class Emoji implements Predicate<String> {
     public boolean worldBased = false;
     private String shortString;
     private String regex;
+    private Pattern regexPattern;
     private String textRegex;
 
     public boolean deleteOldTexture;
@@ -93,7 +94,13 @@ public class Emoji implements Predicate<String> {
         return shortString;
     }
 
-    public String getRegex(){
+    public Pattern getRegex(){
+        if (regexPattern != null) return regexPattern;
+        regexPattern = Pattern.compile(getRegexString());
+        return regexPattern;
+    }
+
+    public String getRegexString(){
         if (regex != null) return regex;
         List<String> processed = new ArrayList<>();
         for (String string : strings) {
