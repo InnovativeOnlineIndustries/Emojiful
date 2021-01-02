@@ -191,8 +191,9 @@ public class ClientProxy {
                 Emojiful.EMOJI_LIST.addAll(emojis);
                 Emojiful.EMOJI_MAP.put(category.replace(".yml", ""), emojis);
             }
-        } catch (YamlException e) {
+        } catch (Exception e) {
             Emojiful.error = true;
+            Emojiful.LOGGER.catching(e);
         }
     }
 
@@ -217,28 +218,33 @@ public class ClientProxy {
     }
 
     public void loadTwemojis(){
-        for (JsonElement element : Emojiful.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()){
-            if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()){
-                EmojiFromTwitmoji emoji = new EmojiFromTwitmoji();
-                emoji.name = element.getAsJsonObject().get("short_name").getAsString();
-                emoji.location = element.getAsJsonObject().get("image").getAsString();
-                emoji.sort =  element.getAsJsonObject().get("sort_order").getAsInt();
-                element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> emoji.strings.add(":" + jsonElement.getAsString() + ":"));
-                if (emoji.strings.contains(":face_with_symbols_on_mouth:")){
-                    emoji.strings.add(":swear:");
-                }
-                if (!element.getAsJsonObject().get("texts").isJsonNull()){
-                    element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> emoji.texts.add(jsonElement.getAsString()));
-                }
-                Emojiful.EMOJI_MAP.computeIfAbsent(element.getAsJsonObject().get("category").getAsString(), s -> new ArrayList<>()).add(emoji);
-                Emojiful.EMOJI_LIST.add(emoji);
-                if (emoji.texts.size() > 0){
-                    ClientProxy.EMOJI_WITH_TEXTS.add(emoji);
+        try{
+            for (JsonElement element : Emojiful.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()){
+                if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()){
+                    EmojiFromTwitmoji emoji = new EmojiFromTwitmoji();
+                    emoji.name = element.getAsJsonObject().get("short_name").getAsString();
+                    emoji.location = element.getAsJsonObject().get("image").getAsString();
+                    emoji.sort =  element.getAsJsonObject().get("sort_order").getAsInt();
+                    element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> emoji.strings.add(":" + jsonElement.getAsString() + ":"));
+                    if (emoji.strings.contains(":face_with_symbols_on_mouth:")){
+                        emoji.strings.add(":swear:");
+                    }
+                    if (!element.getAsJsonObject().get("texts").isJsonNull()){
+                        element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> emoji.texts.add(jsonElement.getAsString()));
+                    }
+                    Emojiful.EMOJI_MAP.computeIfAbsent(element.getAsJsonObject().get("category").getAsString(), s -> new ArrayList<>()).add(emoji);
+                    Emojiful.EMOJI_LIST.add(emoji);
+                    if (emoji.texts.size() > 0){
+                        ClientProxy.EMOJI_WITH_TEXTS.add(emoji);
+                    }
                 }
             }
+            ClientProxy.EMOJI_WITH_TEXTS.sort(Comparator.comparingInt(o -> o.sort));
+            Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.sort(Comparator.comparingInt(o -> o.sort)));
+        } catch (Exception e){
+            Emojiful.error = true;
+            Emojiful.LOGGER.catching(e);
         }
-        ClientProxy.EMOJI_WITH_TEXTS.sort(Comparator.comparingInt(o -> o.sort));
-        Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.sort(Comparator.comparingInt(o -> o.sort)));
     }
 
     @OnlyIn(Dist.CLIENT)
