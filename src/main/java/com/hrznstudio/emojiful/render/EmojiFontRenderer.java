@@ -148,10 +148,12 @@ public class EmojiFontRenderer extends FontRenderer {
     @Override
     public int func_238416_a_(IReorderingProcessor reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
         StringBuilder builder = new StringBuilder();
-        reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
-            builder.append((char) ch);
-            return true;
-        });
+        if (reorderingProcessor != null){
+            reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
+                builder.append((char) ch);
+                return true;
+            });
+        }
         String text = builder.toString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb:");
         if (text.length() > 0){
             color = (color & -67108864) == 0 ? color | -16777216 : color;
