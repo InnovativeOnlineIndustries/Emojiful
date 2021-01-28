@@ -116,7 +116,9 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                     if (rec.contains((int)lastMouseX, (int)lastMouseY) && Minecraft.getInstance().currentScreen != null){
                         Minecraft.getInstance().currentScreen.func_243308_b(stack, Arrays.asList(new StringTextComponent(category.getName())),(int) lastMouseX,(int) lastMouseY);
                     }
-                    Minecraft.getInstance().fontRenderer.drawString(stack, ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
+                    if (ClientProxy.SORTED_EMOJIS_FOR_SELECTION.containsKey(category) && ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).size() > 0){
+                        Minecraft.getInstance().fontRenderer.drawString(stack, ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
+                    }
                 }
             }
             fieldWidget.render(stack, (int)lastMouseX, (int)lastMouseY, 0);

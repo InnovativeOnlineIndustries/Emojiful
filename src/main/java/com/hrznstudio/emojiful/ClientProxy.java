@@ -63,7 +63,7 @@ public class ClientProxy {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void guiInit(GuiScreenEvent.InitGuiEvent.Post event){
-        if (event.getGui() instanceof ChatScreen){
+        if (event.getGui() instanceof ChatScreen && !Emojiful.error){
             if (EmojifulConfig.getInstance().showEmojiAutocomplete.get()) emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
             if (EmojifulConfig.getInstance().showEmojiSelector.get()) emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
         }
