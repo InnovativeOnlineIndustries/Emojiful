@@ -5,12 +5,12 @@ import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.NativeImage;
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.Texture;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import com.mojang.blaze3d.platform.TextureUtil;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -69,7 +69,7 @@ public class Emoji implements Predicate<String> {
     public ResourceLocation getResourceLocationForBinding() {
         checkLoad();
         if (deleteOldTexture) {
-            img.forEach(Texture::deleteGlTexture);
+            img.forEach(AbstractTexture::releaseId);
             deleteOldTexture = false;
         }
         return finishedLoading && frames.size() > 0 ? frames.get((int) (System.currentTimeMillis() / 10D % frames.size())) : loading_texture;
@@ -160,7 +160,7 @@ public class Emoji implements Predicate<String> {
                 try {
                     DownloadImageData imageData = new DownloadImageData(ImageIO.read(cache),  loading_texture);
                     ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version);
-                    Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
+                    Minecraft.getInstance().getTextureManager().register(resourceLocation, imageData);
                     img.add(imageData);
                     frames.add(resourceLocation);
                     this.finishedLoading = true;
@@ -182,12 +182,12 @@ public class Emoji implements Predicate<String> {
     }
 
     public void loadTextureFrames(List<Pair<BufferedImage, Integer>> framesPair){
-        Minecraft.getInstance().runImmediately(() -> {
+        Minecraft.getInstance().executeBlocking(() -> {
             int i = 0;
             for (Pair<BufferedImage, Integer> bufferedImage : framesPair) {
                 DownloadImageData imageData = new DownloadImageData(bufferedImage.getKey(), loading_texture);
                 ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
-                Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, imageData);
+                Minecraft.getInstance().getTextureManager().register(resourceLocation, imageData);
                 img.add(imageData);
                 for (Integer integer = 0; integer < bufferedImage.getValue(); integer++) {
                     frames.add(resourceLocation);
@@ -251,11 +251,11 @@ public class Emoji implements Predicate<String> {
         private void checkTextureUploaded() {
             if (!this.textureUploaded) {
                 if (this.nativeImage != null) {
-                    if (this.textureLocation != null) {
-                        this.deleteGlTexture();
+                    if (this.location != null) {
+                        this.releaseId();
                     }
-                    TextureUtil.prepareImage(super.getGlTextureId(), this.nativeImage.getWidth(), this.nativeImage.getHeight());
-                    this.nativeImage.uploadTextureSub(0, 0, 0, true);
+                    TextureUtil.prepareImage(super.getId(), this.nativeImage.getWidth(), this.nativeImage.getHeight());
+                    this.nativeImage.upload(0, 0, 0, true);
                     this.textureUploaded = true;
                 }
             }
@@ -276,8 +276,8 @@ public class Emoji implements Predicate<String> {
         }
 
         private void upload(NativeImage imageIn) {
-            TextureUtil.prepareImage(this.getGlTextureId(), imageIn.getWidth(), imageIn.getHeight());
-            imageIn.uploadTextureSub(0, 0, 0, true);
+            TextureUtil.prepareImage(this.getId(), imageIn.getWidth(), imageIn.getHeight());
+            imageIn.upload(0, 0, 0, true);
         }
 
         @Nullable
@@ -292,7 +292,7 @@ public class Emoji implements Predicate<String> {
         }
 
         @Override
-        public void loadTexture(IResourceManager resourceManager) throws IOException {
+        public void load(ResourceManager resourceManager) throws IOException {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(this.cacheFile, "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());

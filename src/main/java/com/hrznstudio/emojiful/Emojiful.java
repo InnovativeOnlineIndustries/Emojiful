@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -37,7 +37,7 @@ public class Emojiful {
     public Emojiful() {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::registerClient);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, EmojifulConfig.init());
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(IRecipeSerializer.class, EventPriority.NORMAL, false, RegistryEvent.Register.class, this::registerSerializable );
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(RecipeSerializer.class, EventPriority.NORMAL, false, RegistryEvent.Register.class, this::registerSerializable );
     }
 
     public static void main(String[] s) throws YamlException {
@@ -69,7 +69,7 @@ public class Emojiful {
         return json;
     }
 
-    public void registerSerializable(RegistryEvent.Register<IRecipeSerializer<?>> registryEvent){
+    public void registerSerializable(RegistryEvent.Register<RecipeSerializer<?>> registryEvent){
         registryEvent.getRegistry().register(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER);
     }
 

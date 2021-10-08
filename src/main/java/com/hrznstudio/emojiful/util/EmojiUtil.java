@@ -3,12 +3,14 @@ package com.hrznstudio.emojiful.util;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderState;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.math.Matrix4f;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 import org.w3c.dom.Node;
@@ -32,7 +34,10 @@ import static org.lwjgl.opengl.GL11.GL_NEAREST;
 public class EmojiUtil {
 
     public static RenderType createRenderType(Emoji emoji) {
-        RenderType.State state = RenderType.State.getBuilder().texture(new RenderState.TextureState(emoji.getResourceLocationForBinding(), false, false)).transparency(new RenderState.TransparencyState("translucent_transparency", () -> {
+        RenderType.CompositeState state = RenderType.CompositeState.builder()
+                .setShaderState( new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeTextShader))
+                .setTextureState(new RenderStateShard.TextureStateShard(emoji.getResourceLocationForBinding(), false, false))
+                .setTransparencyState(new RenderStateShard.TransparencyStateShard("translucent_transparency", () -> {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -42,11 +47,11 @@ public class EmojiUtil {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
-        })).alpha(new RenderState.AlphaState(0.003921569F)).lightmap(new RenderState.LightmapState(true)).build(true);
-        return RenderType.makeType("portal_render", DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP, 7, 256, false, true, state);
+        }))/*.setAlphaState(new RenderStateShard.AlphaStateShard(0.003921569F))*/.setLightmapState(new RenderStateShard.LightmapStateShard(true)).createCompositeState(false);
+        return RenderType.create("emoji_render", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256, false, true, state);
     }
 
-    public static float renderEmoji(Emoji emoji, float x, float y, Matrix4f matrix, IRenderTypeBuffer buffer, int packedLight) {
+    public static float renderEmoji(Emoji emoji, float x, float y, Matrix4f matrix, MultiBufferSource buffer, int packedLight) {
         float textureSize = 16;
         float textureX = 0 / textureSize;
         float textureY = 0 / textureSize;
@@ -55,12 +60,13 @@ public class EmojiUtil {
         float offsetY = 1.0F;
         float offsetX = 0.0F;
 
-        IVertexBuilder builder = buffer.getBuffer(createRenderType(emoji));
+        VertexConsumer builder = buffer.getBuffer(createRenderType(emoji));
 
-        builder.pos(matrix, x - offsetX, y - offsetY, 0.0f).color(255, 255, 255, 255).tex(textureX, textureY).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x - offsetX, y + size - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX, textureY + textureOffset).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x - offsetX + size, y + size - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX + textureOffset, textureY + textureOffset).lightmap(packedLight).endVertex();
-        builder.pos(matrix, x - offsetX + size, y - offsetY, 0.0F).color(255, 255, 255, 255).tex(textureX + textureOffset, textureY / textureSize).lightmap(packedLight).endVertex();
+        builder.vertex(matrix, x - offsetX, y - offsetY, 0.0f).color(255, 255, 255, 255).uv(textureX, textureY).uv2(packedLight).endVertex();
+        builder.vertex(matrix, x - offsetX, y + size - offsetY, 0.0F).color(255, 255, 255, 255).uv(textureX, textureY + textureOffset).uv2(packedLight).endVertex();
+        builder.vertex(matrix, x - offsetX + size, y + size - offsetY, 0.0F).color(255, 255, 255, 255).uv(textureX + textureOffset, textureY + textureOffset).uv2(packedLight).endVertex();
+        builder.vertex(matrix, x - offsetX + size, y - offsetY, 0.0F).color(255, 255, 255, 255).uv(textureX + textureOffset, textureY / textureSize).uv2(packedLight).endVertex();
+
         return 10f;
     }
 

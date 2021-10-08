@@ -1,6 +1,5 @@
 package com.hrznstudio.emojiful;
 
-import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.gson.JsonElement;
 import com.hrznstudio.emojiful.api.Emoji;
@@ -13,10 +12,13 @@ import com.hrznstudio.emojiful.gui.*;
 import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import com.hrznstudio.emojiful.util.ProfanityFilter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.util.text.TextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.network.chat.BaseComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
@@ -26,7 +28,6 @@ import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 public class ClientProxy {
 
     public static ClientProxy PROXY = new ClientProxy();
-    public static FontRenderer oldFontRenderer;
+    public static Font oldFontRenderer;
     public static List<String> ALL_EMOJIS = new ArrayList<>();
     public static HashMap<EmojiCategory, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
     public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
@@ -120,7 +121,7 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onClose(TickEvent.ClientTickEvent event){
-        if (emojiSelectionGui != null && Minecraft.getInstance().currentScreen != emojiSelectionGui.getChatScreen()) emojiSelectionGui = null;
+        if (emojiSelectionGui != null && Minecraft.getInstance().screen != emojiSelectionGui.getChatScreen()) emojiSelectionGui = null;
     }
 
     @SubscribeEvent
@@ -130,9 +131,9 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatRecieved(ClientChatReceivedEvent event){
-        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage() instanceof TranslationTextComponent && ((TranslationTextComponent) event.getMessage()).getKey().equals("chat.type.text")){
-            TextComponent component = (TextComponent) ((TranslationTextComponent) event.getMessage()).getFormatArgs()[1];
-            TranslationTextComponent translationTextComponent = new TranslationTextComponent("chat.type.text", ((TranslationTextComponent) event.getMessage()).getFormatArgs()[0], net.minecraftforge.common.ForgeHooks.newChatWithLinks(ProfanityFilter.filterText(component.getString())));
+        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage() instanceof TranslatableComponent && ((TranslatableComponent) event.getMessage()).getKey().equals("chat.type.text")){
+            BaseComponent component = (BaseComponent) ((TranslatableComponent) event.getMessage()).getArgs()[1];
+            TranslatableComponent translationTextComponent = new TranslatableComponent("chat.type.text", ((TranslatableComponent) event.getMessage()).getArgs()[0], net.minecraftforge.common.ForgeHooks.newChatWithLinks(ProfanityFilter.filterText(component.getString())));
             event.setMessage(translationTextComponent);
         }
     }
@@ -154,7 +155,7 @@ public class ClientProxy {
         Emojiful.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
         Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
         if (EmojifulConfig.getInstance().loadDatapack.get()){
-            for (EmojiRecipe emojiRecipe : event.getRecipeManager().getRecipesForType(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
+            for (EmojiRecipe emojiRecipe : event.getRecipeManager().getAllRecipesFor(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
                 EmojiFromGithub emoji = new EmojiFromGithub();
                 emoji.name = emojiRecipe.getName();
                 emoji.strings = new ArrayList<>();
@@ -250,9 +251,14 @@ public class ClientProxy {
     @OnlyIn(Dist.CLIENT)
     private void initEmojis() {
         if (!Emojiful.error) {
-            oldFontRenderer = Minecraft.getInstance().fontRenderer;
-            Minecraft.getInstance().fontRenderer = new EmojiFontRenderer(Minecraft.getInstance().fontRenderer);
-            Minecraft.getInstance().getRenderManager().textRenderer = Minecraft.getInstance().fontRenderer;
+            oldFontRenderer = Minecraft.getInstance().font;
+            Minecraft.getInstance().font = new EmojiFontRenderer(Minecraft.getInstance().font);
+            Minecraft.getInstance().getEntityRenderDispatcher().font = Minecraft.getInstance().font;
+            BlockEntityRenderers.register(BlockEntityType.SIGN, p_173571_ -> {
+                SignRenderer signRenderer = new SignRenderer(p_173571_);
+                signRenderer.font = Minecraft.getInstance().font;
+                return signRenderer;
+            });
         }
     }
 

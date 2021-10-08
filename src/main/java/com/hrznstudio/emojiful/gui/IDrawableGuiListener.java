@@ -1,10 +1,10 @@
 package com.hrznstudio.emojiful.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.IGuiEventListener;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 
-public interface IDrawableGuiListener extends IGuiEventListener {
+public interface IDrawableGuiListener extends GuiEventListener {
 
-    void render(MatrixStack stack);
+    void render(PoseStack stack);
 
 }

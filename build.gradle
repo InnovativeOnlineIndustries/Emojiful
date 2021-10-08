@@ -2,31 +2,42 @@ buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
         maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath "com.wynprice.cursemaven:CurseMaven:2.1.1"
-        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
+}
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "java"
 apply plugin: "idea"
-apply plugin: "com.wynprice.cursemaven"
 apply plugin: "com.github.johnrengelman.shadow"
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 version = "${minecraft_version}-" + "${version}"
 group = "${group}"
 archivesBaseName = "${archive}"
 
+// Workaround to make Mixins and BMS work with the mess that is FG
+configurations {
+    library
+    implementation.extendsFrom library
+}
 
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
+}
+// End of workaround
 
 repositories {
     maven {
         name = "forge"
-        url = "http://files.minecraftforge.net/maven"
+        url = "https://files.minecraftforge.net/maven"
     }
 
     maven {
@@ -34,11 +45,10 @@ repositories {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 minecraft {
-    mappings channel: "snapshot", version: "${mappings_version}"
+    mappings channel: 'official', version: '1.17.1'
     runs {
         client {
             workingDirectory project.file('run')
@@ -68,23 +78,19 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compile group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'
-    compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
-    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.84'
+    library group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+    //compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
+    //runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")
 }
 
 reobf {
     shadowJar {}
 }
 
-shadowJar{
-
-}
-
 shadowJar {
     dependencies {
-        include(dependency(group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'))
+        include(dependency(group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'))
     }
     classifier ''
 }

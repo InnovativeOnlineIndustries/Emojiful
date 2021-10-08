@@ -10,7 +10,7 @@ license="ARR"
     displayName="Emojiful"
     authors="HRZN"
     description='''
-    Adds Emotes to the Game Chat!!!
+    Adds Emojis to the Game Chat!!!
     '''
     mandatory=false
     side="CLIENT"

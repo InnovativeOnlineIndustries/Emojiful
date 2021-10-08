@@ -8,19 +8,18 @@ import com.hrznstudio.emojiful.Emojiful;
 import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.util.EmojiUtil;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.netty.util.internal.StringUtil;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.fonts.EmptyGlyph;
-import net.minecraft.client.gui.fonts.Font;
-import net.minecraft.client.gui.fonts.IGlyph;
-import net.minecraft.client.gui.fonts.TexturedGlyph;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
+import net.minecraft.client.gui.font.FontSet;
+import com.mojang.blaze3d.font.GlyphInfo;
+import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.ICharacterConsumer;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.*;
+import net.minecraft.util.FormattedCharSink;
+import net.minecraft.util.FormattedCharSequence;
+import com.mojang.math.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,7 +33,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmojiFontRenderer extends FontRenderer {
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.util.StringDecomposer;
+
+public class EmojiFontRenderer extends Font {
 
     //<+(\w)+:+(\w)+>
 
@@ -47,8 +53,8 @@ public class EmojiFontRenderer extends FontRenderer {
         }
     });
 
-    public EmojiFontRenderer(FontRenderer fontRenderer) {
-        super(fontRenderer.font);
+    public EmojiFontRenderer(Font fontRenderer) {
+        super(fontRenderer.fonts);
     }
 
     private TextureAtlasSprite sprite;
@@ -58,7 +64,7 @@ public class EmojiFontRenderer extends FontRenderer {
     }
 
     @Override
-    public int getStringWidth(String text) {
+    public int width(String text) {
         if (text != null) {
             try {
                 text = RECENT_STRINGS.get(text.replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey();
@@ -66,35 +72,35 @@ public class EmojiFontRenderer extends FontRenderer {
                 e.printStackTrace();
             }
         }
-        return super.getStringWidth(text);
+        return super.width(text);
     }
 
     @Override
-    public int getStringPropertyWidth(ITextProperties textProperties) {
-        if (textProperties instanceof StringTextComponent){
+    public int width(FormattedText textProperties) {
+        if (textProperties instanceof TextComponent){
             try {
-                return super.getStringPropertyWidth(new StringTextComponent(RECENT_STRINGS.get(textProperties.getString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey()).setStyle(((StringTextComponent) textProperties).getStyle()));
+                return super.width(new TextComponent(RECENT_STRINGS.get(textProperties.getString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey()).setStyle(((TextComponent) textProperties).getStyle()));
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
         }
-        return this.getStringWidth(textProperties.getString());
+        return this.width(textProperties.getString());
     }
 
     @Override
-    public int func_243245_a(IReorderingProcessor processor) {
+    public int width(FormattedCharSequence processor) {
         StringBuilder builder = new StringBuilder();
         processor.accept((p_accept_1_, p_accept_2_, ch) -> {
             builder.append((char) ch);
             return true;
         });
-        return getStringWidth(builder.toString());
+        return width(builder.toString());
     }
 
     public static Pair<String, HashMap<Integer, Emoji>> getEmojiFormattedString(String text) {
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
         if (EmojifulConfig.getInstance().renderEmoji.get() && !StringUtil.isNullOrEmpty(text)) {
-            String unformattedText = TextFormatting.getTextWithoutFormattingCodes(text);
+            String unformattedText = ChatFormatting.stripFormatting(text);
             if (StringUtil.isNullOrEmpty(unformattedText))
                 return Pair.of(text, emojis);
             for (Emoji emoji : Emojiful.EMOJI_LIST) {
@@ -124,12 +130,12 @@ public class EmojiFontRenderer extends FontRenderer {
     }
 
     @Override
-    public int renderString(String p_228079_1_, float p_228079_2_, float p_228079_3_, int p_228079_4_, boolean p_228079_5_, Matrix4f p_228079_6_, IRenderTypeBuffer p_228079_7_, boolean p_228079_8_, int p_228079_9_, int p_228079_10_) {
-        return super.renderString(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
+    public int drawInBatch(String p_228079_1_, float p_228079_2_, float p_228079_3_, int p_228079_4_, boolean p_228079_5_, Matrix4f p_228079_6_, MultiBufferSource p_228079_7_, boolean p_228079_8_, int p_228079_9_, int p_228079_10_) {
+        return super.drawInBatch(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
     }
 
     @Override
-    protected float renderStringAtPos(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
+    protected float renderText(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
         if (text.isEmpty())
             return 0;
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
@@ -141,12 +147,12 @@ public class EmojiFontRenderer extends FontRenderer {
             e.printStackTrace();
         }
         EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, isShadow, matrix, isTransparent, packedLight);
-        TextProcessing.func_238346_c_(text, Style.EMPTY, fontrenderer$characterrenderer);
-        return fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
+        StringDecomposer.iterateFormatted(text, Style.EMPTY, fontrenderer$characterrenderer);
+        return fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
     }
 
     @Override
-    public int func_238416_a_(IReorderingProcessor reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
+    public int drawInBatch(FormattedCharSequence reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
         StringBuilder builder = new StringBuilder();
         if (reorderingProcessor != null){
             reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
@@ -165,7 +171,7 @@ public class EmojiFontRenderer extends FontRenderer {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            List<IReorderingProcessor> processors = new ArrayList<>();
+            List<FormattedCharSequence> processors = new ArrayList<>();
             HashMap<Integer, Emoji> finalEmojis = emojis;
             AtomicInteger cleanPos = new AtomicInteger();
             AtomicBoolean ignore = new AtomicBoolean(false);
@@ -186,25 +192,25 @@ public class EmojiFontRenderer extends FontRenderer {
                 return true;
             });
             StringBuilder builder2 = new StringBuilder();
-            IReorderingProcessor.func_242247_b(processors).accept((p_accept_1_, p_accept_2_, ch) -> {
+            FormattedCharSequence.fromList(processors).accept((p_accept_1_, p_accept_2_, ch) -> {
                 builder2.append((char) ch);
                 return true;
             });
             Matrix4f matrix4f = matrix.copy();
             if (isShadow) {
                 EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix, isTransparent, packedLight);
-                IReorderingProcessor.func_242247_b(processors).accept(fontrenderer$characterrenderer);
-                fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
-                matrix4f.translate(field_238401_c_);
+                FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);
+                fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
+                matrix4f.translate(SHADOW_OFFSET);
             }
             EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, false, matrix4f, isTransparent, packedLight);
-            IReorderingProcessor.func_242247_b(processors).accept(fontrenderer$characterrenderer);
-            return (int) fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
+            FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);
+            return (int) fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
         }
-        return super.func_238416_a_(reorderingProcessor,x,y,color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
+        return super.drawInBatch(reorderingProcessor,x,y,color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
     }
 
-    class CharacterProcessor implements IReorderingProcessor{
+    class CharacterProcessor implements FormattedCharSequence{
 
         public final int pos;
         public final Style style;
@@ -217,125 +223,125 @@ public class EmojiFontRenderer extends FontRenderer {
         }
 
         @Override
-        public boolean accept(ICharacterConsumer iCharacterConsumer) {
+        public boolean accept(FormattedCharSink iCharacterConsumer) {
             return iCharacterConsumer.accept(pos, style, character);
         }
     }
 
 
     @OnlyIn(Dist.CLIENT)
-    class EmojiCharacterRenderer implements ICharacterConsumer {
-        final IRenderTypeBuffer buffer;
-        private final boolean field_238429_c_;
-        private final float field_238430_d_;
-        private final float field_238431_e_;
-        private final float field_238432_f_;
-        private final float field_238433_g_;
-        private final float field_238434_h_;
+    class EmojiCharacterRenderer implements FormattedCharSink {
+        final MultiBufferSource buffer;
+        private final boolean dropShadow;
+        private final float dimFactor;
+        private final float r;
+        private final float g;
+        private final float b;
+        private final float a;
         private final Matrix4f matrix;
-        private final boolean field_238436_j_;
+        private final boolean seeThrough;
         private final int packedLight;
-        private float field_238438_l_;
-        private float field_238439_m_;
+        private float x;
+        private float y;
         private HashMap<Integer, Emoji> emojis;
         @Nullable
-        private List<TexturedGlyph.Effect> field_238440_n_;
+        private List<BakedGlyph.Effect> effects;
 
-        private void func_238442_a_(TexturedGlyph.Effect p_238442_1_) {
-            if (this.field_238440_n_ == null) {
-                this.field_238440_n_ = Lists.newArrayList();
+        private void addEffect(BakedGlyph.Effect p_238442_1_) {
+            if (this.effects == null) {
+                this.effects = Lists.newArrayList();
             }
 
-            this.field_238440_n_.add(p_238442_1_);
+            this.effects.add(p_238442_1_);
         }
 
-        public EmojiCharacterRenderer(HashMap<Integer, Emoji> emojis, IRenderTypeBuffer p_i232250_2_, float p_i232250_3_, float p_i232250_4_, int p_i232250_5_, boolean p_i232250_6_, Matrix4f p_i232250_7_, boolean p_i232250_8_, int p_i232250_9_) {
+        public EmojiCharacterRenderer(HashMap<Integer, Emoji> emojis, MultiBufferSource p_i232250_2_, float p_i232250_3_, float p_i232250_4_, int p_i232250_5_, boolean p_i232250_6_, Matrix4f p_i232250_7_, boolean p_i232250_8_, int p_i232250_9_) {
             this.buffer = p_i232250_2_;
             this.emojis = emojis;
-            this.field_238438_l_ = p_i232250_3_;
-            this.field_238439_m_ = p_i232250_4_;
-            this.field_238429_c_ = p_i232250_6_;
-            this.field_238430_d_ = p_i232250_6_ ? 0.25F : 1.0F;
-            this.field_238431_e_ = (float) (p_i232250_5_ >> 16 & 255) / 255.0F * this.field_238430_d_;
-            this.field_238432_f_ = (float) (p_i232250_5_ >> 8 & 255) / 255.0F * this.field_238430_d_;
-            this.field_238433_g_ = (float) (p_i232250_5_ & 255) / 255.0F * this.field_238430_d_;
-            this.field_238434_h_ = (float) (p_i232250_5_ >> 24 & 255) / 255.0F;
+            this.x = p_i232250_3_;
+            this.y = p_i232250_4_;
+            this.dropShadow = p_i232250_6_;
+            this.dimFactor = p_i232250_6_ ? 0.25F : 1.0F;
+            this.r = (float) (p_i232250_5_ >> 16 & 255) / 255.0F * this.dimFactor;
+            this.g = (float) (p_i232250_5_ >> 8 & 255) / 255.0F * this.dimFactor;
+            this.b = (float) (p_i232250_5_ & 255) / 255.0F * this.dimFactor;
+            this.a = (float) (p_i232250_5_ >> 24 & 255) / 255.0F;
             this.matrix = p_i232250_7_;
-            this.field_238436_j_ = p_i232250_8_;
+            this.seeThrough = p_i232250_8_;
             this.packedLight = p_i232250_9_;
         }
 
         public boolean accept(int pos, Style style, int charInt) {
-            Font font = EmojiFontRenderer.this.getFont(style.getFontId());
+            FontSet font = EmojiFontRenderer.this.getFontSet(style.getFont());
             if (EmojifulConfig.getInstance().renderEmoji.get() && this.emojis.get(pos) != null) {
                 Emoji emoji = this.emojis.get(pos);
-                if (emoji != null && !this.field_238429_c_) {
-                    EmojiUtil.renderEmoji(emoji, this.field_238438_l_, this.field_238439_m_, matrix, buffer, packedLight);
-                    this.field_238438_l_ += 10;
+                if (emoji != null && !this.dropShadow) {
+                    EmojiUtil.renderEmoji(emoji, this.x, this.y, matrix, buffer, packedLight);
+                    this.x += 10;
                     return true;
                 }
             } else {
-                IGlyph iglyph = font.func_238557_a_(charInt);
-                TexturedGlyph texturedglyph = style.getObfuscated() && charInt != 32 ? font.obfuscate(iglyph) : font.func_238559_b_(charInt);
-                boolean flag = style.getBold();
-                float f3 = this.field_238434_h_;
-                Color color = style.getColor();
+                GlyphInfo iglyph = font.getGlyphInfo(charInt);
+                BakedGlyph texturedglyph = style.isObfuscated() && charInt != 32 ? font.getRandomGlyph(iglyph) : font.getGlyph(charInt);
+                boolean flag = style.isBold();
+                float f3 = this.a;
+                TextColor color = style.getColor();
                 float f;
                 float f1;
                 float f2;
                 if (color != null) {
-                    int i = color.getColor();
-                    f = (float) (i >> 16 & 255) / 255.0F * this.field_238430_d_;
-                    f1 = (float) (i >> 8 & 255) / 255.0F * this.field_238430_d_;
-                    f2 = (float) (i & 255) / 255.0F * this.field_238430_d_;
+                    int i = color.getValue();
+                    f = (float) (i >> 16 & 255) / 255.0F * this.dimFactor;
+                    f1 = (float) (i >> 8 & 255) / 255.0F * this.dimFactor;
+                    f2 = (float) (i & 255) / 255.0F * this.dimFactor;
                 } else {
-                    f = this.field_238431_e_;
-                    f1 = this.field_238432_f_;
-                    f2 = this.field_238433_g_;
+                    f = this.r;
+                    f1 = this.g;
+                    f2 = this.b;
                 }
 
                 if (!(texturedglyph instanceof EmptyGlyph)) {
                     float f5 = flag ? iglyph.getBoldOffset() : 0.0F;
-                    float f4 = this.field_238429_c_ ? iglyph.getShadowOffset() : 0.0F;
-                    IVertexBuilder ivertexbuilder = this.buffer.getBuffer(texturedglyph.getRenderType(this.field_238436_j_));
-                    EmojiFontRenderer.this.drawGlyph(texturedglyph, flag, style.getItalic(), f5, this.field_238438_l_ + f4, this.field_238439_m_ + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
+                    float f4 = this.dropShadow ? iglyph.getShadowOffset() : 0.0F;
+                    VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL));
+                    EmojiFontRenderer.this.renderChar(texturedglyph, flag, style.isItalic(), f5, this.x + f4, this.y + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
                 }
 
                 float f6 = iglyph.getAdvance(flag);
-                float f7 = this.field_238429_c_ ? 1.0F : 0.0F;
-                if (style.getStrikethrough()) {
-                    this.func_238442_a_(new TexturedGlyph.Effect(this.field_238438_l_ + f7 - 1.0F, this.field_238439_m_ + f7 + 4.5F, this.field_238438_l_ + f7 + f6, this.field_238439_m_ + f7 + 4.5F - 1.0F, 0.01F, f, f1, f2, f3));
+                float f7 = this.dropShadow ? 1.0F : 0.0F;
+                if (style.isStrikethrough()) {
+                    this.addEffect(new BakedGlyph.Effect(this.x + f7 - 1.0F, this.y + f7 + 4.5F, this.x + f7 + f6, this.y + f7 + 4.5F - 1.0F, 0.01F, f, f1, f2, f3));
                 }
 
-                if (style.getUnderlined()) {
-                    this.func_238442_a_(new TexturedGlyph.Effect(this.field_238438_l_ + f7 - 1.0F, this.field_238439_m_ + f7 + 9.0F, this.field_238438_l_ + f7 + f6, this.field_238439_m_ + f7 + 9.0F - 1.0F, 0.01F, f, f1, f2, f3));
+                if (style.isUnderlined()) {
+                    this.addEffect(new BakedGlyph.Effect(this.x + f7 - 1.0F, this.y + f7 + 9.0F, this.x + f7 + f6, this.y + f7 + 9.0F - 1.0F, 0.01F, f, f1, f2, f3));
                 }
 
-                this.field_238438_l_ += f6;
+                this.x += f6;
                 return true;
             }
             return false;
         }
 
-        public float func_238441_a_(int p_238441_1_, float p_238441_2_) {
+        public float finish(int p_238441_1_, float p_238441_2_) {
             if (p_238441_1_ != 0) {
                 float f = (float) (p_238441_1_ >> 24 & 255) / 255.0F;
                 float f1 = (float) (p_238441_1_ >> 16 & 255) / 255.0F;
                 float f2 = (float) (p_238441_1_ >> 8 & 255) / 255.0F;
                 float f3 = (float) (p_238441_1_ & 255) / 255.0F;
-                this.func_238442_a_(new TexturedGlyph.Effect(p_238441_2_ - 1.0F, this.field_238439_m_ + 9.0F, this.field_238438_l_ + 1.0F, this.field_238439_m_ - 1.0F, 0.01F, f1, f2, f3, f));
+                this.addEffect(new BakedGlyph.Effect(p_238441_2_ - 1.0F, this.y + 9.0F, this.x + 1.0F, this.y - 1.0F, 0.01F, f1, f2, f3, f));
             }
 
-            if (this.field_238440_n_ != null) {
-                TexturedGlyph texturedglyph = EmojiFontRenderer.this.getFont(Style.DEFAULT_FONT).getWhiteGlyph();
-                IVertexBuilder ivertexbuilder = this.buffer.getBuffer(texturedglyph.getRenderType(this.field_238436_j_));
+            if (this.effects != null) {
+                BakedGlyph texturedglyph = EmojiFontRenderer.this.getFontSet(Style.DEFAULT_FONT).whiteGlyph();
+                VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL));
 
-                for (TexturedGlyph.Effect texturedglyph$effect : this.field_238440_n_) {
+                for (BakedGlyph.Effect texturedglyph$effect : this.effects) {
                     texturedglyph.renderEffect(texturedglyph$effect, this.matrix, ivertexbuilder, this.packedLight);
                 }
             }
 
-            return this.field_238438_l_;
+            return this.x;
         }
     }
 
