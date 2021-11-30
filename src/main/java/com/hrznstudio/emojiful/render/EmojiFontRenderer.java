@@ -147,59 +147,61 @@ public class EmojiFontRenderer extends FontRenderer {
 
     @Override
     public int func_238416_a_(IReorderingProcessor reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, IRenderTypeBuffer buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
-        StringBuilder builder = new StringBuilder();
         if (reorderingProcessor != null){
-            reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
-                builder.append((char) ch);
-                return true;
-            });
-        }
-        String text = builder.toString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb:");
-        if (text.length() > 0){
-            color = (color & -67108864) == 0 ? color | -16777216 : color;
-            HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
-            try {
-                Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text);
-                text = cache.getLeft();
-                emojis = cache.getRight();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            StringBuilder builder = new StringBuilder();
+            if (reorderingProcessor != null){
+                reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
+                    builder.append((char) ch);
+                    return true;
+                });
             }
-            List<IReorderingProcessor> processors = new ArrayList<>();
-            HashMap<Integer, Emoji> finalEmojis = emojis;
-            AtomicInteger cleanPos = new AtomicInteger();
-            AtomicBoolean ignore = new AtomicBoolean(false);
-            reorderingProcessor.accept((pos, style, ch) -> {
-                if (!ignore.get()){
-                    if (finalEmojis.get(cleanPos.get()) == null){
-                        processors.add(new CharacterProcessor(cleanPos.getAndIncrement(), style, ch));
-                    } else {
-                        processors.add(new CharacterProcessor(cleanPos.get(), style, ' '));
-                        ignore.set(true);
-                        return true;
+            String text = builder.toString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb:");
+            if (text.length() > 0){
+                color = (color & -67108864) == 0 ? color | -16777216 : color;
+                HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
+                try {
+                    Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text);
+                    text = cache.getLeft();
+                    emojis = cache.getRight();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                List<IReorderingProcessor> processors = new ArrayList<>();
+                HashMap<Integer, Emoji> finalEmojis = emojis;
+                AtomicInteger cleanPos = new AtomicInteger();
+                AtomicBoolean ignore = new AtomicBoolean(false);
+                reorderingProcessor.accept((pos, style, ch) -> {
+                    if (!ignore.get()){
+                        if (finalEmojis.get(cleanPos.get()) == null){
+                            processors.add(new CharacterProcessor(cleanPos.getAndIncrement(), style, ch));
+                        } else {
+                            processors.add(new CharacterProcessor(cleanPos.get(), style, ' '));
+                            ignore.set(true);
+                            return true;
+                        }
                     }
+                    if (ch == ':') {
+                        ignore.set(false);
+                        cleanPos.getAndIncrement();
+                    }
+                    return true;
+                });
+                StringBuilder builder2 = new StringBuilder();
+                IReorderingProcessor.func_242247_b(processors).accept((p_accept_1_, p_accept_2_, ch) -> {
+                    builder2.append((char) ch);
+                    return true;
+                });
+                Matrix4f matrix4f = matrix.copy();
+                if (isShadow) {
+                    EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix, isTransparent, packedLight);
+                    IReorderingProcessor.func_242247_b(processors).accept(fontrenderer$characterrenderer);
+                    fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
+                    matrix4f.translate(field_238401_c_);
                 }
-                if (ch == ':') {
-                    ignore.set(false);
-                    cleanPos.getAndIncrement();
-                }
-                return true;
-            });
-            StringBuilder builder2 = new StringBuilder();
-            IReorderingProcessor.func_242247_b(processors).accept((p_accept_1_, p_accept_2_, ch) -> {
-                builder2.append((char) ch);
-                return true;
-            });
-            Matrix4f matrix4f = matrix.copy();
-            if (isShadow) {
-                EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix, isTransparent, packedLight);
+                EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, false, matrix4f, isTransparent, packedLight);
                 IReorderingProcessor.func_242247_b(processors).accept(fontrenderer$characterrenderer);
-                fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
-                matrix4f.translate(field_238401_c_);
+                return (int) fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
             }
-            EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, false, matrix4f, isTransparent, packedLight);
-            IReorderingProcessor.func_242247_b(processors).accept(fontrenderer$characterrenderer);
-            return (int) fontrenderer$characterrenderer.func_238441_a_(colorBackgroundIn, x);
         }
         return super.func_238416_a_(reorderingProcessor,x,y,color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
     }
