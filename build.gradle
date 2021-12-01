@@ -2,19 +2,18 @@ buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
         maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath "com.wynprice.cursemaven:CurseMaven:2.1.1"
-        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
+}
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "java"
 apply plugin: "idea"
-apply plugin: "com.wynprice.cursemaven"
 apply plugin: "com.github.johnrengelman.shadow"
 
 version = "${minecraft_version}-" + "${version}"
@@ -22,11 +21,10 @@ group = "${group}"
 archivesBaseName = "${archive}"
 
 
-
 repositories {
     maven {
         name = "forge"
-        url = "http://files.minecraftforge.net/maven"
+        url = "https://files.minecraftforge.net/maven"
     }
 
     maven {
@@ -34,8 +32,7 @@ repositories {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 minecraft {
     mappings channel: "snapshot", version: "${mappings_version}"
@@ -69,7 +66,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compile group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'
+    implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
     runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")
 }
@@ -78,13 +75,9 @@ reobf {
     shadowJar {}
 }
 
-shadowJar{
-
-}
-
 shadowJar {
     dependencies {
-        include(dependency(group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.13'))
+        include(dependency(group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'))
     }
     classifier ''
 }
