@@ -45,10 +45,10 @@ repositories {
     }
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.18'
     runs {
         client {
             workingDirectory project.file('run')
@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.84'
+    minecraft 'net.minecraftforge:forge:1.18-38.0.14'
     library group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
     //compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
     //runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")

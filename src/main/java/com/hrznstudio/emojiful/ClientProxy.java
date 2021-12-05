@@ -23,8 +23,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -63,10 +63,10 @@ public class ClientProxy {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void guiInit(GuiScreenEvent.InitGuiEvent.Post event){
-        if (event.getGui() instanceof ChatScreen && !Emojiful.error){
-            if (EmojifulConfig.getInstance().showEmojiAutocomplete.get()) emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getGui());
-            if (EmojifulConfig.getInstance().showEmojiSelector.get()) emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getGui());
+    public void guiInit(ScreenEvent.InitScreenEvent.Post event){
+        if (event.getScreen() instanceof ChatScreen && !Emojiful.error){
+            if (EmojifulConfig.getInstance().showEmojiAutocomplete.get()) emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getScreen());
+            if (EmojifulConfig.getInstance().showEmojiSelector.get()) emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getScreen());
         }
     }
 
@@ -95,27 +95,27 @@ public class ClientProxy {
     }
 
     @SubscribeEvent
-    public void render(GuiScreenEvent.DrawScreenEvent.Post event){
-        if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(event.getMatrixStack());
+    public void render(ScreenEvent.DrawScreenEvent.Post event){
+        if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(event.getPoseStack());
         if (emojiSelectionGui != null){
             emojiSelectionGui.mouseMoved(event.getMouseX(), event.getMouseY());
-            emojiSelectionGui.render(event.getMatrixStack());
+            emojiSelectionGui.render(event.getPoseStack());
         }
     }
 
     @SubscribeEvent
-    public void onKeyPressed(GuiScreenEvent.KeyboardKeyPressedEvent event){
+    public void onKeyPressed(ScreenEvent.KeyboardKeyPressedEvent event){
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) event.setCanceled(true);
         if (emojiSelectionGui != null && emojiSelectionGui.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) event.setCanceled(true);
     }
 
     @SubscribeEvent
-    public void onClick(GuiScreenEvent.MouseClickedEvent.Pre event){
+    public void onClick(ScreenEvent.MouseClickedEvent.Pre event){
         if (emojiSelectionGui != null) emojiSelectionGui.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton());
     }
 
     @SubscribeEvent
-    public void onScroll(GuiScreenEvent.MouseScrollEvent.Pre event){
+    public void onScroll(ScreenEvent.MouseScrollEvent.Pre event){
         if (emojiSelectionGui != null) emojiSelectionGui.mouseScrolled(event.getMouseX(), event.getMouseY(), event.getScrollDelta());
     }
 
@@ -125,7 +125,7 @@ public class ClientProxy {
     }
 
     @SubscribeEvent
-    public void onCharTyped(GuiScreenEvent.KeyboardCharTypedEvent event){
+    public void onCharTyped(ScreenEvent.KeyboardCharTypedEvent event){
         if (emojiSelectionGui != null && emojiSelectionGui.charTyped(event.getCodePoint(), event.getModifiers())) event.setCanceled(true);
     }
 
