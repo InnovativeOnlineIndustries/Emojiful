@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18-38.0.14'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.36'
     library group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
     //compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
     //runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")
