@@ -16,8 +16,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
-import net.minecraft.network.chat.BaseComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -131,11 +130,15 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatRecieved(ClientChatReceivedEvent event){
-        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage() instanceof TranslatableComponent && ((TranslatableComponent) event.getMessage()).getKey().equals("chat.type.text")){
-            BaseComponent component = (BaseComponent) ((TranslatableComponent) event.getMessage()).getArgs()[1];
+        /*
+        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage().getContents() instanceof TranslatableContents && ((TranslatableContents) event.getMessage().getContents()).getKey().equals("chat.type.text")){
+
+            BaseComponent component = (TranslatableContents) ((TranslatableContents) event.getMessage().getContents()).getArgs()[1];
             TranslatableComponent translationTextComponent = new TranslatableComponent("chat.type.text", ((TranslatableComponent) event.getMessage()).getArgs()[0], net.minecraftforge.common.ForgeHooks.newChatWithLinks(ProfanityFilter.filterText(component.getString())));
             event.setMessage(translationTextComponent);
         }
+        */
+
     }
 
     @SubscribeEvent
@@ -155,7 +158,7 @@ public class ClientProxy {
         Emojiful.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
         Emojiful.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
         if (EmojifulConfig.getInstance().loadDatapack.get()){
-            for (EmojiRecipe emojiRecipe : event.getRecipeManager().getAllRecipesFor(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType)) {
+            for (EmojiRecipe emojiRecipe : event.getRecipeManager().getAllRecipesFor(Emojiful.EMOJI_RECIPE_TYPE.get())) {
                 EmojiFromGithub emoji = new EmojiFromGithub();
                 emoji.name = emojiRecipe.getName();
                 emoji.strings = new ArrayList<>();

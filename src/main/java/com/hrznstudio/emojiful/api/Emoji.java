@@ -83,34 +83,34 @@ public class Emoji implements Predicate<String> {
         return false;
     }
 
-    public String getShorterString(){
+    public String getShorterString() {
         if (shortString != null) return shortString;
         shortString = strings.get(0);
         for (String string : strings) {
-            if (string.length() <  shortString.length()){
+            if (string.length() < shortString.length()) {
                 shortString = string;
             }
         }
         return shortString;
     }
 
-    public Pattern getRegex(){
+    public Pattern getRegex() {
         if (regexPattern != null) return regexPattern;
         regexPattern = Pattern.compile(getRegexString());
         return regexPattern;
     }
 
-    public String getRegexString(){
+    public String getRegexString() {
         if (regex != null) return regex;
         List<String> processed = new ArrayList<>();
         for (String string : strings) {
             char last = string.toLowerCase().charAt(string.length() - 1);
             String s = string;
-            if (last >= 97 && last <= 122){
+            if (last >= 97 && last <= 122) {
                 s = string + "\\b";
             }
             char first = string.toLowerCase().charAt(0);
-            if (first >= 97 && first <= 122){
+            if (first >= 97 && first <= 122) {
                 s = "\\b" + s;
             }
             processed.add(EmojiUtil.cleanStringForRegex(s));
@@ -119,17 +119,17 @@ public class Emoji implements Predicate<String> {
         return regex;
     }
 
-    public String getTextRegex(){
+    public String getTextRegex() {
         if (textRegex != null) return textRegex;
         List<String> processed = new ArrayList<>();
         for (String string : texts) {
             char last = string.toLowerCase().charAt(string.length() - 1);
             String s = string;
-            if (last >= 97 && last <= 122){
+            if (last >= 97 && last <= 122) {
                 s = string + "\\b";
             }
             char first = string.toLowerCase().charAt(0);
-            if (first >= 97 && first <= 122){
+            if (first >= 97 && first <= 122) {
                 s = "\\b" + s;
             }
             processed.add(EmojiUtil.cleanStringForRegex(s));
@@ -138,28 +138,28 @@ public class Emoji implements Predicate<String> {
         return textRegex;
     }
 
-    private void loadImage(){
+    private void loadImage() {
         File cache = getCache();
-        if (cache.exists()){
-            if (getUrl().endsWith(".gif") && EmojifulConfig.getInstance().loadGifEmojis.get()){
-               if (gifLoaderThread == null){
-                   gifLoaderThread = new Thread("Emojiful Texture Downloader #" + threadDownloadCounter.incrementAndGet()){
-                       @Override
-                       public void run() {
-                           try {
-                               loadTextureFrames(EmojiUtil.splitGif(cache));
-                           } catch (IOException e) {
-                               e.printStackTrace();
-                           }
-                       }
-                   };
-                   this.gifLoaderThread.setDaemon(true);
-                   this.gifLoaderThread.start();
-               }
+        if (cache.exists()) {
+            if (getUrl().endsWith(".gif") && EmojifulConfig.getInstance().loadGifEmojis.get()) {
+                if (gifLoaderThread == null) {
+                    gifLoaderThread = new Thread("Emojiful Texture Downloader #" + threadDownloadCounter.incrementAndGet()) {
+                        @Override
+                        public void run() {
+                            try {
+                                loadTextureFrames(EmojiUtil.splitGif(cache));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    this.gifLoaderThread.setDaemon(true);
+                    this.gifLoaderThread.start();
+                }
             } else {
                 try {
-                    DownloadImageData imageData = new DownloadImageData(ImageIO.read(cache),  loading_texture);
-                    ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version);
+                    DownloadImageData imageData = new DownloadImageData(ImageIO.read(cache), loading_texture);
+                    ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "") + "_" + version);
                     Minecraft.getInstance().getTextureManager().register(resourceLocation, imageData);
                     img.add(imageData);
                     frames.add(resourceLocation);
@@ -168,25 +168,25 @@ public class Emoji implements Predicate<String> {
                     e.printStackTrace();
                 }
             }
-        } else if (this.imageThread == null){
+        } else if (this.imageThread == null) {
             loadTextureFromServer();
         }
     }
 
-    public String getUrl(){
+    public String getUrl() {
         return "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + location;
     }
 
-    public File getCache(){
+    public File getCache() {
         return new File("emojiful/cache/" + name + "-" + version);
     }
 
-    public void loadTextureFrames(List<Pair<BufferedImage, Integer>> framesPair){
+    public void loadTextureFrames(List<Pair<BufferedImage, Integer>> framesPair) {
         Minecraft.getInstance().executeBlocking(() -> {
             int i = 0;
             for (Pair<BufferedImage, Integer> bufferedImage : framesPair) {
                 DownloadImageData imageData = new DownloadImageData(bufferedImage.getKey(), loading_texture);
-                ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "")  + "_" + version + "_frame"+i);
+                ResourceLocation resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + name.toLowerCase().replaceAll("[^a-z0-9/._-]", "") + "_" + version + "_frame" + i);
                 Minecraft.getInstance().getTextureManager().register(resourceLocation, imageData);
                 img.add(imageData);
                 for (Integer integer = 0; integer < bufferedImage.getValue(); integer++) {

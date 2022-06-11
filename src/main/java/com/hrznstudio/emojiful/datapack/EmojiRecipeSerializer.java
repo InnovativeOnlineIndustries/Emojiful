@@ -1,21 +1,18 @@
 package com.hrznstudio.emojiful.datapack;
 
 import com.google.gson.JsonObject;
+import com.hrznstudio.emojiful.Emojiful;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.RegistryObject;
 
-public class EmojiRecipeSerializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<EmojiRecipe>{
+public class EmojiRecipeSerializer implements RecipeSerializer<EmojiRecipe>{
 
-    public static final EmojiRecipeSerializer EMOJI_RECIPE_SERIALIZER = new EmojiRecipeSerializer();
-
-    public RecipeType<EmojiRecipe> recipeType;
 
     public EmojiRecipeSerializer() {
-        setRegistryName("emojiful", "emoji_recipe");
-        this.recipeType = RecipeType.register("emojiful:emoji_recipe");
+
     }
 
     @Override

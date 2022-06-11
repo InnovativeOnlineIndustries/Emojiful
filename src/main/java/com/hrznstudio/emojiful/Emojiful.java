@@ -6,16 +6,20 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,10 +38,17 @@ public class Emojiful {
     public static final List<Emoji> EMOJI_LIST = new ArrayList<>();
     public static boolean error = false;
 
+    public static DeferredRegister<RecipeSerializer<?>> RECIPE_SER = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
+    public static final RegistryObject<EmojiRecipeSerializer> EMOJI_RECIPE_SERIALIZER = Emojiful.RECIPE_SER.register("emoji_recipe", EmojiRecipeSerializer::new);
+
+    public static DeferredRegister<RecipeType<?>> RECIPE_TYPE = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, MODID);
+    public static final RegistryObject<RecipeType<EmojiRecipe>> EMOJI_RECIPE_TYPE = Emojiful.RECIPE_TYPE.register("emoji_recipe_type",() -> RecipeType.simple(new ResourceLocation(MODID, "emoji_recipe_type" )));
     public Emojiful() {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::registerClient);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, EmojifulConfig.init());
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(RecipeSerializer.class, EventPriority.NORMAL, false, RegistryEvent.Register.class, this::registerSerializable );
+        RECIPE_SER.register(FMLJavaModLoadingContext.get().getModEventBus());
+        RECIPE_TYPE.register(FMLJavaModLoadingContext.get().getModEventBus());
+        //FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(RecipeSerializer.class, EventPriority.NORMAL, false, RegistryEvent.Register.class, this::registerSerializable );
     }
 
     public static void main(String[] s) throws YamlException {
@@ -67,10 +78,6 @@ public class Emojiful {
         String jsonText = readStringFromURL(url);
         JsonElement json = new JsonParser().parse(jsonText);
         return json;
-    }
-
-    public void registerSerializable(RegistryEvent.Register<RecipeSerializer<?>> registryEvent){
-        registryEvent.getRegistry().register(EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER);
     }
 
 }

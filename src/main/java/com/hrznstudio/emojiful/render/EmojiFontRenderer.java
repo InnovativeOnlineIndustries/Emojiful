@@ -8,37 +8,39 @@ import com.hrznstudio.emojiful.Emojiful;
 import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.util.EmojiUtil;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.netty.util.internal.StringUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
-import net.minecraft.client.gui.font.FontSet;
 import com.mojang.blaze3d.font.GlyphInfo;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import io.netty.util.internal.StringUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.FormattedCharSink;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.FormattedCharSequence;
-import com.mojang.math.Matrix4f;
+import net.minecraft.util.FormattedCharSink;
+import net.minecraft.util.StringDecomposer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.util.StringDecomposer;
 
 public class EmojiFontRenderer extends Font {
 
@@ -77,12 +79,13 @@ public class EmojiFontRenderer extends Font {
 
     @Override
     public int width(FormattedText textProperties) {
-        if (textProperties instanceof TextComponent){
+        if (textProperties instanceof Component) {
+            /* TODO
             try {
-                return super.width(new TextComponent(RECENT_STRINGS.get(textProperties.getString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey()).setStyle(((TextComponent) textProperties).getStyle()));
+                //return super.width(new TextComponent(RECENT_STRINGS.get(textProperties.getString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey()).setStyle(((TextComponent) textProperties).getStyle()));
             } catch (ExecutionException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
         return this.width(textProperties.getString());
     }
@@ -106,17 +109,17 @@ public class EmojiFontRenderer extends Font {
             for (Emoji emoji : Emojiful.EMOJI_LIST) {
                 Pattern pattern = emoji.getRegex();
                 Matcher matcher = pattern.matcher(unformattedText);
-                while (matcher.find()){
-                    if (!matcher.group().isEmpty()){
+                while (matcher.find()) {
+                    if (!matcher.group().isEmpty()) {
                         String emojiText = matcher.group();
                         int index = text.indexOf(emojiText);
                         emojis.put(index, emoji);
                         HashMap<Integer, Emoji> clean = new LinkedHashMap<>();
                         for (Integer integer : new ArrayList<>(emojis.keySet())) {
-                            if (integer > index){
+                            if (integer > index) {
                                 Emoji e = emojis.get(integer);
                                 emojis.remove(integer);
-                                clean.put(integer-emojiText.length() +1, e);
+                                clean.put(integer - emojiText.length() + 1, e);
                             }
                         }
                         emojis.putAll(clean);
@@ -153,16 +156,16 @@ public class EmojiFontRenderer extends Font {
 
     @Override
     public int drawInBatch(FormattedCharSequence reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
-        if (reorderingProcessor != null){
+        if (reorderingProcessor != null) {
             StringBuilder builder = new StringBuilder();
-            if (reorderingProcessor != null){
+            if (reorderingProcessor != null) {
                 reorderingProcessor.accept((p_accept_1_, p_accept_2_, ch) -> {
                     builder.append((char) ch);
                     return true;
                 });
             }
             String text = builder.toString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb:");
-            if (text.length() > 0){
+            if (text.length() > 0) {
                 color = (color & -67108864) == 0 ? color | -16777216 : color;
                 HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
                 try {
@@ -177,8 +180,8 @@ public class EmojiFontRenderer extends Font {
                 AtomicInteger cleanPos = new AtomicInteger();
                 AtomicBoolean ignore = new AtomicBoolean(false);
                 reorderingProcessor.accept((pos, style, ch) -> {
-                    if (!ignore.get()){
-                        if (finalEmojis.get(cleanPos.get()) == null){
+                    if (!ignore.get()) {
+                        if (finalEmojis.get(cleanPos.get()) == null) {
                             processors.add(new CharacterProcessor(cleanPos.getAndIncrement(), style, ch));
                         } else {
                             processors.add(new CharacterProcessor(cleanPos.get(), style, ' '));
@@ -209,10 +212,10 @@ public class EmojiFontRenderer extends Font {
                 return (int) fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
             }
         }
-        return super.drawInBatch(reorderingProcessor,x,y,color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
+        return super.drawInBatch(reorderingProcessor, x, y, color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
     }
 
-    class CharacterProcessor implements FormattedCharSequence{
+    class CharacterProcessor implements FormattedCharSequence {
 
         public final int pos;
         public final Style style;

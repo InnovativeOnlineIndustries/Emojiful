@@ -1,5 +1,6 @@
 package com.hrznstudio.emojiful.datapack;
 
+import com.hrznstudio.emojiful.Emojiful;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -53,12 +54,12 @@ public class EmojiRecipe implements Recipe<Container> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER;
+        return Emojiful.EMOJI_RECIPE_SERIALIZER.get();
     }
 
     @Override
     public RecipeType<?> getType() {
-        return EmojiRecipeSerializer.EMOJI_RECIPE_SERIALIZER.recipeType;
+        return Emojiful.EMOJI_RECIPE_TYPE.get();
     }
 
     public ResourceLocation getRecipeName() {
