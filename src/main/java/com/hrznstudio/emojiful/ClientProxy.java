@@ -62,7 +62,7 @@ public class ClientProxy {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void guiInit(ScreenEvent.InitScreenEvent.Post event){
+    public void guiInit(ScreenEvent.Init.Post event){
         if (event.getScreen() instanceof ChatScreen && !Emojiful.error){
             if (EmojifulConfig.getInstance().showEmojiAutocomplete.get()) emojiSuggestionHelper = new EmojiSuggestionHelper((ChatScreen) event.getScreen());
             if (EmojifulConfig.getInstance().showEmojiSelector.get()) emojiSelectionGui = new EmojiSelectionGui((ChatScreen) event.getScreen());
@@ -94,7 +94,7 @@ public class ClientProxy {
     }
 
     @SubscribeEvent
-    public void render(ScreenEvent.DrawScreenEvent.Post event){
+    public void render(ScreenEvent.Render.Post event){
         if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(event.getPoseStack());
         if (emojiSelectionGui != null){
             emojiSelectionGui.mouseMoved(event.getMouseX(), event.getMouseY());
@@ -103,18 +103,18 @@ public class ClientProxy {
     }
 
     @SubscribeEvent
-    public void onKeyPressed(ScreenEvent.KeyboardKeyPressedEvent event){
+    public void onKeyPressed(ScreenEvent.KeyPressed event){
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) event.setCanceled(true);
         if (emojiSelectionGui != null && emojiSelectionGui.keyPressed(event.getKeyCode(), event.getScanCode(), event.getModifiers())) event.setCanceled(true);
     }
 
     @SubscribeEvent
-    public void onClick(ScreenEvent.MouseClickedEvent.Pre event){
+    public void onClick(ScreenEvent.MouseButtonPressed.Pre event){
         if (emojiSelectionGui != null) emojiSelectionGui.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton());
     }
 
     @SubscribeEvent
-    public void onScroll(ScreenEvent.MouseScrollEvent.Pre event){
+    public void onScroll(ScreenEvent.MouseScrolled.Pre event){
         if (emojiSelectionGui != null) emojiSelectionGui.mouseScrolled(event.getMouseX(), event.getMouseY(), event.getScrollDelta());
     }
 
@@ -124,7 +124,7 @@ public class ClientProxy {
     }
 
     @SubscribeEvent
-    public void onCharTyped(ScreenEvent.KeyboardCharTypedEvent event){
+    public void onCharTyped(ScreenEvent.CharacterTyped event){
         if (emojiSelectionGui != null && emojiSelectionGui.charTyped(event.getCodePoint(), event.getModifiers())) event.setCanceled(true);
     }
 
