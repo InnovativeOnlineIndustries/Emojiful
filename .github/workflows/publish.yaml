@@ -35,4 +35,4 @@ jobs:
           game-versions: 1.19
           java: 17
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.18"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19"
