@@ -21,3 +21,10 @@ license="ARR"
     versionRange="[1.19,)"
     ordering="NONE"
     side="CLIENT"
+
+[[dependencies.emojiful]]
+    modId="forge"
+    mandatory=true
+    versionRange="[41.1.0,)"
+    ordering="NONE"
+    side="CLIENT"
