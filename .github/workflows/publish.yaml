@@ -32,7 +32,7 @@ jobs:
           files-secondary: build/libs/*-@(dev|sources).jar
           version-type: beta
           loaders: forge
-          game-versions: 1.19.1 | 1.19
+          game-versions: 1.19.1
           java: 17
           name: ""
           changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19"

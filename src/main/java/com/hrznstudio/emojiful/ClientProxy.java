@@ -143,13 +143,14 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatSend(ClientChatEvent event){
+        /*
         if (EmojifulConfig.getInstance().renderEmoji.get() && EmojifulConfig.getInstance().shortEmojiReplacement.get()){
             String message = event.getMessage();
             for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
                 if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
             }
             event.setMessage(message);
-        }
+        }*/
     }
 
     @SubscribeEvent

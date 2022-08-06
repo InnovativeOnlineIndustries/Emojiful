@@ -56,7 +56,7 @@ public class EmojiFontRenderer extends Font {
     });
 
     public EmojiFontRenderer(Font fontRenderer) {
-        super(fontRenderer.fonts);
+        super(fontRenderer.fonts, fontRenderer.filterFishyGlyphs);
     }
 
     private TextureAtlasSprite sprite;
@@ -286,7 +286,7 @@ public class EmojiFontRenderer extends Font {
                     return true;
                 }
             } else {
-                GlyphInfo iglyph = font.getGlyphInfo(charInt);
+                GlyphInfo iglyph = font.getGlyphInfo(charInt, filterFishyGlyphs);
                 BakedGlyph texturedglyph = style.isObfuscated() && charInt != 32 ? font.getRandomGlyph(iglyph) : font.getGlyph(charInt);
                 boolean flag = style.isBold();
                 float f3 = this.a;
