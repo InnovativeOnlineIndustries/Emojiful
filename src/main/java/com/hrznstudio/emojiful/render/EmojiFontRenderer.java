@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.hrznstudio.emojiful.Emojiful;
 import com.hrznstudio.emojiful.EmojifulConfig;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.vertex.VertexConsumer;

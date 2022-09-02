@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hrznstudio.emojiful.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "emojiful.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "ChatScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

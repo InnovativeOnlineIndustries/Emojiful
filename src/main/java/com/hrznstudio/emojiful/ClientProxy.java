@@ -16,7 +16,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,6 +28,7 @@ import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,6 +37,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.StringReader;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ClientProxy {
@@ -130,14 +137,6 @@ public class ClientProxy {
 
     @SubscribeEvent
     public void onChatRecieved(ClientChatReceivedEvent event){
-        /*
-        if (EmojifulConfig.getInstance().profanityFilter.get() && event.getMessage().getContents() instanceof TranslatableContents && ((TranslatableContents) event.getMessage().getContents()).getKey().equals("chat.type.text")){
-
-            BaseComponent component = (TranslatableContents) ((TranslatableContents) event.getMessage().getContents()).getArgs()[1];
-            TranslatableComponent translationTextComponent = new TranslatableComponent("chat.type.text", ((TranslatableComponent) event.getMessage()).getArgs()[0], net.minecraftforge.common.ForgeHooks.newChatWithLinks(ProfanityFilter.filterText(component.getString())));
-            event.setMessage(translationTextComponent);
-        }
-        */
 
     }
 
@@ -167,7 +166,6 @@ public class ClientProxy {
                 emoji.location = emojiRecipe.getName();
                 emoji.url = emojiRecipe.getUrl();
                 emoji.worldBased = true;
-                System.out.println(emoji.getUrl());
                 Emojiful.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
                 Emojiful.EMOJI_LIST.add(emoji);
                 if (CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.getName().equalsIgnoreCase(emojiRecipe.getCategory()))){
