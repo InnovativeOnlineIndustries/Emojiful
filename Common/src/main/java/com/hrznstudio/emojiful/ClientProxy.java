@@ -1,4 +1,4 @@
-package com.hrznstudio.emojiful;
+ package com.hrznstudio.emojiful;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.gson.JsonElement;
@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.io.StringReader;
@@ -113,45 +114,42 @@ public class ClientProxy {
         if (emojiSelectionGui != null) emojiSelectionGui.mouseClicked(mouseX, mouseY, button);
     }
 
-    @SubscribeEvent
-    public void onScroll(ScreenEvent.MouseScrolled.Pre event){
-        if (emojiSelectionGui != null) emojiSelectionGui.mouseScrolled(event.getMouseX(), event.getMouseY(), event.getScrollDelta());
+    /**
+     * Originally called in Forge's ScreenEvent.MouseScrolledEvent
+     * @param mouseX
+     * @param mouseY
+     * @param mouseDelta
+     */
+    public static void onScroll(double mouseX, double mouseY, double mouseDelta){
+        if (emojiSelectionGui != null) emojiSelectionGui.mouseScrolled(mouseX, mouseY, mouseDelta);
     }
 
-    @SubscribeEvent
-    public void onClose(TickEvent.ClientTickEvent event){
-        if (emojiSelectionGui != null && Minecraft.getInstance().screen != emojiSelectionGui.getChatScreen()) emojiSelectionGui = null;
+    /**
+     * Originally called in Forge's ScreenEvent.Closing event
+     */
+    public static void onClose(Screen screen){
+        //todo fix emojiSelectionGui#getChatScreen
+        if (emojiSelectionGui != null && screen != emojiSelectionGui.getChatScreen()) emojiSelectionGui = null;
     }
 
-    @SubscribeEvent
-    public void onCharTyped(ScreenEvent.CharacterTyped event){
-        if (emojiSelectionGui != null && emojiSelectionGui.charTyped(event.getCodePoint(), event.getModifiers())) event.setCanceled(true);
+    /**
+     * Originally called in Forge's SCreenEvent.CharacterTyped
+     */
+    public static boolean onCharTyped(char character, int mod){
+        return (emojiSelectionGui != null && emojiSelectionGui.charTyped(character, mod));
     }
 
-    @SubscribeEvent
-    public void onChatRecieved(ClientChatReceivedEvent event){
 
-    }
-
-    @SubscribeEvent
-    public void onChatSend(ClientChatEvent event){
-        /*
-        if (EmojifulConfig.getInstance().renderEmoji.get() && EmojifulConfig.getInstance().shortEmojiReplacement.get()){
-            String message = event.getMessage();
-            for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
-                if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
-            }
-            event.setMessage(message);
-        }*/
-    }
-
-    @SubscribeEvent
-    public void onRecipesUpdated(RecipesUpdatedEvent event){
+    /**
+     * Originally ccalled in Forge's RecipesUpdatedEvent
+     */
+    public void onRecipesUpdate(RecipeManager manager){
         CATEGORIES.removeIf(EmojiCategory::isWorldBased);
         Constants.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
         Constants.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
-        if (EmojifulConfig.getInstance().loadDatapack.get()){
-            for (EmojiRecipe emojiRecipe : event.getRecipeManager().getAllRecipesFor(Emojiful.EMOJI_RECIPE_TYPE.get())) {
+        if (Services.CONFIG.loadDatapack()){
+            //Emojiful.RECIPE_TYPE.get()
+            for (EmojiRecipe emojiRecipe : manager.getAllRecipesFor(null)) {
                 EmojiFromGithub emoji = new EmojiFromGithub();
                 emoji.name = emojiRecipe.getName();
                 emoji.strings = new ArrayList<>();
@@ -171,10 +169,10 @@ public class ClientProxy {
 
     private void preInitEmojis() {
         CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
-        if (EmojifulConfig.getInstance().loadCustom.get())loadCustomEmojis();
+        if (Services.CONFIG.loadCustom())loadCustomEmojis();
         //loadGithubEmojis();
-        if (EmojifulConfig.getInstance().loadTwemoji.get())loadTwemojis();
-        if (EmojifulConfig.getInstance().profanityFilter.get()) ProfanityFilter.loadConfigs();
+        if (Services.CONFIG.loadTwemoji())loadTwemojis();
+        if (Services.CONFIG.getProfanityFilter()) ProfanityFilter.loadConfigs();
     }
 
     private void loadCustomEmojis(){
@@ -188,8 +186,8 @@ public class ClientProxy {
                 Constants.EMOJI_MAP.put(category.replace(".yml", ""), emojis);
             }
         } catch (Exception e) {
-            Emojiful.error = true;
-            Emojiful.LOGGER.catching(e);
+            Constants.error = true;
+            Constants.LOG.error("An error was thrown while reading custom emojis", e);
         }
     }
 
@@ -243,9 +241,8 @@ public class ClientProxy {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void initEmojis() {
-        if (!Emojiful.error) {
+        if (!Constants.error) {
             oldFontRenderer = Minecraft.getInstance().font;
             Minecraft.getInstance().font = new EmojiFontRenderer(Minecraft.getInstance().font);
             Minecraft.getInstance().getEntityRenderDispatcher().font = Minecraft.getInstance().font;
