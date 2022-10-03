@@ -1,0 +1,20 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.hrznstudio.emojiful.mixin",
+    "refmap": "emojiful.refmap.json",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+      "access.FontAccessor",
+      "ChatScreenMixin",
+      "access.ChatScreenAccessor"
+    ],
+    "client": [
+
+    ],
+    "injectors": {
+      "defaultRequire": 1
+    }
+
+  }
+  

@@ -1,129 +1,77 @@
-buildscript {
+subprojects {
+    
+    apply plugin: 'java'
+    
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.withSourcesJar()
+    java.withJavadocJar()
+        
+    jar {
+        from(rootProject.file("LICENSE")) {
+            rename { "${it}_${mod_name}" }
+        }
+        manifest {
+            attributes([
+                'Specification-Title'     : mod_name,
+                'Specification-Vendor'    : mod_author,
+                'Specification-Version'   : project.jar.archiveVersion,
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_author,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'Timestampe'              : System.currentTimeMillis(),
+                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                'Build-On-Minecraft'      : minecraft_version
+            ])
+        }
+    }
+
+    sourcesJar {
+        from(rootProject.file("LICENSE")) {
+            rename { "${it}_${mod_name}" }
+        }
+    }
+
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url "https://plugins.gradle.org/m2/" }
+
         mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7.+'
-    }
-}
-plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.0"
-}
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: "java"
-apply plugin: "idea"
-apply plugin: "com.github.johnrengelman.shadow"
-apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
-apply plugin: 'org.spongepowered.mixin'
 
-version = "${minecraft_version}-" + "${version}"
-group = "${group}"
-archivesBaseName = "${archive}"
-
-// Workaround to make Mixins and BMS work with the mess that is FG
-configurations {
-    library
-    implementation.extendsFrom library
-}
-
-minecraft.runs.all {
-    lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
-    }
-}
-// End of workaround
-
-repositories {
-    maven {
-        name = "forge"
-        url = "https://files.minecraftforge.net/maven"
-    }
-
-    maven {
-        url "https://maven.tterrag.com/"
-    }
-}
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-minecraft {
-    mappings channel: 'official', version: '1.19.1'
-    runs {
-        client {
-            workingDirectory project.file('run')
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
+        maven {
+            name = 'Sponge / Mixin'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
 
-        server {
-            workingDirectory project.file('run')
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
+        maven {
+            name = 'BlameJared Maven (CrT / Bookshelf)'
+            url = 'https://maven.blamejared.com'
+        }
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
             }
         }
+        maven {
+            name = 'ParchmentMC'
+            url = 'https://maven.parchmentmc.org'
+        }
+        maven {
+            // location of the maven that hosts JEI files
+            name = "Progwml6 maven"
+            url = "https://dvs1.progwml6.com/files/maven/"
+        }
     }
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-}
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url 'https://maven.blamejared.com' }
-}
-
-dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.1-42.0.9'
-    library group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
-    //compileOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+:api")
-    //runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.16.2+")
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-}
-
-mixin {
-    add sourceSets.main, "emojiful.refmap.json"
-
-    config "emojiful.mixins.json"
-}
-
-reobf {
-    shadowJar {}
-}
-
-shadowJar {
-    dependencies {
-        include(dependency(group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'))
+    tasks.withType(JavaCompile).configureEach {
+    
+        it.options.encoding = 'UTF-8'
+        it.options.release = 17
     }
-    classifier ''
-}
 
-jar {
-    manifest {
-        attributes "FMLAT": "emojiful_at.cfg"
-    }
-}
-artifacts {
-    archives shadowJar
-}
-
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "${title}",
-                "Specification-Vendor"    : "${team}",
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
-                "Implementation-Vendor"   : "${team}",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "ModSide": "BOTH",
-        ],)
+    // Disables Gradle's custom module metadata from being published to maven. The
+    // metadata includes mapped dependencies which are not reasonably consumable by
+    // other mod developers.
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
     }
 }
