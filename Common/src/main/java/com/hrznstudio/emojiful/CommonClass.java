@@ -21,15 +21,13 @@ import java.util.Scanner;
 public class CommonClass {
 
     public static void init() {
-
         Constants.LOG.info("Hello from Common init on {}! we are currently in a {} environment!", Services.PLATFORM.getPlatformName(), Services.PLATFORM.isDevelopmentEnvironment() ? "development" : "production");
-        Constants.LOG.info("Diamond Item >> {}", Registry.ITEM.getKey(Items.DIAMOND));
     }
 
     public static String readStringFromURL(String requestURL) {
         try {
             try (Scanner scanner = new Scanner(new URL(requestURL).openStream(),
-                    StandardCharsets.UTF_8.toString())) {
+                    StandardCharsets.UTF_8)) {
                 scanner.useDelimiter("\\A");
                 return scanner.hasNext() ? scanner.next() : "";
             }
@@ -41,8 +39,7 @@ public class CommonClass {
 
     public static JsonElement readJsonFromUrl(String url) {
         String jsonText = readStringFromURL(url);
-        JsonElement json = new JsonParser().parse(jsonText);
-        return json;
+        return new JsonParser().parse(jsonText);
     }
 
     public static void main(String[] s) throws YamlException {
