@@ -105,7 +105,7 @@
 [18:44:53] [main/DEBUG] (FabricLoader/Entrypoint) Registering new-style initializer net.fabricmc.fabric.impl.event.interaction.InteractionEventsRouter for mod fabric-events-interaction-v0 (key main)
 [18:44:53] [main/DEBUG] (FabricLoader/Entrypoint) Registering new-style initializer net.fabricmc.fabric.impl.lookup.ApiLookupImpl for mod fabric-api-lookup-api-v1 (key main)
 [18:44:53] [main/DEBUG] (FabricLoader/Entrypoint) Registering new-style initializer net.fabricmc.fabric.impl.client.indigo.Indigo for mod fabric-renderer-indigo (key client)
-[18:44:53] [main/DEBUG] (FabricLoader/Entrypoint) Registering new-style initializer com.hrznstudio.emojiful.EmojifulFabric for mod emojiful (key main)
+[18:44:53] [main/DEBUG] (FabricLoader/Entrypoint) Registering new-style initializer com.hrznstudio.emojiful.EmojifulFabricClient for mod emojiful (key main)
 [18:44:53] [main/DEBUG] (FabricLoader/Mappings) Loading mappings took 132 ms
 [18:44:53] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.5 Source=file:/C:/Users/witix/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.11.4+mixin.0.8.5/c1dc27696aa4006e492c2485c9ccbcb26045a971/sponge-mixin-0.11.4+mixin.0.8.5.jar Service=Knot/Fabric Env=CLIENT
 [18:44:54] [main/DEBUG] (FabricLoader/Mixin) Error cleaning class output directory: .mixin.out

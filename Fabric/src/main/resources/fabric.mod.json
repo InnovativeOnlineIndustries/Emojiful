@@ -19,6 +19,9 @@
     "environment": "*",
     "entrypoints": {
       "client": [
+        "com.hrznstudio.emojiful.EmojifulFabricClient"
+      ],
+      "main": [
         "com.hrznstudio.emojiful.EmojifulFabric"
       ]
     },

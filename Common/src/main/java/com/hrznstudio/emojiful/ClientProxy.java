@@ -46,6 +46,8 @@ public class ClientProxy {
         Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
     }
 
+
+
     /**
      *
      * @param screen Originally called in Forge's ScreenEvent.Init.Pos events
@@ -57,7 +59,7 @@ public class ClientProxy {
         }
     }
 
-    private static void indexEmojis(){
+    public static void indexEmojis(){
         ALL_EMOJIS = Constants.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
         SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
         for (EmojiCategory category : CATEGORIES) {
