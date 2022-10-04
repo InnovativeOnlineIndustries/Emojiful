@@ -28,8 +28,6 @@ public abstract class ChatScreenMixin {
     //     empty[style={color=#E91E63}, siblings=[
     //        literal{Buuz135}[style={}]]], literal{> }[style={}], empty[style={}, siblings=[literal{test <:infinity_nuke:855924066539536414>}[style={}]]]]]
 
-    @Shadow @Nullable
-    public abstract ChatScreen emojiful_getFocusedChat();
 
     @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     public Component emojiful_component(Component x) {

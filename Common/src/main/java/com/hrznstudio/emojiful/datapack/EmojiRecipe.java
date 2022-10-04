@@ -1,6 +1,4 @@
 package com.hrznstudio.emojiful.datapack;
-
-import com.hrznstudio.emojiful.Emojiful;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -12,13 +10,9 @@ import net.minecraft.world.level.Level;
 public class EmojiRecipe implements Recipe<Container> {
 
     private final ResourceLocation recipeName;
-    private String category;
-    private String name;
-    private String url;
-
-    public EmojiRecipe(ResourceLocation recipeName) {
-        this.recipeName = recipeName;
-    }
+    private final String category;
+    private final String name;
+    private final String url;
 
     public EmojiRecipe(ResourceLocation recipeName, String category, String name, String url) {
         this.recipeName = recipeName;

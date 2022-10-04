@@ -1,6 +1,6 @@
 package com.hrznstudio.emojiful.api;
 
-import com.hrznstudio.emojiful.Emojiful;
+import com.hrznstudio.emojiful.Constants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -9,8 +9,8 @@ import com.mojang.blaze3d.platform.TextureUtil;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class EmojiFromTwitmoji extends Emoji {
             return;
 
         img = new DownloadImageData(new File("emojiful/cache/" + name + "-" + version), "https://raw.githubusercontent.com/iamcal/emoji-data/master/img-twitter-64/" + location, loading_texture);
-        resourceLocation = new ResourceLocation(Emojiful.MODID, "texures/emoji/" + location.toLowerCase() + "_" + version);
+        resourceLocation = new ResourceLocation(Constants.MOD_ID, "texures/emoji/" + location.toLowerCase() + "_" + version);
         Minecraft.getInstance().getTextureManager().register(resourceLocation, img);
     }
 
@@ -102,7 +102,7 @@ public class EmojiFromTwitmoji extends Emoji {
             try {
                 nativeimage = NativeImage.read(inputStreamIn);
             } catch (IOException ioexception) {
-                Emojiful.LOGGER.warn("Error while loading the skin texture", (Throwable)ioexception);
+                Constants.LOG.warn("Error while loading the skin texture", (Throwable)ioexception);
             }
 
             return nativeimage;

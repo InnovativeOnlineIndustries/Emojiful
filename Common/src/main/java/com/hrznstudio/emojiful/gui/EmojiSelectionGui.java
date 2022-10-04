@@ -31,16 +31,16 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
 
     private int selectionPointer;
     private int categoryPointer;
-    private ChatScreen chatScreen;
+    private final ChatScreen chatScreen;
     private int openSelectionAreaEmoji;
     private boolean showingSelectionArea;
-    private EditBox fieldWidget;
+    private final EditBox fieldWidget;
 
-    private Rect2i openSelectionArea;
-    private Rect2i selectionArea;
-    private Rect2i categorySelectionArea;
-    private Rect2i emojiInfoArea;
-    private Rect2i textFieldRectangle;
+    private final Rect2i openSelectionArea;
+    private final Rect2i selectionArea;
+    private final Rect2i categorySelectionArea;
+    private final Rect2i emojiInfoArea;
+    private final Rect2i textFieldRectangle;
 
     private double lastMouseX;
     private double lastMouseY;
@@ -112,7 +112,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                         GuiComponent.fill(stack, rec.getX()-1, rec.getY()-2, rec.getX() + rec.getWidth(), rec.getY() + rec.getHeight() -1, -2130706433);
                     }
                     if (rec.contains((int)lastMouseX, (int)lastMouseY) && Minecraft.getInstance().screen != null){
-                        Minecraft.getInstance().screen.renderComponentTooltip(stack, Arrays.asList(MutableComponent.create(new LiteralContents((category.getName())))),(int) lastMouseX,(int) lastMouseY);
+                        Minecraft.getInstance().screen.renderComponentTooltip(stack, Arrays.asList(MutableComponent.create(new LiteralContents((category.name())))),(int) lastMouseX,(int) lastMouseY);
                     }
                     if (ClientProxy.SORTED_EMOJIS_FOR_SELECTION.containsKey(category) && ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).size() > 0){
                         Minecraft.getInstance().font.draw(stack, ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
@@ -126,11 +126,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int p_231044_5_) {
         if (this.showingSelectionArea){
-            if (textFieldRectangle.contains((int)mouseX, (int)mouseY)){
-                fieldWidget.setFocus(true);
-            } else {
-                fieldWidget.setFocus(false);
-            }
+            fieldWidget.setFocus(textFieldRectangle.contains((int) mouseX, (int) mouseY));
             if (categorySelectionArea.contains((int)mouseX, (int)mouseY)){
                 for (int i = 0; i < 7; i++) {
                     int selCategory = i + categoryPointer;
@@ -237,7 +233,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
             if (lineToDraw instanceof EmojiCategory){
                 float textScale = 1f;
                 stack.scale(textScale, textScale, textScale);
-                Minecraft.getInstance().font.draw(stack, ((EmojiCategory) lineToDraw).getName(), (categorySelectionArea.getX() + categorySelectionArea.getWidth() + 2) * (1/textScale), (categorySelectionArea.getY() + height + 2)* (1/textScale), 0x969696);
+                Minecraft.getInstance().font.draw(stack, ((EmojiCategory) lineToDraw).name(), (categorySelectionArea.getX() + categorySelectionArea.getWidth() + 2) * (1/textScale), (categorySelectionArea.getY() + height + 2)* (1/textScale), 0x969696);
                 stack.scale(1,1,1);
             } else {
                 Emoji[] emojis = (Emoji[]) lineToDraw;

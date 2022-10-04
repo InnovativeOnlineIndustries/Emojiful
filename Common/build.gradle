@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'fabric-loom' version '1.+'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 archivesBaseName = "${mod_name}-common-${minecraft_version}"
@@ -15,6 +16,7 @@ loom {
     runConfigs.configureEach {
         ideConfigGenerated = false
     }
+    accessWidenerPath = file("${project(':Common').projectDir.path}/src/main/resources/emojifulcommon.accesswidener")
 }
 
 dependencies {
