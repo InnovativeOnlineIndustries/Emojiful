@@ -1,3 +1,4 @@
+/*
 package com.hrznstudio.emojiful;
 
 import com.google.gson.JsonElement;
@@ -42,21 +43,11 @@ public class ClientProxy {
     public static final List<EmojiCategory> CATEGORIES = new ArrayList<>();
     public static int lineAmount;
 
-    public static void registerClient(){
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(PROXY::setup);
-        MinecraftForge.EVENT_BUS.register(PROXY);
-    }
 
     public static EmojiSuggestionHelper emojiSuggestionHelper;
     public static EmojiSelectionGui emojiSelectionGui;
 
-    @OnlyIn(Dist.CLIENT)
-    public void setup(final FMLClientSetupEvent event) {
-        preInitEmojis();
-        initEmojis();
-        indexEmojis();
-        Emojiful.LOGGER.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
-    }
+
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
@@ -141,6 +132,7 @@ public class ClientProxy {
             }
             event.setMessage(message);
         }*/
+/*
     }
 
     @SubscribeEvent

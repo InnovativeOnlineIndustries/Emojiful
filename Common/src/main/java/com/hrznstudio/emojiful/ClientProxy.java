@@ -39,7 +39,7 @@ public class ClientProxy {
     public static EmojiSuggestionHelper emojiSuggestionHelper;
     public static EmojiSelectionGui emojiSelectionGui;
 
-    public void setup() {
+    public static void setup() {
         preInitEmojis();
         initEmojis();
         indexEmojis();
@@ -57,7 +57,7 @@ public class ClientProxy {
         }
     }
 
-    private void indexEmojis(){
+    private static void indexEmojis(){
         ALL_EMOJIS = Constants.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
         SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
         for (EmojiCategory category : CATEGORIES) {
@@ -161,7 +161,7 @@ public class ClientProxy {
         }
     }
 
-    private void preInitEmojis() {
+    private static void preInitEmojis() {
         CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
         if (Services.CONFIG.loadCustom())loadCustomEmojis();
         //loadGithubEmojis();
@@ -169,7 +169,7 @@ public class ClientProxy {
         if (Services.CONFIG.getProfanityFilter()) ProfanityFilter.loadConfigs();
     }
 
-    private void loadCustomEmojis(){
+    private static void loadCustomEmojis(){
         try {
             YamlReader reader = new YamlReader(new StringReader(CommonClass.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
             ArrayList<String> categories = (ArrayList<String>) reader.read();
@@ -185,13 +185,13 @@ public class ClientProxy {
         }
     }
 
-    private void loadApiEmojis(){
+    private static void loadApiEmojis(){
         for (JsonElement categories : CommonClass.readJsonFromUrl("https://www.emojidex.com/api/v1/categories").getAsJsonObject().getAsJsonArray("categories")) {
             Constants.EMOJI_MAP.put(categories.getAsJsonObject().get("code").getAsString(), new ArrayList<>());
         }
     }
 
-    public void loadGithubEmojis(){
+    public static void loadGithubEmojis(){
         Constants.EMOJI_MAP.put("Github", new ArrayList<>());
         for (Map.Entry<String, JsonElement> entry : CommonClass.readJsonFromUrl("https://api.github.com/emojis").getAsJsonObject().entrySet()) {
             EmojiFromGithub emoji = new EmojiFromGithub();
@@ -205,7 +205,7 @@ public class ClientProxy {
         }
     }
 
-    public void loadTwemojis(){
+    public static void loadTwemojis(){
         try{
             for (JsonElement element : CommonClass.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()){
                 if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()){
@@ -235,7 +235,7 @@ public class ClientProxy {
         }
     }
 
-    private void initEmojis() {
+    private static void initEmojis() {
         if (!Constants.error) {
             oldFontRenderer = Minecraft.getInstance().font;
             Minecraft.getInstance().font = new EmojiFontRenderer(Minecraft.getInstance().font);
@@ -249,3 +249,4 @@ public class ClientProxy {
     }
 
 }
+
