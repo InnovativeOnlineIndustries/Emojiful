@@ -20,11 +20,6 @@ import java.util.Scanner;
 
 public class CommonClass {
 
-    public static void init() {
-
-        Constants.LOG.info("Hello from Common init on {}! we are currently in a {} environment!", Services.PLATFORM.getPlatformName(), Services.PLATFORM.isDevelopmentEnvironment() ? "development" : "production");
-        Constants.LOG.info("Diamond Item >> {}", Registry.ITEM.getKey(Items.DIAMOND));
-    }
 
     public static String readStringFromURL(String requestURL) {
         try {

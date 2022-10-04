@@ -38,7 +38,6 @@ public class Emojiful {
     public static DeferredRegister<RecipeType<?>> RECIPE_TYPE = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, MODID);
     public static final RegistryObject<RecipeType<EmojiRecipe>> EMOJI_RECIPE_TYPE = Emojiful.RECIPE_TYPE.register("emoji_recipe_type",() -> RecipeType.simple(new ResourceLocation(MODID, "emoji_recipe_type" )));
     public Emojiful() {
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::registerClient);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ForgeConfigHelper.setup(new ForgeConfigSpec.Builder()));
         RECIPE_SER.register(FMLJavaModLoadingContext.get().getModEventBus());
         RECIPE_TYPE.register(FMLJavaModLoadingContext.get().getModEventBus());
