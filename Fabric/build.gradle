@@ -33,6 +33,7 @@ loom {
             runDir("runServer")
         }
     }
+    accessWidenerPath = file("${project(':Common').projectDir.path}/src/main/resources/emojifulcommon.accesswidener")
 }
 
 
