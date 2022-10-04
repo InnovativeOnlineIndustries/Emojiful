@@ -21,19 +21,12 @@ import java.util.Map;
 @Mod(Constants.MOD_ID)
 public class EmojifulForge {
 
-    public static final String MODID = "emojiful";
-    public static final Logger LOGGER = LogManager.getLogger("Emojiful");
 
-    public static final Map<String, List<Emoji>> EMOJI_MAP = new HashMap<>();
-    public static final List<Emoji> EMOJI_LIST = new ArrayList<>();
-    public static boolean error = false;
-
-    public static DeferredRegister<RecipeSerializer<?>> RECIPE_SER = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
+    public static DeferredRegister<RecipeSerializer<?>> RECIPE_SER = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Constants.MOD_ID);
     public static final RegistryObject<EmojiRecipeSerializer> EMOJI_RECIPE_SERIALIZER = Emojiful.RECIPE_SER.register("emoji_recipe", EmojiRecipeSerializer::new);
 
-    public static DeferredRegister<RecipeType<?>> RECIPE_TYPE = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, MODID);
-    public static final RegistryObject<RecipeType<EmojiRecipe>> EMOJI_RECIPE_TYPE = Emojiful.RECIPE_TYPE.register("emoji_recipe_type",() -> RecipeType.simple(new ResourceLocation(MODID, "emoji_recipe_type" )));
-
+    public static DeferredRegister<RecipeType<?>> RECIPE_TYPE = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, Constants.MOD_ID);
+    public static final RegistryObject<RecipeType<EmojiRecipe>> EMOJI_RECIPE_TYPE = Emojiful.RECIPE_TYPE.register("emoji_recipe_type",() -> RecipeType.simple(new ResourceLocation(Constants.MOD_ID, "emoji_recipe_type" )));
 
     public EmojifulForge() {
 

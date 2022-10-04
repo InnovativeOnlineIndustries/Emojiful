@@ -125,7 +125,6 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public class EmojiSuggestions {
 
         private final Rect2i area;
