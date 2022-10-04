@@ -1,6 +1,10 @@
 accessWidener v2 named
 extendable method net/minecraft/client/gui/Font renderText (Ljava/lang/String;FFIZLcom/mojang/math/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;ZII)F
+accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
 accessible field net/minecraft/client/Minecraft font Lnet/minecraft/client/gui/Font;
 accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher font Lnet/minecraft/client/gui/Font;
-accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
 accessible field net/minecraft/client/renderer/blockentity/SignRenderer font Lnet/minecraft/client/gui/Font;
+mutable field net/minecraft/client/Minecraft font Lnet/minecraft/client/gui/Font;
+mutable field net/minecraft/client/renderer/entity/EntityRenderDispatcher font Lnet/minecraft/client/gui/Font;
+mutable field net/minecraft/client/renderer/blockentity/SignRenderer font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/screens/ChatScreen input Lnet/minecraft/client/gui/components/EditBox;
