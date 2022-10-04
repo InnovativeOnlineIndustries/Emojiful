@@ -20,6 +20,7 @@ apply plugin: 'org.spongepowered.mixin'
 archivesBaseName = "${mod_name}-forge-${minecraft_version}"
 
 minecraft {
+    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
     mappings channel: 'parchment', version: "${parchment_version}-${parchment_minecraft_version}"
     runs {
         client {
