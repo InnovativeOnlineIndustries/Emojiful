@@ -18,21 +18,18 @@
   
     "environment": "*",
     "entrypoints": {
-      "client": [
-        "com.hrznstudio.emojiful.EmojifulFabricClient"
-      ],
       "main": [
         "com.hrznstudio.emojiful.EmojifulFabric"
       ]
     },
     "mixins": [
-      "emojiful.mixins.json"
+      "emojiful.mixins.json",
+      "emojiful.fabric.mixins.json"
     ],
   
     "depends": {
       "fabricloader": ">=0.14",
-      "fabric": "*",
-      "minecraft": "1.19.x",
+      "minecraft": "1.19.2",
       "java": ">=17"
     }
   }

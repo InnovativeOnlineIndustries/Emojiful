@@ -5,10 +5,8 @@ import eu.midnightdust.lib.config.MidnightConfig;
 
 public class FabricConfigHelper extends MidnightConfig implements IConfigHelper {
 
-    //Todo: Code in Fabric Lib
-
-    @Comment
-    public static Comment emojiful;
+    @Comment(centered = true)
+    public static Comment title;
 
     @Comment
     public static Comment enableRenderEmoji;
@@ -35,7 +33,7 @@ public class FabricConfigHelper extends MidnightConfig implements IConfigHelper 
     @Entry
     public static boolean emojiReplacement = true;
 
-    @Comment
+    @Comment(centered = true)
     public static Comment emojiTypes;
 
     @Comment
@@ -60,7 +58,7 @@ public class FabricConfigHelper extends MidnightConfig implements IConfigHelper 
 
     @Comment
     public static Comment profanityFilterString;
-    @Entry(name = ":swear:")
+    @Entry
     public static String profanityFilterReplacement = ":swear:";
 
 

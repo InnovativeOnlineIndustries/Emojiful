@@ -1,14 +1,23 @@
 {
-  "emojiful.midnightconfig.emojiful" : "Emojiful",
+  "emojiful.midnightconfig.title" : "Emojiful",
   "emojiful.midnightconfig.enableRenderEmoji" : "Enable Emoji Rendering",
+  "emojiful.midnightconfig.renderEmoji" : "Emoji Render",
   "emojiful.midnightconfig.showEmojiSelector" : "Enable Emoji Selection GUI in the chat text line",
-  "emojiful.midnightconfig.showEmojiAutocomplete" : "Enable Emoji autocomplete in the chat text line",
+  "emojiful.midnightconfig.emojiSelector" : "Emoji Selector",
+  "emojiful.midnightconfig.emojiAutocomplete" : "Emoji Autocompletion",
   "emojiful.midnightconfig.loadGifEmojis" : "Load animated emojis, if disabled they will be a still image",
+  "emojiful.midnightconfig.gifEmojis" : "GIF emojis",
   "emojiful.midnightconfig.shortEmojiReplacement" : "Replace short versions of emoji like :) into :smile: so they can be rendered as emoji",
+  "emojiful.midnightconfig.emojiReplacement" : "Short Emoji Replacement",
   "emojiful.midnightconfig.emojiTypes" : "Emoji Types",
   "emojiful.midnightconfig.loadTwemoji" : "Loads Twemojis used in sites like Twitter and Discord",
+  "emojiful.midnightconfig.enableLoadTwemoji" : "Load Twemoji",
   "emojiful.midnightconfig.enableLoadCustom" : "Loads custom emojis provided by Emojiful",
+  "emojiful.midnightconfig.loadCustom" : "Load Custom Emojis",
   "emojiful.midnightconfig.enableLoadDatapack" : "Loads datapack emojis provided by the server you join",
+  "emojiful.midnightconfig.loadDatapack" : "Load server datapacks",
   "emojiful.midnightconfig.enableProfanityFilter" : "Enable Profanity Filter, this will replace bad words with emoji",
-  "emojiful.midnightconfig.profanityFilterString" : "Replacement word for the profanity filter"
+  "emojiful.midnightconfig.profanityFilter" : "Profanity Filter",
+  "emojiful.midnightconfig.profanityFilterString" : "Replacement word for the profanity filter",
+  "emojiful.midnightconfig.profanityFilterReplacement" : "Replacement word"
 }
