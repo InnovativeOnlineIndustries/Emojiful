@@ -1,6 +1,6 @@
 package com.hrznstudio.emojiful.gui;
 
-import com.hrznstudio.emojiful.ClientProxy;
+import com.hrznstudio.emojiful.ClientEmojiHandler;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiCategory;
@@ -60,7 +60,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
         this.categorySelectionArea = new Rect2i(this.selectionArea.getX(), this.selectionArea.getY() + 20, 22, this.selectionArea.getHeight() - 20);
         this.emojiInfoArea = new Rect2i(this.selectionArea.getX() + 22, this.selectionArea.getY() + this.selectionArea.getHeight() - 20,  this.selectionArea.getWidth() - 22,  20);
         this.textFieldRectangle = new Rect2i(selectionArea.getX() + 6, selectionArea.getY() + 6, selectionArea.getWidth() -12, 10);
-        this.fieldWidget = new EditBox(ClientProxy.oldFontRenderer, textFieldRectangle.getX(), textFieldRectangle.getY(), textFieldRectangle.getWidth(), textFieldRectangle.getHeight(), MutableComponent.create(new LiteralContents("")));
+        this.fieldWidget = new EditBox(ClientEmojiHandler.oldFontRenderer, textFieldRectangle.getX(), textFieldRectangle.getY(), textFieldRectangle.getWidth(), textFieldRectangle.getHeight(), MutableComponent.create(new LiteralContents("")));
         this.fieldWidget.setEditable(true);
         this.fieldWidget.setVisible(true);
         this.filteredEmojis = new ArrayList<>();
@@ -83,7 +83,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                 StringBuilder builder = new StringBuilder();
                 lastEmoji.strings.forEach(s -> builder.append(s).append(" "));
                 float textScale = 0.5f;
-                List<FormattedCharSequence> iTextPropertiesList = ClientProxy.oldFontRenderer.split(FormattedText.of(builder.toString()), (int) ((emojiInfoArea.getWidth() - 18) *  (1/textScale)));
+                List<FormattedCharSequence> iTextPropertiesList = ClientEmojiHandler.oldFontRenderer.split(FormattedText.of(builder.toString()), (int) ((emojiInfoArea.getWidth() - 18) *  (1/textScale)));
                 float i = -iTextPropertiesList.size() / 2;
                 stack.pushPose();
                 stack.scale(textScale, textScale, textScale);
@@ -93,19 +93,19 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                         stringBuilder.append((char) ch);
                         return true;
                     });
-                    ClientProxy.oldFontRenderer.draw(stack, stringBuilder.toString(), (emojiInfoArea.getX() + 15) * (1/textScale), (emojiInfoArea.getY() + 8 + 4 * i)  * (1/textScale), 0x969696);
+                    ClientEmojiHandler.oldFontRenderer.draw(stack, stringBuilder.toString(), (emojiInfoArea.getX() + 15) * (1/textScale), (emojiInfoArea.getY() + 8 + 4 * i)  * (1/textScale), 0x969696);
                     ++i;
                 }
                 stack.scale(1,1,1);
                 stack.popPose();
             }
-            progressY = (int) ((( this.categorySelectionArea.getHeight() - 10) / ((double)ClientProxy.CATEGORIES.size() -7)) * (categoryPointer)) ;
+            progressY = (int) ((( this.categorySelectionArea.getHeight() - 10) / ((double) ClientEmojiHandler.CATEGORIES.size() -7)) * (categoryPointer)) ;
             drawRectangle(stack, new Rect2i(this.categorySelectionArea.getX() + this.categorySelectionArea.getWidth() - 2, this.categorySelectionArea.getY() + progressY + 2, 1,5), 0xff525252);
             EmojiCategory firstCategory = getCategory(selectionPointer);
             for (int i = 0; i < 7; i++) {
                 int selCategory = i + categoryPointer;
-                if (selCategory < ClientProxy.CATEGORIES.size()){
-                    EmojiCategory category = ClientProxy.CATEGORIES.get(selCategory);
+                if (selCategory < ClientEmojiHandler.CATEGORIES.size()){
+                    EmojiCategory category = ClientEmojiHandler.CATEGORIES.get(selCategory);
                     Rect2i rec = new Rect2i(categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 11, 11);
                     if (category.equals(firstCategory)){
                         GuiComponent.fill(stack, rec.getX()-1, rec.getY()-2, rec.getX() + rec.getWidth(), rec.getY() + rec.getHeight() -1, -2130706433);
@@ -113,8 +113,8 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                     if (rec.contains((int)lastMouseX, (int)lastMouseY) && Minecraft.getInstance().screen != null){
                         Minecraft.getInstance().screen.renderComponentTooltip(stack, Arrays.asList(MutableComponent.create(new LiteralContents((category.name())))),(int) lastMouseX,(int) lastMouseY);
                     }
-                    if (ClientProxy.SORTED_EMOJIS_FOR_SELECTION.containsKey(category) && ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).size() > 0){
-                        Minecraft.getInstance().font.draw(stack, ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
+                    if (ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.containsKey(category) && ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.get(category).size() > 0){
+                        Minecraft.getInstance().font.draw(stack, ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
                     }
                 }
             }
@@ -129,10 +129,10 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
             if (categorySelectionArea.contains((int)mouseX, (int)mouseY)){
                 for (int i = 0; i < 7; i++) {
                     int selCategory = i + categoryPointer;
-                    if (selCategory < ClientProxy.CATEGORIES.size()){
+                    if (selCategory < ClientEmojiHandler.CATEGORIES.size()){
                         Rect2i rec = new Rect2i(categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 11, 11);
                         if (rec.contains((int)mouseX, (int)mouseY)){
-                            EmojiCategory name = ClientProxy.CATEGORIES.get(selCategory);
+                            EmojiCategory name = ClientEmojiHandler.CATEGORIES.get(selCategory);
                             for (int i1 = 0; i1 < getLineAmount(); i1++) {
                                 if (name.equals(getLineToDraw(i1))){
                                     this.selectionPointer = i1;
@@ -182,13 +182,13 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (categorySelectionArea.contains((int)mouseX, (int)mouseY)){
             categoryPointer -= delta;
-            categoryPointer = Mth.clamp(categoryPointer, 0, ClientProxy.CATEGORIES.size() - 7);
+            categoryPointer = Mth.clamp(categoryPointer, 0, ClientEmojiHandler.CATEGORIES.size() - 7);
             return true;
         }
         if (selectionArea.contains((int)mouseX, (int)mouseY)){
             selectionPointer -= delta;
             selectionPointer = Mth.clamp(selectionPointer, 1, Math.max(1, getLineAmount() - 5));
-            categoryPointer = Mth.clamp(Arrays.asList(ClientProxy.CATEGORIES).indexOf(getCategory(selectionPointer)), 0, ClientProxy.CATEGORIES.size() - 7);
+            categoryPointer = Mth.clamp(Arrays.asList(ClientEmojiHandler.CATEGORIES).indexOf(getCategory(selectionPointer)), 0, ClientEmojiHandler.CATEGORIES.size() - 7);
             return true;
         }
         return false;
@@ -254,10 +254,10 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
 
     public Object getLineToDraw(int line){
         if (fieldWidget.getValue().isEmpty()){
-            for (EmojiCategory category : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
+            for (EmojiCategory category : ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
                 --line;
                 if (line == 0) return category;
-                for (Emoji[] emojis : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category)) {
+                for (Emoji[] emojis : ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.get(category)) {
                     --line;
                     if (line == 0) return emojis;
                 }
@@ -293,14 +293,14 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
     }
 
     public int getLineAmount(){
-        return fieldWidget.getValue().isEmpty() ? ClientProxy.lineAmount : filteredEmojis.size();
+        return fieldWidget.getValue().isEmpty() ? ClientEmojiHandler.lineAmount : filteredEmojis.size();
     }
 
     public EmojiCategory getCategory(int line){
-        for (EmojiCategory category : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
+        for (EmojiCategory category : ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.keySet()) {
             --line;
             if (line == 0) return category;
-            for (Emoji[] emojis : ClientProxy.SORTED_EMOJIS_FOR_SELECTION.get(category)) {
+            for (Emoji[] emojis : ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.get(category)) {
                 --line;
                 if (line == 0) return category;
             }

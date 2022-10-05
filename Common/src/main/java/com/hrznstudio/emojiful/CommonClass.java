@@ -44,7 +44,7 @@ public class CommonClass {
     }
 
     public static void main(String[] s) throws YamlException {
-        ClientProxy.PROXY.loadTwemojis();
+        ClientEmojiHandler.loadTwemojis();
     }
 
     public static List<Emoji> readCategory(String cat) throws YamlException {
@@ -52,7 +52,7 @@ public class CommonClass {
         return Lists.newArrayList(categoryReader.read(Emoji[].class));
     }
     public static void onRecipesUpdated(RecipeManager manager){
-        ClientProxy.CATEGORIES.removeIf(EmojiCategory::worldBased);
+        ClientEmojiHandler.CATEGORIES.removeIf(EmojiCategory::worldBased);
         Constants.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
         Constants.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
         if (Services.CONFIG.loadDatapack()){
@@ -66,11 +66,11 @@ public class CommonClass {
                 emoji.worldBased = true;
                 Constants.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
                 Constants.EMOJI_LIST.add(emoji);
-                if (ClientProxy.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory()))){
-                    ClientProxy.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+                if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory()))){
+                    ClientEmojiHandler.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
                 }
             }
-            ClientProxy.indexEmojis();
+            ClientEmojiHandler.indexEmojis();
         }
     }
 

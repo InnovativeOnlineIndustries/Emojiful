@@ -33,7 +33,7 @@ public class EmojifulForge {
     }
 
     private void handleClientSetup(final FMLClientSetupEvent event){
-        ClientProxy.setup();
+        ClientEmojiHandler.setup();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ForgeClientHandler::onRecipesUpdated);
     }
 

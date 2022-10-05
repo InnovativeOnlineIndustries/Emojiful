@@ -1,0 +1,59 @@
+package com.hrznstudio.emojiful.gui;
+
+import com.hrznstudio.emojiful.Constants;
+import com.hrznstudio.emojiful.platform.Services;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.resources.language.I18n;
+
+public class EmojifulChatScreen extends ChatScreen {
+
+    private EmojiSelectionGui emojiSelectionGui;
+    private EmojiSuggestionHelper emojiSuggestionHelper;
+
+    public EmojifulChatScreen() {
+        super(I18n.get("chat_screen.title"));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        if (!Constants.error){
+            if (Services.CONFIG.showEmojiAutocomplete()) emojiSuggestionHelper = new EmojiSuggestionHelper(this);
+            if (Services.CONFIG.showEmojiSelector()) emojiSelectionGui = new EmojiSelectionGui(this);
+        }
+    }
+
+
+    @Override
+    public void render(PoseStack poseStack, int x, int j, float partialTick) {
+        super.render(poseStack, x, j, partialTick);
+        if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(poseStack);
+        if (emojiSelectionGui != null){
+            emojiSelectionGui.mouseMoved(x, j);
+            emojiSelectionGui.render(poseStack);
+        }
+
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers)) return true;
+        return emojiSelectionGui != null && emojiSelectionGui.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseScrolled(double x, double y, double scrollDelta) {
+        return (emojiSelectionGui != null) && emojiSelectionGui.mouseScrolled(x, y, scrollDelta);
+    }
+
+    @Override
+    public boolean mouseClicked(double x, double y, int button) {
+        return (emojiSelectionGui != null) && emojiSelectionGui.mouseClicked(x, y, button);
+    }
+
+    @Override
+    public boolean charTyped(char c, int i) {
+        return (emojiSelectionGui != null && emojiSelectionGui.charTyped(c, i));
+    }
+}
