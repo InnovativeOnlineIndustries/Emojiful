@@ -1,5 +1,6 @@
 package com.hrznstudio.emojiful.platform;
 
+import com.hrznstudio.emojiful.EmojifulFabric;
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.services.IPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -27,11 +28,11 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public RecipeType<EmojiRecipe> getRecipeType() {
-        return null;
+        return EmojifulFabric.EMOJI_RECIPE_TYPE;
     }
 
     @Override
     public RecipeSerializer<EmojiRecipe> getRecipeSerializer() {
-        return null;
+        return EmojifulFabric.EMOJI_RECIPE_SERIALIZER;
     }
 }
