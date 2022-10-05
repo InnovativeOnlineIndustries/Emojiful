@@ -29,7 +29,11 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 
-public class EmojiUtil {
+public class EmojiUtil extends RenderType {
+
+    private EmojiUtil(String string, VertexFormat vertexFormat, VertexFormat.Mode mode, int i, boolean bl, boolean bl2, Runnable runnable, Runnable runnable2) {
+        super(string, vertexFormat, mode, i, bl, bl2, runnable, runnable2);
+    }
 
     public static RenderType createRenderType(Emoji emoji) {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
