@@ -5,9 +5,7 @@
     "refmap": "emojiful.refmap.json",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
-      "access.FontAccessor",
       "ChatScreenMixin",
-      "access.ChatScreenAccessor"
     ],
     "client": [
 

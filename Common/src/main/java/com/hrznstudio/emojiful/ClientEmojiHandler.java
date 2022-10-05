@@ -25,12 +25,14 @@ public class ClientEmojiHandler {
     public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
     public static final List<EmojiCategory> CATEGORIES = new ArrayList<>();
     public static int lineAmount;
+
     public static void setup() {
         preInitEmojis();
         initEmojis();
         indexEmojis();
         Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
     }
+
     public static void indexEmojis(){
         ALL_EMOJIS = Constants.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
         SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();

@@ -6,7 +6,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
-import com.hrznstudio.emojiful.mixin.access.FontAccessor;
 import com.hrznstudio.emojiful.platform.Services;
 import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.font.GlyphInfo;
@@ -28,6 +27,7 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;
 import net.minecraft.util.StringDecomposer;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,8 +45,8 @@ import java.util.regex.Pattern;
 public class EmojiFontRenderer extends Font {
 
     //<+(\w)+:+(\w)+>
-    public static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.03F);
     private static String MY_NAME = "DevNotWorkingRn";
+    public static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.03F);
 
     public static LoadingCache<String, Pair<String, HashMap<Integer, Emoji>>> RECENT_STRINGS = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(new CacheLoader<String, Pair<String, HashMap<Integer, Emoji>>>() {
         @Override
@@ -56,7 +56,7 @@ public class EmojiFontRenderer extends Font {
     });
 
     public EmojiFontRenderer(Font fontRenderer) {
-        super(((FontAccessor)(fontRenderer)).emojifulCommon_getFonts(), ((FontAccessor)(fontRenderer)).emojifulCommon_getFishyGlyphs());
+        super(fontRenderer.fonts, fontRenderer.filterFishyGlyphs);
     }
 
     private TextureAtlasSprite sprite;
@@ -275,7 +275,7 @@ public class EmojiFontRenderer extends Font {
         }
 
         public boolean accept(int pos, Style style, int charInt) {
-            FontSet font = ((FontAccessor)(EmojiFontRenderer.this)).emojifulCommon_getFontSet(style.getFont());
+            FontSet font = EmojiFontRenderer.this.getFontSet(style.getFont());
             if (Services.CONFIG.renderEmoji() && this.emojis.get(pos) != null) {
                 Emoji emoji = this.emojis.get(pos);
                 if (emoji != null && !this.dropShadow) {
@@ -284,7 +284,7 @@ public class EmojiFontRenderer extends Font {
                     return true;
                 }
             } else {
-                GlyphInfo iglyph = font.getGlyphInfo(charInt, ((FontAccessor)(EmojiFontRenderer.this)).emojifulCommon_getFishyGlyphs());
+                GlyphInfo iglyph = font.getGlyphInfo(charInt, (EmojiFontRenderer.this).filterFishyGlyphs);
                 BakedGlyph texturedglyph = style.isObfuscated() && charInt != 32 ? font.getRandomGlyph(iglyph) : font.getGlyph(charInt);
                 boolean flag = style.isBold();
                 float f3 = this.a;
@@ -307,7 +307,7 @@ public class EmojiFontRenderer extends Font {
                     float f5 = flag ? iglyph.getBoldOffset() : 0.0F;
                     float f4 = this.dropShadow ? iglyph.getShadowOffset() : 0.0F;
                     VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? DisplayMode.SEE_THROUGH : DisplayMode.NORMAL));
-                    ((FontAccessor)(EmojiFontRenderer.this)).emojifulCommon_renderChar(texturedglyph, flag, style.isItalic(), f5, this.x + f4, this.y + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
+                    (EmojiFontRenderer.this).renderChar(texturedglyph, flag, style.isItalic(), f5, this.x + f4, this.y + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
                 }
 
                 float f6 = iglyph.getAdvance(flag);
@@ -336,17 +336,13 @@ public class EmojiFontRenderer extends Font {
             }
 
             if (this.effects != null) {
-                try (FontSet fontSet = ((FontAccessor)(EmojiFontRenderer.this)).emojifulCommon_getFontSet(Style.DEFAULT_FONT)){
+                    FontSet fontSet = (EmojiFontRenderer.this).getFontSet(Style.DEFAULT_FONT);
                     BakedGlyph texturedglyph = fontSet.whiteGlyph();
                     VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? DisplayMode.SEE_THROUGH : DisplayMode.NORMAL));
 
                     for (BakedGlyph.Effect texturedglyph$effect : this.effects) {
                         texturedglyph.renderEffect(texturedglyph$effect, this.matrix, ivertexbuilder, this.packedLight);
                     }
-                } catch (Exception e){
-                    Constants.LOG.error("An error occured while rendering effects", e);
-                }
-
             }
 
             return this.x;

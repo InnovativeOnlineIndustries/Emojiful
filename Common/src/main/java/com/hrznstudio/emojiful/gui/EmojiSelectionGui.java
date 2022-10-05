@@ -4,7 +4,6 @@ import com.hrznstudio.emojiful.ClientEmojiHandler;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiCategory;
-import com.hrznstudio.emojiful.mixin.access.ChatScreenAccessor;
 import com.hrznstudio.emojiful.platform.Services;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -154,8 +153,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener  {
                                 float y = (categorySelectionArea.getY() + line * 12 + 2);//
                                 Rect2i rec = new Rect2i((int) x, (int) y -1, 11, 11);
                                 if (rec.contains((int)lastMouseX, (int)lastMouseY)){
-                                    ChatScreenAccessor chatScreenAccessor = (ChatScreenAccessor) chatScreen;
-                                    chatScreenAccessor.getInputs().setValue(chatScreenAccessor.getInputs().getValue() + emojis[i].getShorterString());
+                                    chatScreen.input.setValue(chatScreen.input.getValue() + emojis[i].getShorterString());
                                 }
                             }
                         }
