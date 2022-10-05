@@ -20,14 +20,11 @@ public abstract class MinecraftEmojifulMixin {
         ClientEmojiHandler.setup();
     }
 
-    @Shadow
-    abstract void setScreen(Screen screen);
 
     @Inject(method = "setScreen(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(value = "HEAD"))
     private void emojifulFabric_setScreenInject(Screen screen, CallbackInfo info){
         if (screen instanceof ChatScreen && !(screen instanceof EmojifulChatScreen)){
-            info.cancel();
-            setScreen(new EmojifulChatScreen());
+            Minecraft.getInstance().setScreen(new EmojifulChatScreen());
         }
     }
 }

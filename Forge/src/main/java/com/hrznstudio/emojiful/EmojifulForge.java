@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -34,7 +35,8 @@ public class EmojifulForge {
 
     private void handleClientSetup(final FMLClientSetupEvent event){
         ClientEmojiHandler.setup();
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ForgeClientHandler::onRecipesUpdated);
+        MinecraftForge.EVENT_BUS.addListener(ForgeClientHandler::onRecipesUpdated);
+        MinecraftForge.EVENT_BUS.addListener(ForgeClientHandler::hijackScreen);
     }
 
 }

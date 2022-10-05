@@ -80,6 +80,10 @@ public class Emoji implements Predicate<String> {
         return false;
     }
 
+    public boolean worldBased(){
+        return worldBased;
+    }
+
     public String getShorterString() {
         if (shortString != null) return shortString;
         shortString = strings.get(0);
