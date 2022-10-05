@@ -2,9 +2,14 @@ package com.hrznstudio.emojiful;
 
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
+import com.hrznstudio.emojiful.gui.EmojifulChatScreen;
 import com.hrznstudio.emojiful.platform.FabricConfigHelper;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -16,5 +21,22 @@ public class EmojifulFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         MidnightConfig.init(Constants.MOD_ID, FabricConfigHelper.class);
+    }
+
+    public static void handleScreenInject(Minecraft minecraft, Screen screen){
+        if (screen != null){
+            if (screen instanceof ChatScreen && !(screen instanceof EmojifulChatScreen)){
+                minecraft.screen = new EmojifulChatScreen();
+                minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
+                screen.removed();
+            }
+            else {
+                minecraft.screen = screen;
+            }
+        }
+        else {
+            minecraft.screen = null;
+        }
+
     }
 }
