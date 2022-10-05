@@ -6,14 +6,17 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.api.EmojiCategory;
+import com.hrznstudio.emojiful.api.EmojiFromGithub;
+import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.Services;
-import net.minecraft.core.Registry;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeManager;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -48,4 +51,27 @@ public class CommonClass {
         YamlReader categoryReader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + cat)));
         return Lists.newArrayList(categoryReader.read(Emoji[].class));
     }
+    public static void onRecipesUpdated(RecipeManager manager){
+        ClientProxy.CATEGORIES.removeIf(EmojiCategory::worldBased);
+        Constants.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
+        Constants.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
+        if (Services.CONFIG.loadDatapack()){
+            for (EmojiRecipe emojiRecipe : manager.getAllRecipesFor(Services.PLATFORM.getRecipeType())) {
+                EmojiFromGithub emoji = new EmojiFromGithub();
+                emoji.name = emojiRecipe.getName();
+                emoji.strings = new ArrayList<>();
+                emoji.strings.add(":" + emojiRecipe.getName() + ":");
+                emoji.location = emojiRecipe.getName();
+                emoji.url = emojiRecipe.getUrl();
+                emoji.worldBased = true;
+                Constants.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
+                Constants.EMOJI_LIST.add(emoji);
+                if (ClientProxy.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory()))){
+                    ClientProxy.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+                }
+            }
+            ClientProxy.indexEmojis();
+        }
+    }
+
 }
