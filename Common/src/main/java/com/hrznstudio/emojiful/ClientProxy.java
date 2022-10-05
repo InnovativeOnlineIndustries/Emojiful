@@ -15,7 +15,6 @@ import com.hrznstudio.emojiful.util.ProfanityFilter;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;

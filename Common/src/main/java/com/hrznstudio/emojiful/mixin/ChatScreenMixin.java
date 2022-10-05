@@ -3,13 +3,9 @@ package com.hrznstudio.emojiful.mixin;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import net.minecraft.client.gui.components.ChatComponent;
-
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.LiteralContents;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 

@@ -8,18 +8,17 @@ import com.hrznstudio.emojiful.mixin.access.ChatScreenAccessor;
 import com.hrznstudio.emojiful.platform.Services;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.LiteralContents;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;

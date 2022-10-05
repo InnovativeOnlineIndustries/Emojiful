@@ -29,9 +29,8 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;
 import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
