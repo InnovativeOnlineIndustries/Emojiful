@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12.+'
+    id 'fabric-loom' version '1.+'
     id 'maven-publish'
     id 'idea'
 }
@@ -24,6 +24,7 @@ dependencies {
     implementation project(":Common")
     modImplementation "maven.modrinth:midnightlib:0.6.0"
     include "maven.modrinth:midnightlib:0.6.0"
+    implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
     include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
 }
 
