@@ -53,8 +53,7 @@ public class CommonClass {
     }
     public static void onRecipesUpdated(RecipeManager manager){
         ClientEmojiHandler.CATEGORIES.removeIf(EmojiCategory::worldBased);
-        Constants.EMOJI_LIST.removeIf(emoji -> emoji.worldBased);
-        Constants.EMOJI_MAP.values().forEach(emojis -> emojis.removeIf(emoji -> emoji.worldBased));
+        Constants.EMOJI_LIST.removeIf(Emoji::worldBased);
         if (Services.CONFIG.loadDatapack()){
             for (EmojiRecipe emojiRecipe : manager.getAllRecipesFor(Services.PLATFORM.getRecipeType())) {
                 EmojiFromGithub emoji = new EmojiFromGithub();
@@ -66,7 +65,7 @@ public class CommonClass {
                 emoji.worldBased = true;
                 Constants.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
                 Constants.EMOJI_LIST.add(emoji);
-                if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory()))){
+                if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory().toLowerCase()))){
                     ClientEmojiHandler.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
                 }
             }

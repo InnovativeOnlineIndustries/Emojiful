@@ -138,7 +138,7 @@ public class EmojiFontRenderer extends Font {
     }
 
     @Override
-    protected float renderText(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
+    public float renderText(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
         if (text.isEmpty())
             return 0;
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
