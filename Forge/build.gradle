@@ -3,19 +3,24 @@ buildscript {
         maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
         maven { url = 'https://maven.parchmentmc.org' }
+        gradlePluginPortal()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.parchmentmc:librarian:1.+'
         classpath 'org.spongepowered:mixingradle:0.7.+'
+        classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.2'
     }
 }
+
 apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.github.johnrengelman.shadow'
+
 
 archivesBaseName = "${mod_name}-forge-${minecraft_version}"
 
@@ -70,10 +75,35 @@ minecraft {
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":Common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+    minecraftLibrary 'com.esotericsoftware.yamlbeans:yamlbeans:1.15'
+    shade 'com.esotericsoftware.yamlbeans:yamlbeans:1.15'
+}
+
+jar {
+    archiveClassifier = 'slim'
+}
+
+shadowJar {
+    archiveClassifier = 'fat'
+    configurations = [project.configurations.shade]
+    relocate 'com.esoteric.yamlbeans', 'com.hrznstudio.emojiful.shaded.yamlbeans'
+    finalizedBy 'reobfShadowJar'
+}
+
+assemble.dependsOn shadowJar
+
+reobf {
+    shadowJar {}
 }
 
 tasks.withType(JavaCompile) {

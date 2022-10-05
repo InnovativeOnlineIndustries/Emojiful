@@ -6,6 +6,12 @@ plugins {
 
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
+repositories {
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered() {
@@ -16,6 +22,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation project(":Common")
+    modImplementation "maven.modrinth:midnightlib:0.6.0"
+    include "maven.modrinth:midnightlib:0.6.0"
+    include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
 }
 
 loom {
