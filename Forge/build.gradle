@@ -43,7 +43,7 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file('run')
+            workingDirectory project.file('runServer')
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Server'
             property 'mixin.env.remapRefMap', 'true'
@@ -89,12 +89,8 @@ dependencies {
     shade 'com.esotericsoftware.yamlbeans:yamlbeans:1.15'
 }
 
-jar {
-    archiveClassifier = 'slim'
-}
 
 shadowJar {
-    archiveClassifier = 'fat'
     configurations = [project.configurations.shade]
     relocate 'com.esoteric.yamlbeans', 'com.hrznstudio.emojiful.shaded.yamlbeans'
     finalizedBy 'reobfShadowJar'

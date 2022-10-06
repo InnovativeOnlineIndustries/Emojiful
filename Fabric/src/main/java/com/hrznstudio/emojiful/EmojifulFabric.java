@@ -6,7 +6,6 @@ import com.hrznstudio.emojiful.gui.EmojifulChatScreen;
 import com.hrznstudio.emojiful.platform.FabricConfigHelper;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -23,20 +22,23 @@ public class EmojifulFabric implements ModInitializer {
         MidnightConfig.init(Constants.MOD_ID, FabricConfigHelper.class);
     }
 
-    public static void handleScreenInject(Minecraft minecraft, Screen screen){
-        if (screen != null){
-            if (screen instanceof ChatScreen && !(screen instanceof EmojifulChatScreen)){
-                minecraft.screen = new EmojifulChatScreen();
-                minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
-                screen.removed();
+
+    public static class ClientHandler {
+        //This compiles to another class, so we get a classloading barrier
+        public static void handleScreenInject(Minecraft minecraft, Screen screen){
+            if (screen != null){
+                if (screen instanceof ChatScreen && !(screen instanceof EmojifulChatScreen)){
+                    minecraft.screen = new EmojifulChatScreen();
+                    minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
+                }
+                else {
+                    minecraft.screen = screen;
+                }
             }
             else {
-                minecraft.screen = screen;
+                minecraft.screen = null;
             }
-        }
-        else {
-            minecraft.screen = null;
-        }
 
+        }
     }
 }
