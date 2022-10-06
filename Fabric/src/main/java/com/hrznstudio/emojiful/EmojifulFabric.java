@@ -15,8 +15,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 public class EmojifulFabric implements ModInitializer {
 
 
-    public static final RecipeType<EmojiRecipe> EMOJI_RECIPE_TYPE = RecipeType.register(Constants.MOD_ID + "emoji_recipe_type");
-    public static final RecipeSerializer<EmojiRecipe> EMOJI_RECIPE_SERIALIZER = RecipeSerializer.register(Constants.MOD_ID + "emoji_recipe", new EmojiRecipeSerializer());
+    public static final RecipeType<EmojiRecipe> EMOJI_RECIPE_TYPE = RecipeType.register(Constants.MOD_ID + ":emoji_recipe_type");
+    public static final RecipeSerializer<EmojiRecipe> EMOJI_RECIPE_SERIALIZER = RecipeSerializer.register(Constants.MOD_ID + ":emoji_recipe", new EmojiRecipeSerializer());
     @Override
     public void onInitialize() {
         MidnightConfig.init(Constants.MOD_ID, FabricConfigHelper.class);
