@@ -21,21 +21,21 @@ public class ForgeConfigHelper implements IConfigHelper {
 
 
     public static ForgeConfigSpec setup(ForgeConfigSpec.Builder builder){
-        builder.push("Emojiful");
-        renderEmoji = builder.comment("Enable Emoji Rendering").define("enabled", true);
-        showEmojiSelector = builder.comment("Enable Emoji Selection GUI in the chat text line").define("emoji_selector", true);
-        showEmojiAutocomplete = builder.comment("Enable Emoji autocomplete in the chat text line").define("emoji_autocomplete", true);
-        loadGifEmojis = builder.comment("Load animated emojis, if disabled they will be a still image").define("gifs", true);
-        shortEmojiReplacement = builder.comment("Replace short versions of emoji like :) into :smile: so they can be rendered as emoji").define("short_emoji_replacement", true);
-        builder.push("EmojiTypes");
-        loadTwemoji = builder.comment("Loads Twemojis used in sites like Twitter and Discord").define("twemoji", true);
-        loadCustom = builder.comment("Loads custom emojis provided by Emojiful").define("custom", true);
-        loadDatapack = builder.comment("Loads datapack emojis provided by the server you join").define("datapack", true);
+        builder.push("Emojiful").translation("emojiful.midnightconfig.title");
+        renderEmoji = builder.comment("Enable Emoji Rendering").translation("emojiful.midnightconfig.enableRenderEmoji").define("enabled", true);
+        showEmojiSelector = builder.comment("Enable Emoji Selection GUI in the chat text line").translation("emojiful.midnightconfig.showEmojiSelector").define("emoji_selector", true);
+        showEmojiAutocomplete = builder.comment("Enable Emoji autocomplete in the chat text line").translation("emojiful.midnightconfig.emojiAutocomplete").define("emoji_autocomplete", true);
+        loadGifEmojis = builder.comment("Load animated emojis, if disabled they will be a still image").translation("emojiful.midnightconfig.loadGifEmojis").define("gifs", true);
+        shortEmojiReplacement = builder.comment("Replace short versions of emoji like :) into :smile: so they can be rendered as emoji").translation("emojiful.midnightconfig.shortEmojiReplacement").define("short_emoji_replacement", true);
+        builder.push("EmojiTypes").translation("emojiful.midnightconfig.emojiTypes");
+        loadTwemoji = builder.comment("Loads Twemojis used in sites like Twitter and Discord").translation("emojiful.midnightconfig.loadTwemoji").define("twemoji", true);
+        loadCustom = builder.comment("Loads custom emojis provided by Emojiful").translation("emojiful.midnightconfig.enableLoadCustom").define("custom", true);
+        loadDatapack = builder.comment("Loads datapack emojis provided by the server you join").translation("emojiful.midnightconfig.enableLoadDatapack").define("datapack", true);
         builder.pop();
         builder.pop();
-        builder.push("ProfanityFilter");
-        profanityFilter = builder.comment("Enable Profanity Filter, this will replace bad words with emoji").define("enabled", false);
-        profanityFilterReplacement = builder.comment("Replacement word for the profanity filter").define("replacement", ":swear:");
+        builder.push("ProfanityFilter").translation("emojiful.midnightconfig.profanityFilter");
+        profanityFilter = builder.comment("Enable Profanity Filter, this will replace bad words with emoji").translation("emojiful.midnightconfig.enableProfanityFilter").define("enabled", false);
+        profanityFilterReplacement = builder.comment("Replacement word for the profanity filter").translation("emojiful.midnightconfig.profanityFilterString").define("replacement", ":swear:");
         builder.pop();
         return builder.build();
     }
