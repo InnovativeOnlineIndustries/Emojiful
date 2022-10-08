@@ -74,13 +74,23 @@ subprojects {
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
-
     task assembleSubProjects() {
         var props = rootProject.getProperties()
-        var fileName = "${props.get("mod_name")}-${project.getName().toLowerCase()}-${minecraft_version}-${props.get("version")}.jar"
-        var sourceFileName = "${props.get("mod_name")}-${project.getName().toLowerCase()}-${minecraft_version}-${props.get("version")}-sources.jar"
+        if (!rootProject.file("buildOutput").exists()){
+            rootProject.file("buildOutput").mkdir()
+        }
+        var finalProjectName = project.getName().substring(0, 1).toUpperCase() + project.getName().substring(1)
+        var fileName = "${props.get("built_name")}-${finalProjectName}-${minecraft_version}-${props.get("version")}.jar"
+        var sourceFileName = "${props.get("built_name")}-${finalProjectName}-${minecraft_version}-${props.get("version")}-sources.jar"
         project.file("build/libs/${fileName}").renameTo(rootProject.file("buildOutput/${fileName}"))
-        project.file("build/libs/${sourceFileName}").renameTo(rootProject.file("buildOutput/${sourceFileName}"))
+        if (project.getName().equals("Forge")){
+            project.file("build/libs/${sourceFileName}").renameTo(rootProject.file("buildOutput/${sourceFileName}"))
+        }
+        else {
+            project.file("build/devlibs/${sourceFileName}").renameTo(rootProject.file("buildOutput/${sourceFileName}"))
+        }
     }
+
+    assembleSubProjects.group = "build"
 
 }

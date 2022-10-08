@@ -16,14 +16,6 @@ import java.util.regex.Pattern;
 @Mixin(ChatComponent.class)
 public abstract class ChatScreenMixin {
 
-    //empty[style={}, siblings=[
-    //     literal{[}[style={color=gold}],
-    //     literal{DISCORD}[style={color=dark_purple}],
-    //     literal{]}[style={color=gold}],
-    //     literal{ <}[style={}],
-    //     empty[style={color=#E91E63}, siblings=[
-    //        literal{Buuz135}[style={}]]], literal{> }[style={}], empty[style={}, siblings=[literal{test <:infinity_nuke:855924066539536414>}[style={}]]]]]
-
 
     @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     public Component emojiful_component(Component x) {

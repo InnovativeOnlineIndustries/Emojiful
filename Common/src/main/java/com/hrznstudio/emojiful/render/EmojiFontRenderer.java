@@ -79,14 +79,6 @@ public class EmojiFontRenderer extends Font {
 
     @Override
     public int width(FormattedText textProperties) {
-        if (textProperties instanceof Component) {
-            /* TODO
-            try {
-                //return super.width(new TextComponent(RECENT_STRINGS.get(textProperties.getString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey()).setStyle(((TextComponent) textProperties).getStyle()));
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }*/
-        }
         return this.width(textProperties.getString());
     }
 

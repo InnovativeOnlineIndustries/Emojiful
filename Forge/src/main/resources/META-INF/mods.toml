@@ -1,8 +1,8 @@
 modLoader="javafml"
 loaderVersion="[43,)"
-issueTrackerURL="https://github.com/InnovativeOnlineIndustries/Emojiful/issues"
+issueTrackerURL="https://github.com/InnovativeOnlineIndustries/Emojiful/"
 side="CLIENT"
-license="All Rights Reserved"
+license="MIT"
 
 [[mods]]
     modId="emojiful"

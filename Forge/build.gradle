@@ -22,7 +22,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 
-archivesBaseName = "${mod_name}-forge-${minecraft_version}"
+archivesBaseName = "${build_file_name}-Forge-${minecraft_version}"
 
 minecraft {
     accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
@@ -80,6 +80,9 @@ configurations {
     implementation.extendsFrom shade
 }
 
+sourcesJar {
+    from project(":Common").sourceSets.main.allSource
+}
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"

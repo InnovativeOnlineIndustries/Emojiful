@@ -1,10 +1,10 @@
 plugins {
-    id 'fabric-loom' version '1.+'
+    id 'fabric-loom' version '0.12.+'
     id 'maven-publish'
     id 'idea'
 }
 
-archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
+archivesBaseName = "${build_file_name}-Fabric-${minecraft_version}"
 
 repositories {
     maven {
@@ -56,7 +56,16 @@ processResources {
     }
 }
 
+import net.fabricmc.loom.task.AbstractRemapJarTask
+tasks.withType(AbstractRemapJarTask).each {
+    it.state.setExecuting(false)
+    it.targetNamespace = "named"
+}
+
 tasks.withType(JavaCompile) {
     source(project(":Common").sourceSets.main.allSource)
 }
 
+sourcesJar {
+    from project(":Common").sourceSets.main.allSource
+}

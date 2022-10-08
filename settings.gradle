@@ -11,11 +11,19 @@ pluginManagement {
             name = 'Sponge Snapshots'
             url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
+        maven {
+            name = 'Quilt (Release)'
+            url = 'https://maven.quiltmc.org/repository/release'
+        }
+        maven {
+            name = 'Quilt (Snapshot)'
+            url = 'https://maven.quiltmc.org/repository/snapshot'
+        }
         maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
         gradlePluginPortal()
     }
 }
 
-rootProject.name = 'emojiful'
+rootProject.name = 'Emojiful'
 include("Common", "Fabric", "Forge")

@@ -1,10 +1,9 @@
 plugins {
     id 'java'
-    id 'fabric-loom' version '1.+'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'fabric-loom' version '0.12.+'
 }
 
-archivesBaseName = "${mod_name}-common-${minecraft_version}"
+archivesBaseName = "${build_file_name}-Common-${minecraft_version}"
 
 repositories {
     maven {

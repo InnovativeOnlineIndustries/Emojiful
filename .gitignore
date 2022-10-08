@@ -26,3 +26,4 @@ runServer
 Fabric/runClient/logs/latest.log
 Fabric/runClient/logs/debug.log
 Fabric/runClient/config/fabric/indigo-renderer.properties
+buildOutput/
