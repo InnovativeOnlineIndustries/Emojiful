@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12.+'
+    id 'fabric-loom' version '1.+'
     id 'maven-publish'
     id 'idea'
 }
@@ -21,7 +21,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    implementation project(":Common")
+    compileOnly project(":Common")
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     modImplementation "maven.modrinth:midnightlib:0.6.0"
     include "maven.modrinth:midnightlib:0.6.0"
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
@@ -44,8 +45,15 @@ loom {
         }
     }
     accessWidenerPath = file("${project(':Common').projectDir.path}/src/main/resources/emojifulcommon.accesswidener")
+    mixin {
+        defaultRefmapName = "${mod_name}.refmap.json"
+    }
 }
 
+import net.fabricmc.loom.task.AbstractRemapJarTask
+tasks.withType(AbstractRemapJarTask).each {
+    it.targetNamespace = "intermediary"
+}
 
 processResources {
     from project(":Common").sourceSets.main.resources
@@ -56,16 +64,7 @@ processResources {
     }
 }
 
-import net.fabricmc.loom.task.AbstractRemapJarTask
-tasks.withType(AbstractRemapJarTask).each {
-    it.state.setExecuting(false)
-    it.targetNamespace = "named"
-}
-
 tasks.withType(JavaCompile) {
     source(project(":Common").sourceSets.main.allSource)
 }
 
-sourcesJar {
-    from project(":Common").sourceSets.main.allSource
-}

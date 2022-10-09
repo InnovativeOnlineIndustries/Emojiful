@@ -116,7 +116,6 @@ processResources {
 
 mixin {
     add sourceSets.main, "emojiful.refmap.json"
-
     config "emojiful.mixins.json"
     config "emojiful.forge.mixins.json"
 }

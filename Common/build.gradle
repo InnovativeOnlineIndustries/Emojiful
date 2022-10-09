@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'fabric-loom' version '0.12.+'
+    id 'fabric-loom' version '1.+'
 }
 
 archivesBaseName = "${build_file_name}-Common-${minecraft_version}"
@@ -31,7 +31,7 @@ dependencies {
 
 import net.fabricmc.loom.task.AbstractRemapJarTask
 tasks.withType(AbstractRemapJarTask).each {
-    it.targetNamespace = "named"
+    it.targetNamespace = "intermediary"
 }
 
 processResources {

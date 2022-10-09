@@ -8,7 +8,7 @@
 
   ],
   "client": [
-    "MinecraftEmojifulMixin",
+    "ScreenEmojifulMixin",
     "ClientPacketListenerMixin"
   ],
   "injectors": {

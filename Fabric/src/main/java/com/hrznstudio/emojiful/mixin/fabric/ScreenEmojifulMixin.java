@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Minecraft.class)
-public abstract class MinecraftEmojifulMixin {
+public abstract class ScreenEmojifulMixin {
 
     @Redirect(method = "setScreen(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;", opcode = Opcodes.PUTFIELD))
     private void emojifulFabric_setScreenInject(Minecraft minecraft, Screen screen){
