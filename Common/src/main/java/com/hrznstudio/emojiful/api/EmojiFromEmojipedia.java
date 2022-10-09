@@ -102,7 +102,7 @@ public class EmojiFromEmojipedia extends Emoji {
             try {
                 nativeimage = NativeImage.read(inputStreamIn);
             } catch (IOException ioexception) {
-                Constants.LOG.warn("Error while loading the skin texture", (Throwable)ioexception);
+                Constants.LOG.warn("Error while loading the skin texture", ioexception);
             }
 
             return nativeimage;

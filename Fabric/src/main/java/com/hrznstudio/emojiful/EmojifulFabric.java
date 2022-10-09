@@ -17,6 +17,7 @@ public class EmojifulFabric implements ModInitializer {
 
     public static final RecipeType<EmojiRecipe> EMOJI_RECIPE_TYPE = RecipeType.register(Constants.MOD_ID + ":emoji_recipe_type");
     public static final RecipeSerializer<EmojiRecipe> EMOJI_RECIPE_SERIALIZER = RecipeSerializer.register(Constants.MOD_ID + ":emoji_recipe", new EmojiRecipeSerializer());
+
     @Override
     public void onInitialize() {
         MidnightConfig.init(Constants.MOD_ID, FabricConfigHelper.class);
@@ -25,17 +26,15 @@ public class EmojifulFabric implements ModInitializer {
 
     public static class ClientHandler {
         //This compiles to another class, so we get a classloading barrier
-        public static void handleScreenInject(Minecraft minecraft, Screen screen){
-            if (screen != null){
-                if (screen instanceof ChatScreen && !(screen instanceof EmojifulChatScreen)){
+        public static void handleScreenInject(Minecraft minecraft, Screen screen) {
+            if (screen != null) {
+                if (screen instanceof ChatScreen && !(screen instanceof EmojifulChatScreen)) {
                     minecraft.screen = new EmojifulChatScreen();
                     minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
-                }
-                else {
+                } else {
                     minecraft.screen = screen;
                 }
-            }
-            else {
+            } else {
                 minecraft.screen = null;
             }
 

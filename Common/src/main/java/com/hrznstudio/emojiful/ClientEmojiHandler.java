@@ -19,11 +19,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientEmojiHandler {
+    public static final List<EmojiCategory> CATEGORIES = new ArrayList<>();
     public static Font oldFontRenderer;
     public static List<String> ALL_EMOJIS = new ArrayList<>();
     public static HashMap<EmojiCategory, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
     public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
-    public static final List<EmojiCategory> CATEGORIES = new ArrayList<>();
     public static int lineAmount;
 
     public static void setup() {
@@ -33,7 +33,7 @@ public class ClientEmojiHandler {
         Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
     }
 
-    public static void indexEmojis(){
+    public static void indexEmojis() {
         ALL_EMOJIS = Constants.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
         SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
         for (EmojiCategory category : CATEGORIES) {
@@ -43,14 +43,14 @@ public class ClientEmojiHandler {
             for (Emoji emoji : Constants.EMOJI_MAP.getOrDefault(category.name(), new ArrayList<>())) {
                 array[i] = emoji;
                 ++i;
-                if (i >= array.length){
+                if (i >= array.length) {
                     SORTED_EMOJIS_FOR_SELECTION.computeIfAbsent(category, s -> new ArrayList<>()).add(array);
                     array = new Emoji[9];
                     i = 0;
                     ++lineAmount;
                 }
             }
-            if (i > 0){
+            if (i > 0) {
                 SORTED_EMOJIS_FOR_SELECTION.computeIfAbsent(category, s -> new ArrayList<>()).add(array);
                 ++lineAmount;
             }
@@ -59,13 +59,13 @@ public class ClientEmojiHandler {
 
     private static void preInitEmojis() {
         CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
-        if (Services.CONFIG.loadCustom())loadCustomEmojis();
+        if (Services.CONFIG.loadCustom()) loadCustomEmojis();
         //loadGithubEmojis();
-        if (Services.CONFIG.loadTwemoji())loadTwemojis();
+        if (Services.CONFIG.loadTwemoji()) loadTwemojis();
         if (Services.CONFIG.getProfanityFilter()) ProfanityFilter.loadConfigs();
     }
 
-    private static void loadCustomEmojis(){
+    private static void loadCustomEmojis() {
         try {
             YamlReader reader = new YamlReader(new StringReader(CommonClass.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
             ArrayList<String> categories = (ArrayList<String>) reader.read();
@@ -81,33 +81,33 @@ public class ClientEmojiHandler {
         }
     }
 
-    public static void loadTwemojis(){
-        try{
-            for (JsonElement element : CommonClass.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()){
-                if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()){
+    public static void loadTwemojis() {
+        try {
+            for (JsonElement element : CommonClass.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()) {
+                if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()) {
                     EmojiFromTwitmoji emoji = new EmojiFromTwitmoji();
                     emoji.name = element.getAsJsonObject().get("short_name").getAsString();
                     emoji.location = element.getAsJsonObject().get("image").getAsString();
-                    emoji.sort =  element.getAsJsonObject().get("sort_order").getAsInt();
+                    emoji.sort = element.getAsJsonObject().get("sort_order").getAsInt();
                     element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> emoji.strings.add(":" + jsonElement.getAsString() + ":"));
-                    if (emoji.strings.contains(":face_with_symbols_on_mouth:")){
+                    if (emoji.strings.contains(":face_with_symbols_on_mouth:")) {
                         emoji.strings.add(":swear:");
                     }
-                    if (!element.getAsJsonObject().get("texts").isJsonNull()){
+                    if (!element.getAsJsonObject().get("texts").isJsonNull()) {
                         element.getAsJsonObject().get("texts").getAsJsonArray().forEach(jsonElement -> emoji.texts.add(jsonElement.getAsString()));
                     }
                     Constants.EMOJI_MAP.computeIfAbsent(element.getAsJsonObject().get("category").getAsString(), s -> new ArrayList<>()).add(emoji);
                     Constants.EMOJI_LIST.add(emoji);
-                    if (emoji.texts.size() > 0){
+                    if (emoji.texts.size() > 0) {
                         ClientEmojiHandler.EMOJI_WITH_TEXTS.add(emoji);
                     }
                 }
             }
             ClientEmojiHandler.EMOJI_WITH_TEXTS.sort(Comparator.comparingInt(o -> o.sort));
             Constants.EMOJI_MAP.values().forEach(emojis -> emojis.sort(Comparator.comparingInt(o -> o.sort)));
-        } catch (Exception e){
+        } catch (Exception e) {
             Constants.error = true;
-            Constants.LOG.error("Emojiful found an error while loading",e);
+            Constants.LOG.error("Emojiful found an error while loading", e);
         }
     }
 

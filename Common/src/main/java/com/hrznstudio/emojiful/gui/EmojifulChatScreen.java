@@ -17,7 +17,7 @@ public class EmojifulChatScreen extends ChatScreen {
     @Override
     protected void init() {
         super.init();
-        if (!Constants.error){
+        if (!Constants.error) {
             if (Services.CONFIG.showEmojiAutocomplete()) emojiSuggestionHelper = new EmojiSuggestionHelper(this);
             if (Services.CONFIG.showEmojiSelector()) emojiSelectionGui = new EmojiSelectionGui(this);
         }
@@ -28,7 +28,7 @@ public class EmojifulChatScreen extends ChatScreen {
     public void render(PoseStack poseStack, int x, int j, float partialTick) {
         super.render(poseStack, x, j, partialTick);
         if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(poseStack);
-        if (emojiSelectionGui != null){
+        if (emojiSelectionGui != null) {
             emojiSelectionGui.mouseMoved(x, j);
             emojiSelectionGui.render(poseStack);
         }
@@ -38,7 +38,8 @@ public class EmojifulChatScreen extends ChatScreen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         super.keyPressed(keyCode, scanCode, modifiers);
-        if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers)) return true;
+        if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
+            return true;
         return emojiSelectionGui != null && emojiSelectionGui.keyPressed(keyCode, scanCode, modifiers);
     }
 

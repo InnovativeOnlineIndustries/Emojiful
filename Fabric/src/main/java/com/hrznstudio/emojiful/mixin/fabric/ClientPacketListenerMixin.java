@@ -17,7 +17,7 @@ public abstract class ClientPacketListenerMixin {
     abstract RecipeManager getRecipeManager();
 
     @Inject(method = "handleUpdateRecipes(Lnet/minecraft/network/protocol/game/ClientboundUpdateRecipesPacket;)V", at = @At(value = "TAIL"))
-    public void emojifulFabric_recipesUpdated(ClientboundUpdateRecipesPacket clientboundUpdateRecipesPacket, CallbackInfo callbackInfo){
+    public void emojifulFabric_recipesUpdated(ClientboundUpdateRecipesPacket clientboundUpdateRecipesPacket, CallbackInfo callbackInfo) {
         CommonClass.onRecipesUpdated(getRecipeManager());
     }
 }

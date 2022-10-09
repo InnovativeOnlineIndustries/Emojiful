@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Minecraft.class)
 public abstract class MinecraftEmojifulMixin {
     @Inject(method = "<init>*", at = @At(value = "RETURN"))
-    private void emojifulFabric_initEmojis(CallbackInfo callbackInfo){
+    private void emojifulFabric_initEmojis(CallbackInfo callbackInfo) {
         ClientEmojiHandler.setup();
     }
 }

@@ -40,17 +40,15 @@ public class Emoji implements Predicate<String> {
     public int version = 1;
     public int sort = 0;
     public boolean worldBased = false;
-    private String shortString;
-    private String regex;
-    private Pattern regexPattern;
-    private String textRegex;
-
     public boolean deleteOldTexture;
-
     public List<DownloadImageData> img = new ArrayList<>();
     public List<ResourceLocation> frames = new ArrayList<>();
     public boolean finishedLoading = false;
     public boolean loadedTextures = false;
+    private String shortString;
+    private String regex;
+    private Pattern regexPattern;
+    private String textRegex;
     private Thread imageThread;
     private Thread gifLoaderThread;
 
@@ -80,7 +78,7 @@ public class Emoji implements Predicate<String> {
         return false;
     }
 
-    public boolean worldBased(){
+    public boolean worldBased() {
         return worldBased;
     }
 
@@ -241,8 +239,8 @@ public class Emoji implements Predicate<String> {
 
     public class DownloadImageData extends SimpleTexture {
         private final BufferedImage cacheFile;
-        private NativeImage nativeImage;
         public boolean textureUploaded;
+        private NativeImage nativeImage;
 
         public DownloadImageData(BufferedImage cacheFileIn, ResourceLocation textureResourceLocation) {
             super(textureResourceLocation);

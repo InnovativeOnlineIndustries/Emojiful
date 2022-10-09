@@ -9,12 +9,12 @@ import net.minecraftforge.client.event.ScreenEvent;
 
 public class ForgeClientHandler {
 
-    public static void onRecipesUpdated(final RecipesUpdatedEvent event){
+    public static void onRecipesUpdated(final RecipesUpdatedEvent event) {
         CommonClass.onRecipesUpdated(event.getRecipeManager());
     }
 
-    public static void hijackScreen(final ScreenEvent.Opening event){
-        if (event.getNewScreen() instanceof ChatScreen && !(event.getNewScreen() instanceof EmojifulChatScreen)){
+    public static void hijackScreen(final ScreenEvent.Opening event) {
+        if (event.getNewScreen() instanceof ChatScreen && !(event.getNewScreen() instanceof EmojifulChatScreen)) {
             event.setCanceled(true);
             Minecraft.getInstance().setScreen(new EmojifulChatScreen());
         }

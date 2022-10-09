@@ -17,33 +17,10 @@ import java.util.regex.Pattern;
 public abstract class ChatScreenMixin {
 
 
-    @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    public Component emojiful_component(Component x) {
-        emojiful_replaceComponents(x);
-        return x;
-    }
-
-
-    private void emojiful_replaceComponents(Component x){
-        var components = new ArrayList<Component>();
-        for (int i = 0; i < x.getSiblings().size(); i++) {
-            emojiful_replaceComponents(x.getSiblings().get(i));
-            if (x.getSiblings().get(i).getContents() instanceof LiteralContents literalContents){
-                var comp = Component.literal(tryLoadEmoji(literalContents.text())).withStyle(x.getSiblings().get(i).getStyle());
-                components.add(comp);
-            } else {
-                components.add(x.getSiblings().get(i));
-            }
-        }
-        x.getSiblings().clear();
-        x.getSiblings().addAll(components);
-    }
-
-
     private static final Pattern DISCORD_EMOJI = Pattern.compile("<:\\w+:[0-9]+>", Pattern.CASE_INSENSITIVE);
     private static final Pattern ANIMATED_DISCORD_EMOJI = Pattern.compile("<a:\\w+:[0-9]+>", Pattern.CASE_INSENSITIVE);
 
-    private static String tryLoadEmoji(String unformattedText){
+    private static String tryLoadEmoji(String unformattedText) {
         Matcher discordMatcher = DISCORD_EMOJI.matcher(unformattedText);
         while (discordMatcher.find()) {
             var discordValue = discordMatcher.group(0);
@@ -57,7 +34,7 @@ public abstract class ChatScreenMixin {
         return unformattedText;
     }
 
-    private static String loadEmoji(String discordMatcher, boolean isAnimated){
+    private static String loadEmoji(String discordMatcher, boolean isAnimated) {
         var discordEmoji = discordMatcher.replaceAll(isAnimated ? "<a:" : "<:", "").replaceAll(">", "");
         var slug = discordEmoji.split(":")[0];
         var url = discordEmoji.split(":")[1];
@@ -72,6 +49,27 @@ public abstract class ChatScreenMixin {
         Constants.EMOJI_MAP.computeIfAbsent("Discord Relay Emojis", s -> new ArrayList<>()).add(emoji);
         Constants.EMOJI_LIST.add(emoji);
         return ":" + slug + ":";
+    }
+
+    @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    public Component emojiful_component(Component x) {
+        emojiful_replaceComponents(x);
+        return x;
+    }
+
+    private void emojiful_replaceComponents(Component x) {
+        var components = new ArrayList<Component>();
+        for (int i = 0; i < x.getSiblings().size(); i++) {
+            emojiful_replaceComponents(x.getSiblings().get(i));
+            if (x.getSiblings().get(i).getContents() instanceof LiteralContents literalContents) {
+                var comp = Component.literal(tryLoadEmoji(literalContents.text())).withStyle(x.getSiblings().get(i).getStyle());
+                components.add(comp);
+            } else {
+                components.add(x.getSiblings().get(i));
+            }
+        }
+        x.getSiblings().clear();
+        x.getSiblings().addAll(components);
     }
 
 }

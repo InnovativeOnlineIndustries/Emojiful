@@ -52,10 +52,11 @@ public class CommonClass {
         YamlReader categoryReader = new YamlReader(new StringReader(readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + cat)));
         return Lists.newArrayList(categoryReader.read(Emoji[].class));
     }
-    public static void onRecipesUpdated(RecipeManager manager){
+
+    public static void onRecipesUpdated(RecipeManager manager) {
         ClientEmojiHandler.CATEGORIES.removeIf(EmojiCategory::worldBased);
         Constants.EMOJI_LIST.removeIf(Emoji::worldBased);
-        if (Services.CONFIG.loadDatapack()){
+        if (Services.CONFIG.loadDatapack()) {
             RecipeType<EmojiRecipe> emojiRecipeRecipeType = Services.PLATFORM.getRecipeType();
             List<EmojiRecipe> emojiList = manager.getAllRecipesFor(emojiRecipeRecipeType);
             for (EmojiRecipe emojiRecipe : emojiList) {
@@ -68,7 +69,7 @@ public class CommonClass {
                 emoji.worldBased = true;
                 Constants.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
                 Constants.EMOJI_LIST.add(emoji);
-                if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory().toLowerCase()))){
+                if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory().toLowerCase()))) {
                     ClientEmojiHandler.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
                 }
             }

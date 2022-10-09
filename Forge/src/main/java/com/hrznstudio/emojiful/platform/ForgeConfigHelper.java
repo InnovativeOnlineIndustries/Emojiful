@@ -20,7 +20,7 @@ public class ForgeConfigHelper implements IConfigHelper {
     public static ForgeConfigSpec.ConfigValue<String> profanityFilterReplacement;
 
 
-    public static ForgeConfigSpec setup(ForgeConfigSpec.Builder builder){
+    public static ForgeConfigSpec setup(ForgeConfigSpec.Builder builder) {
         builder.push("Emojiful").translation("emojiful.midnightconfig.title");
         renderEmoji = builder.comment("Enable Emoji Rendering").translation("emojiful.midnightconfig.enableRenderEmoji").define("enabled", true);
         showEmojiSelector = builder.comment("Enable Emoji Selection GUI in the chat text line").translation("emojiful.midnightconfig.showEmojiSelector").define("emoji_selector", true);

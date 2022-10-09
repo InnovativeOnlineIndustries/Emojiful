@@ -37,19 +37,19 @@ public class EmojiUtil extends RenderType {
 
     public static RenderType createRenderType(Emoji emoji) {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
-                .setShaderState( new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeTextShader))
+                .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeTextShader))
                 .setTextureState(new RenderStateShard.TextureStateShard(emoji.getResourceLocationForBinding(), false, false))
                 .setTransparencyState(new RenderStateShard.TransparencyStateShard("translucent_transparency", () -> {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        }, () -> {
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            RenderSystem.disableBlend();
-            RenderSystem.defaultBlendFunc();
-        }))/*.setAlphaState(new RenderStateShard.AlphaStateShard(0.003921569F))*/.setLightmapState(new RenderStateShard.LightmapStateShard(true)).createCompositeState(false);
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                }, () -> {
+                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    RenderSystem.disableBlend();
+                    RenderSystem.defaultBlendFunc();
+                }))/*.setAlphaState(new RenderStateShard.AlphaStateShard(0.003921569F))*/.setLightmapState(new RenderStateShard.LightmapStateShard(true)).createCompositeState(false);
         return RenderType.create("emoji_render", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256, false, true, state);
     }
 
@@ -72,12 +72,12 @@ public class EmojiUtil extends RenderType {
         return 10f;
     }
 
-    public static String cleanStringForRegex(String string){
-        return  string.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*");
+    public static String cleanStringForRegex(String string) {
+        return string.replaceAll("\\)", "\\\\)").replaceAll("\\(", "\\\\(").replaceAll("\\|", "\\\\|").replaceAll("\\*", "\\\\*");
     }
 
     public static List<Pair<BufferedImage, Integer>> splitGif(File file) throws IOException {
-        List<Pair<BufferedImage, Integer>>  images = new ArrayList<>();
+        List<Pair<BufferedImage, Integer>> images = new ArrayList<>();
         ImageReader reader = ImageIO.getImageReadersBySuffix("gif").next();
         reader.setInput(ImageIO.createImageInputStream(new FileInputStream(file)), false);
         IIOMetadata metadata = reader.getImageMetadata(0);
@@ -87,14 +87,14 @@ public class EmojiUtil extends RenderType {
             BufferedImage image = reader.read(i);
             BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
             newImage.getGraphics().drawImage(image, 0, 0, null);
-            IIOMetadataNode root = (IIOMetadataNode)reader.getImageMetadata(i).getAsTree(metaFormatName);
+            IIOMetadataNode root = (IIOMetadataNode) reader.getImageMetadata(i).getAsTree(metaFormatName);
             // Find GraphicControlExtension node
             int nNodes = root.getLength();
             for (int j = 0; j < nNodes; j++) {
                 Node node = root.item(j);
                 if (node.getNodeName().equalsIgnoreCase("GraphicControlExtension")) {
                     // Get delay value
-                    frameLength = Integer.parseInt(((IIOMetadataNode)node).getAttribute("delayTime"));
+                    frameLength = Integer.parseInt(((IIOMetadataNode) node).getAttribute("delayTime"));
                     // Check if delay is bugged
                     break;
                 }

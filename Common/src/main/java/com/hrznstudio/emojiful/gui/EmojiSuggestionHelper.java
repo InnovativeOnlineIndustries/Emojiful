@@ -33,6 +33,33 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
         this.updating = false;
     }
 
+    private static Suggestions createSuggestions(final Iterable<String> collection, final SuggestionsBuilder suggestionBuilder) {
+        final String remaining = suggestionBuilder.getRemaining().toLowerCase(Locale.ROOT);
+        for (String key : collection) {
+            if (key.toLowerCase(Locale.ROOT).startsWith(remaining))
+                suggestionBuilder.suggest(key);
+        }
+        return suggestionBuilder.build();
+    }
+
+    private static int getLastWordIndex(String p_228121_0_) {
+        if (Strings.isNullOrEmpty(p_228121_0_)) {
+            return 0;
+        } else {
+            int i = 0;
+
+            for (Matcher matcher = WHITESPACE_PATTERN.matcher(p_228121_0_); matcher.find(); i = matcher.end()) {
+
+            }
+
+            return i;
+        }
+    }
+
+    private static String trim(String text, String textAll) {
+        return textAll.startsWith(text) ? textAll.substring(text.length()) : null;
+    }
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.suggestions != null && this.suggestions.onKeyPressed(keyCode, scanCode, modifiers)) {
@@ -82,33 +109,6 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
         }
     }
 
-    private static Suggestions createSuggestions(final Iterable<String> collection, final SuggestionsBuilder suggestionBuilder) {
-        final String remaining = suggestionBuilder.getRemaining().toLowerCase(Locale.ROOT);
-        for (String key : collection){
-            if (key.toLowerCase(Locale.ROOT).startsWith(remaining))
-                suggestionBuilder.suggest(key);
-        }
-        return suggestionBuilder.build();
-    }
-
-    private static int getLastWordIndex(String p_228121_0_) {
-        if (Strings.isNullOrEmpty(p_228121_0_)) {
-            return 0;
-        } else {
-            int i = 0;
-
-            for(Matcher matcher = WHITESPACE_PATTERN.matcher(p_228121_0_); matcher.find(); i = matcher.end()) {
-
-            }
-
-            return i;
-        }
-    }
-
-    private static String trim(String text, String textAll) {
-        return textAll.startsWith(text) ? textAll.substring(text.length()) : null;
-    }
-
     @Override
     public void render(PoseStack matrixStack) {
         if (this.suggestions != null) {
@@ -129,7 +129,7 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
 
         private final Rect2i area;
         private final Suggestions suggestions;
-        private String currentText;
+        private final String currentText;
         private int index;
 
         public EmojiSuggestions(int x, int y, int areaWidth, Suggestions suggestions) {
@@ -140,7 +140,7 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
             setIndex(0);
         }
 
-        public void render(PoseStack stack){
+        public void render(PoseStack stack) {
             for (int i = 0; i < Math.min(this.suggestions.getList().size(), 10); ++i) {
                 int pos = (this.index + i) % this.suggestions.getList().size();
                 final Suggestion suggestion = this.suggestions.getList().get(pos);
@@ -150,9 +150,9 @@ public class EmojiSuggestionHelper implements IDrawableGuiListener {
             }
         }
 
-        public void setIndex(int i){
+        public void setIndex(int i) {
             this.index = i;
-            if (this.index < 0) this.index = this.suggestions.getList().size() -1;
+            if (this.index < 0) this.index = this.suggestions.getList().size() - 1;
             else if (this.index >= this.suggestions.getList().size()) this.index = 0;
             EmojiSuggestionHelper.this.chatScreen.input.setSuggestion(trim(EmojiSuggestionHelper.this.chatScreen.input.getValue(), suggestions.getList().get(this.index).apply(currentText)));
         }
