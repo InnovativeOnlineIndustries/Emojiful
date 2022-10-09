@@ -1,7 +1,6 @@
 package com.hrznstudio.emojiful.platform;
 
 import com.hrznstudio.emojiful.EmojifulForge;
-import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.services.IPlatformHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
