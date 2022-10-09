@@ -27,6 +27,7 @@ dependencies {
     modCompileOnly "net.fabricmc:fabric-loader:${fabric_loader_version}"
     compileOnly("org.spongepowered:mixin:0.8.5")
     compileOnly group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 }
 
 import net.fabricmc.loom.task.AbstractRemapJarTask
