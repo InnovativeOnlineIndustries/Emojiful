@@ -34,7 +34,6 @@ public class EmojifulForge {
     }
 
     private void handleClientSetup(final FMLClientSetupEvent event){
-        ClientEmojiHandler.setup();
         MinecraftForge.EVENT_BUS.addListener(ForgeClientHandler::onRecipesUpdated);
         MinecraftForge.EVENT_BUS.addListener(ForgeClientHandler::hijackScreen);
     }
