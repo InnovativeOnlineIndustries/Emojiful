@@ -7,8 +7,8 @@ import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import com.hrznstudio.emojiful.api.EmojiFromTwitmoji;
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
-import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
-import com.hrznstudio.emojiful.gui.*;
+import com.hrznstudio.emojiful.gui.EmojiSelectionGui;
+import com.hrznstudio.emojiful.gui.EmojiSuggestionHelper;
 import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import com.hrznstudio.emojiful.util.ProfanityFilter;
 import net.minecraft.client.Minecraft;
@@ -16,19 +16,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,8 +30,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.StringReader;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ClientProxy {
@@ -138,18 +129,6 @@ public class ClientProxy {
     @SubscribeEvent
     public void onChatRecieved(ClientChatReceivedEvent event){
 
-    }
-
-    @SubscribeEvent
-    public void onChatSend(ClientChatEvent event){
-        /*
-        if (EmojifulConfig.getInstance().renderEmoji.get() && EmojifulConfig.getInstance().shortEmojiReplacement.get()){
-            String message = event.getMessage();
-            for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
-                if (emoji.texts.size() > 0) message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
-            }
-            event.setMessage(message);
-        }*/
     }
 
     @SubscribeEvent
