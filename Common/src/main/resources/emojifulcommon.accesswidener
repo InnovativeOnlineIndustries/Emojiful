@@ -1,0 +1,19 @@
+accessWidener v2 named
+accessible method net/minecraft/client/gui/Font renderText (Ljava/lang/String;FFIZLcom/mojang/math/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;ZII)F
+extendable method net/minecraft/client/gui/Font renderText (Ljava/lang/String;FFIZLcom/mojang/math/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;ZII)F
+accessible method net/minecraft/client/renderer/blockentity/BlockEntityRenderers register (Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/client/renderer/blockentity/BlockEntityRendererProvider;)V
+accessible field net/minecraft/client/Minecraft font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/renderer/blockentity/SignRenderer font Lnet/minecraft/client/gui/Font;
+mutable field net/minecraft/client/Minecraft font Lnet/minecraft/client/gui/Font;
+mutable field net/minecraft/client/renderer/entity/EntityRenderDispatcher font Lnet/minecraft/client/gui/Font;
+mutable field net/minecraft/client/renderer/blockentity/SignRenderer font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/screens/ChatScreen input Lnet/minecraft/client/gui/components/EditBox;
+accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible field net/minecraft/client/Minecraft fontManager Lnet/minecraft/client/gui/font/FontManager;
+mutable field net/minecraft/client/Minecraft fontFilterFishy Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/Font SHADOW_OFFSET Lcom/mojang/math/Vector3f;
+accessible field net/minecraft/client/gui/Font filterFishyGlyphs Z
+accessible method net/minecraft/client/gui/Font getFontSet (Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/gui/font/FontSet;
+accessible method net/minecraft/client/gui/Font renderChar (Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;ZZFFFLcom/mojang/math/Matrix4f;Lcom/mojang/blaze3d/vertex/VertexConsumer;FFFFI)V
+accessible field net/minecraft/client/gui/Font fonts Ljava/util/function/Function;

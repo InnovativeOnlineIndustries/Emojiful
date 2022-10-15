@@ -11,7 +11,8 @@ out
 *.ipr
 *.iws
 *.iml
-.idea
+.idea/*
+!.idea/scopes
 
 # gradle
 build
@@ -20,8 +21,9 @@ build
 # other
 eclipse
 run
-
-# Files from Forge MDK
-forge*changelog.txt
-.DS_Store
-logs/
+runClient
+runServer
+Fabric/runClient/logs/latest.log
+Fabric/runClient/logs/debug.log
+Fabric/runClient/config/fabric/indigo-renderer.properties
+buildOutput/

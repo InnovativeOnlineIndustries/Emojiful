@@ -1,0 +1,70 @@
+plugins {
+    id 'fabric-loom' version '1.+'
+    id 'maven-publish'
+    id 'idea'
+}
+
+archivesBaseName = "${build_file_name}-Fabric-${minecraft_version}"
+
+repositories {
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        //parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    compileOnly project(":Common")
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+    modImplementation "maven.modrinth:midnightlib:0.6.0"
+    include "maven.modrinth:midnightlib:0.6.0"
+    implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+    include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+}
+
+loom {
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("runClient")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("runServer")
+        }
+    }
+    accessWidenerPath = file("${project(':Common').projectDir.path}/src/main/resources/emojifulcommon.accesswidener")
+    mixin {
+        defaultRefmapName = "${mod_name}.refmap.json"
+    }
+}
+
+import net.fabricmc.loom.task.AbstractRemapJarTask
+tasks.withType(AbstractRemapJarTask).each {
+    it.targetNamespace = "intermediary"
+}
+
+processResources {
+    from project(":Common").sourceSets.main.resources
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":Common").sourceSets.main.allSource)
+}
+
