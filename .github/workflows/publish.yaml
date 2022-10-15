@@ -44,7 +44,7 @@ jobs:
           files-primary: Fabric/build/libs/!(*-@(javadoc|sources)).jar
           files-secondary: Fabric/build/libs/*-@(javadoc|sources).jar
           version-type: beta
-          loaders: forge
+          loaders: fabric
           game-versions: 1.19.2
           java: 17
           name: ""
