@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hrznstudio.emojiful.mixin.forge",
+  "refmap": "emojiful.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+
+}
+
