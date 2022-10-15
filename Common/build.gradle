@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'fabric-loom' version '1.+'
+}
+
+archivesBaseName = "${build_file_name}-Common-${minecraft_version}"
+
+repositories {
+    maven {
+        name = 'Forge / Mixin'
+        url = 'https://maven.minecraftforge.net'
+    }
+}
+loom {
+    runConfigs.configureEach {
+        ideConfigGenerated = false
+    }
+    accessWidenerPath = file("${project(':Common').projectDir.path}/src/main/resources/emojifulcommon.accesswidener")
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        //parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_version}@zip")
+    }
+    modCompileOnly "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    compileOnly("org.spongepowered:mixin:0.8.5")
+    compileOnly group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+}
+
+import net.fabricmc.loom.task.AbstractRemapJarTask
+tasks.withType(AbstractRemapJarTask).each {
+    it.targetNamespace = "intermediary"
+}
+
+processResources {
+
+    def buildProps = project.properties.clone()
+
+    filesMatching(['pack.mcmeta']) {
+
+        expand buildProps
+    }
+}
+
