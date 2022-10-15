@@ -1,8 +1,8 @@
 package com.hrznstudio.emojiful.mixin;
 
-import com.hrznstudio.emojiful.ClientProxy;
-import com.hrznstudio.emojiful.EmojifulConfig;
+import com.hrznstudio.emojiful.ClientEmojiHandler;
 import com.hrznstudio.emojiful.api.Emoji;
+import com.hrznstudio.emojiful.platform.Services;
 import net.minecraft.client.gui.screens.ChatScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,9 +21,8 @@ public class ShortReplacementMixin {
     }
 
     private String replaceShortEmojis(String message) {
-        if (EmojifulConfig.getInstance().renderEmoji.get()
-                && EmojifulConfig.getInstance().shortEmojiReplacement.get()) {
-            for (Emoji emoji : ClientProxy.EMOJI_WITH_TEXTS) {
+        if (Services.CONFIG.renderEmoji() && Services.CONFIG.shortEmojiReplacement()) {
+            for (Emoji emoji : ClientEmojiHandler.EMOJI_WITH_TEXTS) {
                 if (emoji.texts.size() > 0) {
                     message = message.replaceAll(emoji.getTextRegex(), emoji.getShorterString());
                 }
