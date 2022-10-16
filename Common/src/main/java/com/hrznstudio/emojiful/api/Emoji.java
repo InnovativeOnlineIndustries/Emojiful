@@ -122,18 +122,12 @@ public class Emoji implements Predicate<String> {
         if (textRegex != null) return textRegex;
         List<String> processed = new ArrayList<>();
         for (String string : texts) {
-            char last = string.toLowerCase().charAt(string.length() - 1);
-            String s = string;
-            if (last >= 97 && last <= 122) {
-                s = string + "\\b";
-            }
-            char first = string.toLowerCase().charAt(0);
-            if (first >= 97 && first <= 122) {
-                s = "\\b" + s;
-            }
-            processed.add(EmojiUtil.cleanStringForRegex(s));
+            processed.add(EmojiUtil.cleanStringForRegex(string));
         }
-        textRegex = String.join("|", processed);
+
+        // (?<=^|\s) ensures the character before the text is either the start of the string or a whitespace
+        // (?=$|\s) ensures the character after the text is either the end of the string or a whitespace
+        textRegex = "(?<=^|\\s)(" + String.join("|", processed) + ")(?=$|\\s)";
         return textRegex;
     }
 
