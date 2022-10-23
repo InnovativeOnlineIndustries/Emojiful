@@ -177,7 +177,7 @@ public class EmojiFontRenderer extends Font {
                             return true;
                         }
                     }
-                    if (ch == ':') {
+                    if (ignore.get() && ch == ':') {
                         ignore.set(false);
                         cleanPos.getAndIncrement();
                     }
