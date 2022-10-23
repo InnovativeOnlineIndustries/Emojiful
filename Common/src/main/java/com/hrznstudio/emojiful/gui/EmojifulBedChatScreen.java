@@ -5,6 +5,7 @@ import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.platform.Services;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.InBedChatScreen;
+import org.lwjgl.glfw.GLFW;
 
 public class EmojifulBedChatScreen extends InBedChatScreen {
 
@@ -34,7 +35,7 @@ public class EmojifulBedChatScreen extends InBedChatScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)){
+        if (super.keyPressed(keyCode, scanCode, modifiers) && keyCode != GLFW.GLFW_KEY_TAB){
             return true;
         }
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
