@@ -12,6 +12,7 @@ import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.Services;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -77,4 +78,7 @@ public class CommonClass {
         }
     }
 
+    public static boolean shouldKeyBeIgnored(int keyCode){
+        return keyCode == GLFW.GLFW_KEY_TAB || keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_RIGHT;
+    }
 }
