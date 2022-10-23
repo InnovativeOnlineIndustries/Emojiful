@@ -30,17 +30,15 @@ public class EmojifulFabric implements ModInitializer {
         //This compiles to another class, so we get a classloading barrier
         public static void handleScreenInject(Minecraft minecraft, Screen screen) {
             if (screen != null) {
-                if (!(screen instanceof EmojifulChatScreen)){
+                if (!(screen instanceof EmojifulChatScreen) && screen instanceof ChatScreen){
                     if (screen instanceof InBedChatScreen){
                         minecraft.screen = new EmojifulBedChatScreen();
                         minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
                     }
-
-                    else if (screen instanceof ChatScreen chatScreen) {
-                        minecraft.screen = new EmojifulChatScreen(chatScreen.initial);
+                    else  {
+                        minecraft.screen = new EmojifulChatScreen(((ChatScreen) screen).initial);
                         minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
                     }
-
                 }
                 else {
                     minecraft.screen = screen;
