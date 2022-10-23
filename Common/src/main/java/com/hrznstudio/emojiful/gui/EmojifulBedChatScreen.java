@@ -1,18 +1,15 @@
 package com.hrznstudio.emojiful.gui;
 
+
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.platform.Services;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.InBedChatScreen;
 
-public class EmojifulChatScreen extends ChatScreen {
+public class EmojifulBedChatScreen extends InBedChatScreen {
 
     private EmojiSelectionGui emojiSelectionGui;
     private EmojiSuggestionHelper emojiSuggestionHelper;
-
-    public EmojifulChatScreen(String initial) {
-        super(initial);
-    }
 
     @Override
     protected void init() {
@@ -37,7 +34,7 @@ public class EmojifulChatScreen extends ChatScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers) && keyCode != 258){
+        if (super.keyPressed(keyCode, scanCode, modifiers)){
             return true;
         }
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
@@ -60,4 +57,5 @@ public class EmojifulChatScreen extends ChatScreen {
     public boolean charTyped(char c, int i) {
         return super.charTyped(c, i) && (emojiSelectionGui != null && emojiSelectionGui.charTyped(c, i));
     }
+
 }
