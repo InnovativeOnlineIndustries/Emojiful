@@ -2,7 +2,6 @@
     "schemaVersion": 1,
     "id": "emojiful",
     "version": "${version}",
-  
     "name": "Emojiful",
     "description": "Adds Emojis to the Game Chat!!!",
     "authors": [
@@ -12,7 +11,6 @@
       "homepage": "https://github.com/InnovativeOnlineIndustries/Emojiful/issues",
       "sources": "https://github.com/InnovativeOnlineIndustries/Emojiful"
     },
-  
     "license": "MIT",
     "icon": "assets/emojiful/icon.png",
   
@@ -26,7 +24,6 @@
       "emojiful.mixins.json",
       "emojiful.fabric.mixins.json"
     ],
-  
     "depends": {
       "fabricloader": ">=0.14",
       "minecraft": "1.19.2",
