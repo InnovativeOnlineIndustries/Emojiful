@@ -44,7 +44,9 @@ jobs:
           files-primary: Fabric/build/libs/!(*-@(javadoc|sources)).jar
           files-secondary: Fabric/build/libs/*-@(javadoc|sources).jar
           version-type: beta
-          loaders: fabric
+          loaders: |
+            fabric
+            quilt
           game-versions: 1.19.2
           java: 17
           name: ""
