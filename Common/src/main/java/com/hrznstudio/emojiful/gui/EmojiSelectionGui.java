@@ -123,6 +123,11 @@ public class EmojiSelectionGui implements IDrawableGuiListener {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int p_231044_5_) {
+        if (openSelectionArea.contains((int) mouseX, (int) mouseY)) {
+            toggleSelectionArea();
+            return true;
+        }
+
         if (this.showingSelectionArea) {
             fieldWidget.setFocus(textFieldRectangle.contains((int) mouseX, (int) mouseY));
             if (categorySelectionArea.contains((int) mouseX, (int) mouseY)) {
@@ -161,11 +166,6 @@ public class EmojiSelectionGui implements IDrawableGuiListener {
                 }
                 return true;
             }
-        } else {
-            if (openSelectionArea.contains((int) mouseX, (int) mouseY)) {
-                showSelectionArea();
-                return true;
-            }
         }
         return false;
     }
@@ -201,7 +201,7 @@ public class EmojiSelectionGui implements IDrawableGuiListener {
         GuiComponent.fill(stack, rectangle2d.getX(), rectangle2d.getY(), rectangle2d.getX() + rectangle2d.getWidth(), rectangle2d.getY() + rectangle2d.getHeight(), value);
     }
 
-    public void showSelectionArea() {
+    public void toggleSelectionArea() {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         showingSelectionArea = !showingSelectionArea;
     }
