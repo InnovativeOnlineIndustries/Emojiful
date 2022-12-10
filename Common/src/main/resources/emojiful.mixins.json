@@ -8,8 +8,7 @@
     ],
     "client": [
       "ChatScreenMixin",
-      "MinecraftEmojifulMixin",
-      "ShortReplacementMixin"
+      "MinecraftEmojifulMixin"
     ],
     "injectors": {
       "defaultRequire": 1
