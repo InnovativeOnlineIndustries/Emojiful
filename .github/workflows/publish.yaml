@@ -38,7 +38,7 @@ jobs:
           java: 17
           name: ""
           changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"
-     - name: Publish Minecraft Mods Forge
+      - name: Publish Minecraft Mods Forge
         uses: Kir-Antipov/mc-publish@v2.1
         with:
           curseforge-id: 284324
