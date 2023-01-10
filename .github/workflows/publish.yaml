@@ -23,19 +23,6 @@ jobs:
         run: chmod +x ./gradlew
       - name: build
         run: ./gradlew build
-      - name: Publish Minecraft Mods Forge
-        uses: Kir-Antipov/mc-publish@v2.1
-        with:
-          curseforge-id: 284324
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: Forge/build/libs/*-all.jar
-          files-secondary: Forge/build/libs/!(*-all).jar
-          version-type: beta
-          loaders: forge
-          game-versions: 1.19.2
-          java: 17
-          name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"
       - name: Publish Minecraft Mods Fabric
         uses: Kir-Antipov/mc-publish@v2.1
         with:
@@ -47,6 +34,19 @@ jobs:
           loaders: |
             fabric
             quilt
+          game-versions: 1.19.2
+          java: 17
+          name: ""
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"
+      - name: Publish Minecraft Mods Forge
+        uses: Kir-Antipov/mc-publish@v2.1
+        with:
+          curseforge-id: 284324
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files-primary: Forge/build/libs/*-all.jar
+          files-secondary: Forge/build/libs/!(*-all).jar
+          version-type: beta
+          loaders: forge
           game-versions: 1.19.2
           java: 17
           name: ""
