@@ -30,11 +30,11 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: Fabric/build/libs/!(*-@(javadoc|sources)).jar
           files-secondary: Fabric/build/libs/*-@(javadoc|sources).jar
-          version-type: beta
+          version-type: release
           loaders: |
             fabric
             quilt
-          game-versions: 1.19.2
+          game-versions: 1.19.3
           java: 17
           name: ""
           changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"
@@ -43,11 +43,11 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: Forge/build/libs/*-all.jar
-          files-secondary: Forge/build/libs/!(*-all).jar
-          version-type: beta
+          files-primary: Forge/build/libs/!(*-@(javadoc|sources)).jar
+          files-secondary: Forge/build/libs/*-@(javadoc|sources).jar
+          version-type: release
           loaders: forge
-          game-versions: 1.19.2
+          game-versions: 1.19.3
           java: 17
           name: ""
           changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"

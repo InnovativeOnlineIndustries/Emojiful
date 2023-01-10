@@ -32,6 +32,7 @@ minecraft {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Client'
+            args("--username", "Dev####")
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
@@ -95,6 +96,7 @@ dependencies {
 
 shadowJar {
     configurations = [project.configurations.shade]
+    classifier = ""
     relocate 'com.esoteric.yamlbeans', 'com.hrznstudio.emojiful.shaded.yamlbeans'
     finalizedBy 'reobfShadowJar'
 }
@@ -117,7 +119,6 @@ processResources {
 mixin {
     add sourceSets.main, "emojiful.refmap.json"
     config "emojiful.mixins.json"
-    config "emojiful.forge.mixins.json"
 }
 
 

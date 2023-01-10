@@ -10,8 +10,6 @@ import com.hrznstudio.emojiful.platform.Services;
 import com.hrznstudio.emojiful.util.EmojiUtil;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -28,6 +26,8 @@ import net.minecraft.util.FormattedCharSink;
 import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,6 +123,7 @@ public class EmojiFontRenderer extends Font {
     @Override
     public int drawInBatch(String p_228079_1_, float p_228079_2_, float p_228079_3_, int p_228079_4_, boolean p_228079_5_, Matrix4f p_228079_6_, MultiBufferSource p_228079_7_, boolean p_228079_8_, int p_228079_9_, int p_228079_10_) {
         return super.drawInBatch(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
+
     }
 
     @Override
@@ -188,7 +189,7 @@ public class EmojiFontRenderer extends Font {
                     builder2.append((char) ch);
                     return true;
                 });
-                Matrix4f matrix4f = matrix.copy();
+                Matrix4f matrix4f = new Matrix4f(matrix);
                 if (isShadow) {
                     EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix, isTransparent, packedLight);
                     FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);

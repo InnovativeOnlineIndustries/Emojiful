@@ -45,7 +45,7 @@ public class CommonClass {
         return json;
     }
 
-    public static void main(String[] s) throws YamlException {
+    public static void main(String[] s) {
         ClientEmojiHandler.loadTwemojis();
     }
 
