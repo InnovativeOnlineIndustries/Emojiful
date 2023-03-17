@@ -1,0 +1,23 @@
+{
+  "emojiful.midnightconfig.title" : "Emojiful",
+  "emojiful.midnightconfig.enableRenderEmoji" : "Увімкнути відображення емоджі",
+  "emojiful.midnightconfig.renderEmoji" : "Відображення емоджі",
+  "emojiful.midnightconfig.showEmojiSelector" : "Увімкнути меню вибору емоджі в текстовому рядку чату",
+  "emojiful.midnightconfig.emojiSelector" : "Вибір емоджі",
+  "emojiful.midnightconfig.emojiAutocomplete" : "Автозаповнення емоджі",
+  "emojiful.midnightconfig.loadGifEmojis" : "Завантажувати анімовані емоджі, якщо вимкнено, ці емоджі будуть статичними",
+  "emojiful.midnightconfig.gifEmojis" : "Емоджі-GIF",
+  "emojiful.midnightconfig.shortEmojiReplacement" : "Замінювати скорочення емоджі як \":)\" на \":smile:\", щоб вони відображалися у вигляді емоджі",
+  "emojiful.midnightconfig.emojiReplacement" : "Заміна скорочень емоджі",
+  "emojiful.midnightconfig.emojiTypes" : "Види емоджі",
+  "emojiful.midnightconfig.loadTwemoji" : "Завантажити Twemoji, які використовуються на сайтах як Twitter та Discord",
+  "emojiful.midnightconfig.enableLoadTwemoji" : "Завантажити Twemoji",
+  "emojiful.midnightconfig.enableLoadCustom" : "Завантажувати власні емоджі, надані модом Emojiful",
+  "emojiful.midnightconfig.loadCustom" : "Завантажувати власні емоджі",
+  "emojiful.midnightconfig.enableLoadDatapack" : "Завантажити емоджі з пакетів даних, надані сервером, до якого ви приєднуєтесь",
+  "emojiful.midnightconfig.loadDatapack" : "Завантажувати пакети даних сервера",
+  "emojiful.midnightconfig.enableProfanityFilter" : "Увімкнути фільтр лайки. Цей параметр замінюватиме лайку на емоджі",
+  "emojiful.midnightconfig.profanityFilter" : "Фільтр лайки",
+  "emojiful.midnightconfig.profanityFilterString" : "Замінюване слово для фільтра лайки",
+  "emojiful.midnightconfig.profanityFilterReplacement" : "Замінюване слово"
+}
