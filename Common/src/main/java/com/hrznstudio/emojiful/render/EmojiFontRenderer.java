@@ -97,7 +97,7 @@ public class EmojiFontRenderer extends Font {
     public int width(String text) {
         if (text != null) {
             try {
-                text = RECENT_STRINGS.get(text.replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: ")).getKey();
+                text = RECENT_STRINGS.get(text).getKey();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -132,7 +132,7 @@ public class EmojiFontRenderer extends Font {
             return 0;
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
         try {
-            Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text.replaceAll(MY_NAME, MY_NAME + " :blobcatbolb: "));
+            Pair<String, HashMap<Integer, Emoji>> cache = RECENT_STRINGS.get(text);
             text = cache.getLeft();
             emojis = cache.getRight();
         } catch (ExecutionException e) {
@@ -153,7 +153,7 @@ public class EmojiFontRenderer extends Font {
                     return true;
                 });
             }
-            String text = builder.toString().replaceAll(MY_NAME, MY_NAME + " :blobcatbolb:");
+            String text = builder.toString();
             if (text.length() > 0) {
                 color = (color & -67108864) == 0 ? color | -16777216 : color;
                 HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
