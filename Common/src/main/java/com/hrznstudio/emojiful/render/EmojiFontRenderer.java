@@ -183,8 +183,8 @@ public class EmojiFontRenderer extends Font {
                     }
                     return true;
                 });
-                Matrix4f matrix4f = matrix.copy();
->>>>>>> ebfc1bb... Fixed shadow dropping after an emoji closes #28
+                Matrix4f matrix4f = new Matrix4f(matrix);
+
                 if (isShadow) {
                     EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix4f, isTransparent, packedLight);
                     FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);
