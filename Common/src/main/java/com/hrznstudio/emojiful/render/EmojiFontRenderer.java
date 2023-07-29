@@ -182,14 +182,9 @@ public class EmojiFontRenderer extends Font {
                     }
                     return true;
                 });
-                StringBuilder builder2 = new StringBuilder();
-                FormattedCharSequence.fromList(processors).accept((p_accept_1_, p_accept_2_, ch) -> {
-                    builder2.append((char) ch);
-                    return true;
-                });
                 Matrix4f matrix4f = matrix.copy();
                 if (isShadow) {
-                    EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix, isTransparent, packedLight);
+                    EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix4f, isTransparent, packedLight);
                     FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);
                     fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
                     matrix4f.translate(SHADOW_OFFSET);
@@ -265,10 +260,9 @@ public class EmojiFontRenderer extends Font {
             FontSet font = EmojiFontRenderer.this.getFontSet(style.getFont());
             if (Services.CONFIG.renderEmoji() && this.emojis.get(pos) != null) {
                 Emoji emoji = this.emojis.get(pos);
-                if (emoji != null && !this.dropShadow) {
-                    EmojiUtil.renderEmoji(emoji, this.x, this.y, matrix, buffer, packedLight);
+                if (emoji != null) {
+                    if (!this.dropShadow) EmojiUtil.renderEmoji(emoji, this.x, this.y, matrix, buffer, packedLight);
                     this.x += 10;
-                    return true;
                 }
             } else {
                 GlyphInfo iglyph = font.getGlyphInfo(charInt, (EmojiFontRenderer.this).filterFishyGlyphs);
@@ -310,7 +304,7 @@ public class EmojiFontRenderer extends Font {
                 this.x += f6;
                 return true;
             }
-            return false;
+            return true;
         }
 
         public float finish(int p_238441_1_, float p_238441_2_) {
