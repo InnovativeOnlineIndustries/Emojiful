@@ -120,13 +120,12 @@ public class EmojiFontRenderer extends Font {
     }
 
     @Override
-    public int drawInBatch(String p_228079_1_, float p_228079_2_, float p_228079_3_, int p_228079_4_, boolean p_228079_5_, Matrix4f p_228079_6_, MultiBufferSource p_228079_7_, boolean p_228079_8_, int p_228079_9_, int p_228079_10_) {
-        return super.drawInBatch(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
-
+    public void renderChar(BakedGlyph $$0, boolean $$1, boolean $$2, float $$3, float $$4, float $$5, Matrix4f $$6, VertexConsumer $$7, float $$8, float $$9, float $$10, float $$11, int $$12) {
+        super.renderChar($$0, $$1, $$2, $$3, $$4, $$5, $$6, $$7, $$8, $$9, $$10, $$11, $$12);
     }
 
     @Override
-    public float renderText(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
+    public float renderText(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, DisplayMode displayMode, int colorBackgroundIn, int packedLight) {
         if (text.isEmpty())
             return 0;
         HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
@@ -137,13 +136,13 @@ public class EmojiFontRenderer extends Font {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, isShadow, matrix, isTransparent, packedLight);
+        EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, isShadow, matrix, displayMode == DisplayMode.SEE_THROUGH, packedLight);
         StringDecomposer.iterateFormatted(text, Style.EMPTY, fontrenderer$characterrenderer);
         return fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
     }
 
     @Override
-    public int drawInBatch(FormattedCharSequence reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
+    public int drawInBatch(FormattedCharSequence reorderingProcessor, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, DisplayMode displayMode, int colorBackgroundIn, int packedLight) {
         if (reorderingProcessor != null) {
             StringBuilder builder = new StringBuilder();
             if (reorderingProcessor != null) {
@@ -186,17 +185,17 @@ public class EmojiFontRenderer extends Font {
                 Matrix4f matrix4f = new Matrix4f(matrix);
 
                 if (isShadow) {
-                    EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix4f, isTransparent, packedLight);
+                    EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, true, matrix4f, displayMode == DisplayMode.SEE_THROUGH, packedLight);
                     FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);
                     fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
                     matrix4f.translate(SHADOW_OFFSET);
                 }
-                EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, false, matrix4f, isTransparent, packedLight);
+                EmojiCharacterRenderer fontrenderer$characterrenderer = new EmojiCharacterRenderer(emojis, buffer, x, y, color, false, matrix4f, displayMode == DisplayMode.SEE_THROUGH, packedLight);
                 FormattedCharSequence.fromList(processors).accept(fontrenderer$characterrenderer);
                 return (int) fontrenderer$characterrenderer.finish(colorBackgroundIn, x);
             }
         }
-        return super.drawInBatch(reorderingProcessor, x, y, color, isShadow, matrix, buffer, isTransparent, colorBackgroundIn, packedLight);
+        return super.drawInBatch(reorderingProcessor, x, y, color, isShadow, matrix, buffer, displayMode, colorBackgroundIn, packedLight);
     }
 
     class CharacterProcessor implements FormattedCharSequence {

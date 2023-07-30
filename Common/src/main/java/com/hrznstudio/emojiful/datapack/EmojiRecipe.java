@@ -1,6 +1,7 @@
 package com.hrznstudio.emojiful.datapack;
 
 import com.hrznstudio.emojiful.platform.Services;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +30,7 @@ public class EmojiRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack assemble(Container inv) {
+    public ItemStack assemble(Container inv, RegistryAccess registryAccess) {
         return ItemStack.EMPTY;
     }
 
@@ -39,7 +40,7 @@ public class EmojiRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
         return ItemStack.EMPTY;
     }
 

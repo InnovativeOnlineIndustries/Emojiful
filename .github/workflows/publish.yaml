@@ -34,10 +34,10 @@ jobs:
           loaders: |
             fabric
             quilt
-          game-versions: 1.19.3
+          game-versions: 1.20.1
           java: 17
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20"
       - name: Publish Minecraft Mods Forge
         uses: Kir-Antipov/mc-publish@v2.1
         with:
@@ -47,7 +47,7 @@ jobs:
           files-secondary: Forge/build/libs/*-@(javadoc|sources).jar
           version-type: release
           loaders: forge
-          game-versions: 1.19.3
+          game-versions: 1.20.1
           java: 17
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.19-multiloader"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20"

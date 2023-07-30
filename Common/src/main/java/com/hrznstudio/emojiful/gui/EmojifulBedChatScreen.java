@@ -5,6 +5,7 @@ import com.hrznstudio.emojiful.CommonClass;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.platform.Services;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import org.lwjgl.glfw.GLFW;
 
@@ -24,12 +25,12 @@ public class EmojifulBedChatScreen extends InBedChatScreen {
 
 
     @Override
-    public void render(PoseStack poseStack, int x, int j, float partialTick) {
-        super.render(poseStack, x, j, partialTick);
-        if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(poseStack);
+    public void render(GuiGraphics guiGraphics, int x, int j, float partialTick) {
+        super.render(guiGraphics, x, j, partialTick);
+        if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(guiGraphics);
         if (emojiSelectionGui != null) {
             emojiSelectionGui.mouseMoved(x, j);
-            emojiSelectionGui.render(poseStack);
+            emojiSelectionGui.render(guiGraphics);
         }
 
     }

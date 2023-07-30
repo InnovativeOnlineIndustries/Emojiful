@@ -27,9 +27,9 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class Emoji implements Predicate<String> {
-    public static final ResourceLocation loading_texture = new ResourceLocation(Constants.MOD_ID, "textures/26a0.png");
-    public static final ResourceLocation noSignal_texture = new ResourceLocation(Constants.MOD_ID, "textures/26d4.png");
-    public static final ResourceLocation error_texture = new ResourceLocation(Constants.MOD_ID, "textures/26d4.png");
+    public static final ResourceLocation loading_texture = new ResourceLocation(Constants.MOD_ID, "textures/gui/26a0.png");
+    public static final ResourceLocation noSignal_texture = new ResourceLocation(Constants.MOD_ID, "textures/gui/26d4.png");
+    public static final ResourceLocation error_texture = new ResourceLocation(Constants.MOD_ID, "textures/gui/26d4.png");
 
     public static final AtomicInteger threadDownloadCounter = new AtomicInteger(0);
     public static final AtomicInteger threadFileLoaderCounter = new AtomicInteger(0);
