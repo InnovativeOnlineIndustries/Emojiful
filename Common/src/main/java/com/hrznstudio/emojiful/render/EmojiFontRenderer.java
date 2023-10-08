@@ -120,11 +120,6 @@ public class EmojiFontRenderer extends Font {
     }
 
     @Override
-    public int drawInBatch(String p_228079_1_, float p_228079_2_, float p_228079_3_, int p_228079_4_, boolean p_228079_5_, Matrix4f p_228079_6_, MultiBufferSource p_228079_7_, boolean p_228079_8_, int p_228079_9_, int p_228079_10_) {
-        return super.drawInBatch(p_228079_1_, p_228079_2_, p_228079_3_, p_228079_4_, p_228079_5_, p_228079_6_, p_228079_7_, p_228079_8_, p_228079_9_, p_228079_10_);
-    }
-
-    @Override
     public float renderText(String text, float x, float y, int color, boolean isShadow, Matrix4f matrix, MultiBufferSource buffer, boolean isTransparent, int colorBackgroundIn, int packedLight) {
         if (text.isEmpty())
             return 0;
@@ -288,7 +283,7 @@ public class EmojiFontRenderer extends Font {
                     float f5 = flag ? iglyph.getBoldOffset() : 0.0F;
                     float f4 = this.dropShadow ? iglyph.getShadowOffset() : 0.0F;
                     VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? DisplayMode.SEE_THROUGH : DisplayMode.NORMAL));
-                    (EmojiFontRenderer.this).renderChar(texturedglyph, flag, style.isItalic(), f5, this.x + f4, this.y + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
+                    EmojiFontRenderer.this.renderChar(texturedglyph, flag, style.isItalic(), f5, this.x + f4, this.y + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
                 }
 
                 float f6 = iglyph.getAdvance(flag);
