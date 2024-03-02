@@ -28,8 +28,9 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: Fabric/build/libs/!(*-@(javadoc|sources)).jar
-          files-secondary: Fabric/build/libs/*-@(javadoc|sources).jar
+          files: |
+            Fabric/build/libs/!(*-@(javadoc|sources)).jar
+            Fabric/build/libs/*-@(javadoc|sources).jar
           version-type: beta
           loaders: |
             fabric
@@ -43,8 +44,9 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: Forge/build/libs/!(*-@(javadoc|sources)).jar
-          files-secondary: Forge/build/libs/*-@(javadoc|sources).jar
+          files: |
+            Forge/build/libs/!(*-@(javadoc|sources)).jar
+            Forge/build/libs/*-@(javadoc|sources).jar
           version-type: beta
           loaders: forge
           game-versions: 1.20.4
@@ -56,8 +58,9 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: NeoForge/build/libs/!(*-@(javadoc|sources)).jar
-          files-secondary: NeoForge/build/libs/*-@(javadoc|sources).jar
+          files: |
+            NeoForge/build/libs/!(*-@(javadoc|sources)).jar
+            NeoForge/build/libs/*-@(javadoc|sources).jar
           version-type: beta
           loaders: forge
           game-versions: 1.20.4
