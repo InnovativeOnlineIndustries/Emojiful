@@ -39,7 +39,7 @@ public class FabricConfigHelper extends MidnightConfig implements IConfigHelper 
     @Comment
     public static Comment loadTwemoji;
     @Entry
-    public static boolean enableLoadTwemoji = true;
+    public static boolean enableLoadTwemoji = false;
 
     @Comment
     public static Comment enableLoadCustom;

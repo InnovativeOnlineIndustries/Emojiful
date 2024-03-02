@@ -1,0 +1,32 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+issueTrackerURL="https://github.com/InnovativeOnlineIndustries/Emojiful/"
+side="CLIENT"
+license="MIT"
+
+[[mixins]]
+config = "emojiful.mixins.json"
+
+[[mods]]
+    modId="emojiful"
+    version="${file.jarVersion}"
+    displayName="Emojiful"
+    authors="HRZN"
+    description='''
+    Adds Emojis to the Game Chat!!!
+    '''
+    side="CLIENT"
+
+[[dependencies.emojiful]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.20.4,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.emojiful]]
+    modId="neoforge"
+    type="required"
+    versionRange="[20.4.190,)"
+    ordering="NONE"
+    side="CLIENT"

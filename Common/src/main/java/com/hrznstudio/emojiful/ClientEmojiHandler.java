@@ -58,20 +58,23 @@ public class ClientEmojiHandler {
     }
 
     private static void preInitEmojis() {
-        CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
         if (Services.CONFIG.loadCustom()) loadCustomEmojis();
         //loadGithubEmojis();
-        if (Services.CONFIG.loadTwemoji()) loadTwemojis();
+        if (Services.CONFIG.loadTwemoji()){
+            CATEGORIES.addAll(Arrays.asList("Smileys & Emotion", "Animals & Nature", "Food & Drink", "Activities", "Travel & Places", "Objects", "Symbols", "Flags").stream().map(s -> new EmojiCategory(s, false)).collect(Collectors.toList()));
+            loadTwemojis();
+        }
         if (Services.CONFIG.getProfanityFilter()) ProfanityFilter.loadConfigs();
     }
 
     private static void loadCustomEmojis() {
         try {
-            YamlReader reader = new YamlReader(new StringReader(CommonClass.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/Categories.yml")));
+            YamlReader reader = new YamlReader(new StringReader(CommonClass.readStringFromURL("https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/1.20-plus/Categories.yml")));
             ArrayList<String> categories = (ArrayList<String>) reader.read();
             for (String category : categories) {
-                CATEGORIES.add(0, new EmojiCategory(category.replace(".yml", ""), false));
+                CATEGORIES.add(new EmojiCategory(category.replace(".yml", ""), false));
                 List<Emoji> emojis = CommonClass.readCategory(category);
+                emojis.forEach(emoji -> emoji.location = CommonClass.cleanURL(emoji.location));
                 Constants.EMOJI_LIST.addAll(emojis);
                 Constants.EMOJI_MAP.put(category.replace(".yml", ""), emojis);
             }

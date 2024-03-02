@@ -42,17 +42,20 @@ public class EmojifulChatScreen extends ChatScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers) && !CommonClass.shouldKeyBeIgnored(keyCode)){
-            return true;
-        }
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
             return true;
-        return emojiSelectionGui != null && emojiSelectionGui.keyPressed(keyCode, scanCode, modifiers);
+        if (CommonClass.shouldKeyBeIgnored(keyCode)){
+            return true;
+        }
+        if (emojiSelectionGui != null && emojiSelectionGui.keyPressed(keyCode, scanCode, modifiers)){
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double scrollDelta) {
-        return super.mouseScrolled(x, y, scrollDelta) && (emojiSelectionGui != null) && emojiSelectionGui.mouseScrolled(x, y, scrollDelta);
+    public boolean mouseScrolled(double x, double y, double scrollDelta, double d) {
+        return super.mouseScrolled(x, y, scrollDelta, d) && (emojiSelectionGui != null) && emojiSelectionGui.mouseScrolled(x, y, scrollDelta, d);
     }
 
     @Override
@@ -63,6 +66,9 @@ public class EmojifulChatScreen extends ChatScreen {
 
     @Override
     public boolean charTyped(char c, int i) {
-        return super.charTyped(c, i) && (emojiSelectionGui != null && emojiSelectionGui.charTyped(c, i));
+        if (emojiSelectionGui != null && emojiSelectionGui.charTyped(c, i)){
+            return true;
+        }
+        return super.charTyped(c, i);
     }
 }

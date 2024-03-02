@@ -46,8 +46,8 @@ public class EmojifulBedChatScreen extends InBedChatScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double scrollDelta) {
-        return super.mouseScrolled(x, y, scrollDelta) && (emojiSelectionGui != null) && emojiSelectionGui.mouseScrolled(x, y, scrollDelta);
+    public boolean mouseScrolled(double x, double y, double scrollDelta, double d) {
+        return super.mouseScrolled(x, y, scrollDelta, d) && (emojiSelectionGui != null) && emojiSelectionGui.mouseScrolled(x, y, scrollDelta, d);
     }
 
     @Override

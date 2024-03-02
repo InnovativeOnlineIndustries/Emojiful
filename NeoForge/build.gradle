@@ -1,0 +1,95 @@
+buildscript {
+    dependencies {
+        classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.2'
+    }
+}
+
+plugins {
+    id 'net.neoforged.gradle.userdev' version '7.0.80'
+}
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+jarJar.enable()
+
+archivesBaseName = "${build_file_name}-Neoforge-${minecraft_version}"
+
+
+minecraft.accessTransformers.file file("src/main/resources/META-INF/accesstransformer.cfg")
+runs {
+    configureEach {
+        modSource project.sourceSets.main
+    }
+    client {
+        workingDirectory project.file('run')
+        programArgument "--username=Dev####"
+        systemProperty  'mixin.env.remapRefMap', 'true'
+        systemProperty  'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        dependencies {
+            runtime group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "1.17"
+        }
+    }
+
+    server {
+        workingDirectory project.file('runServer')
+        systemProperty  'mixin.env.remapRefMap', 'true'
+        systemProperty  'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+    }
+
+    data {
+        workingDirectory project.file('run')
+        //args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        systemProperty  'mixin.env.remapRefMap', 'true'
+        systemProperty  'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+    }
+}
+
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
+
+tasks.named('jarJar') {
+    archiveClassifier.set("")
+}
+
+tasks.named("build").configure {
+    dependsOn("jarJar")
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+    implementation group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "1.17"
+    jarJar group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "[1.17]"
+    compileOnly project(":Common")
+}
+
+subsystems {
+    parchment {
+        minecraftVersion="1.20.3"
+        mappingsVersion="2023.12.31"
+    }
+}
+
+
+
+// NeoGradle compiles the game, but we don't want to add our common code to the game's code
+Spec<Task> notNeoTask = { Task it -> !it.name.startsWith("neo") && !it.name.contains("Test") } as Spec<Task>
+
+tasks.withType(JavaCompile).matching(notNeoTask).configureEach {
+    source(project(":Common").sourceSets.main.allSource)
+}
+
+tasks.withType(Javadoc).matching(notNeoTask).configureEach {
+    source(project(":Common").sourceSets.main.allJava)
+}
+
+tasks.named("sourcesJar", Jar) {
+    from(project(":Common").sourceSets.main.allSource)
+}
+
+processResources {
+    from project(":Common").sourceSets.main.resources
+}
+

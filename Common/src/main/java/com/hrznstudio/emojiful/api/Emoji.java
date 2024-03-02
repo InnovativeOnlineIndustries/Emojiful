@@ -167,7 +167,7 @@ public class Emoji implements Predicate<String> {
     }
 
     public String getUrl() {
-        return "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/master/" + location;
+        return "https://raw.githubusercontent.com/InnovativeOnlineIndustries/emojiful-assets/1.20-plus/" + location;
     }
 
     public File getCache() {

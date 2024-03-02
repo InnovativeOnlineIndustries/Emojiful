@@ -5,7 +5,6 @@ import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.platform.Services;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -14,7 +13,7 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -55,7 +54,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
         this.categorySelectionArea = new Rect2i(this.selectionArea.getX(), this.selectionArea.getY() + 20, 22, this.selectionArea.getHeight() - 20);
         this.emojiInfoArea = new Rect2i(this.selectionArea.getX() + 22, this.selectionArea.getY() + this.selectionArea.getHeight() - 20, this.selectionArea.getWidth() - 22, 20);
         this.textFieldRectangle = new Rect2i(selectionArea.getX() + 6, selectionArea.getY() + 6, selectionArea.getWidth() - 12, 10);
-        this.fieldWidget = new EditBox(ClientEmojiHandler.oldFontRenderer, textFieldRectangle.getX(), textFieldRectangle.getY(), textFieldRectangle.getWidth(), textFieldRectangle.getHeight(), MutableComponent.create(new LiteralContents("")));
+        this.fieldWidget = new EditBox(ClientEmojiHandler.oldFontRenderer, textFieldRectangle.getX(), textFieldRectangle.getY(), textFieldRectangle.getWidth(), textFieldRectangle.getHeight(), MutableComponent.create(new PlainTextContents.LiteralContents("")));
         this.fieldWidget.setEditable(true);
         this.fieldWidget.setVisible(true);
         this.filteredEmojis = new ArrayList<>();
@@ -107,7 +106,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
                         guiGraphics.fill(rec.getX() - 1, rec.getY() - 2, rec.getX() + rec.getWidth(), rec.getY() + rec.getHeight() - 1, -2130706433);
                     }
                     if (rec.contains((int) lastMouseX, (int) lastMouseY) && Minecraft.getInstance().screen != null) {
-                        guiGraphics.renderTooltip(Minecraft.getInstance().font, Arrays.asList(MutableComponent.create(new LiteralContents((category.name())))), Optional.empty(), (int) lastMouseX, (int) lastMouseY);
+                        guiGraphics.renderTooltip(Minecraft.getInstance().font, Arrays.asList(MutableComponent.create(new PlainTextContents.LiteralContents((category.name())))), Optional.empty(), (int) lastMouseX, (int) lastMouseY);
                     }
                     if (ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.containsKey(category) && ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.get(category).size() > 0) {
                         guiGraphics.drawString(Minecraft.getInstance().font, ClientEmojiHandler.SORTED_EMOJIS_FOR_SELECTION.get(category).get(0)[0].strings.get(0), categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 0);
@@ -173,15 +172,16 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
         this.lastMouseY = mouseY;
     }
 
+
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta, double d) {
         if (categorySelectionArea.contains((int) mouseX, (int) mouseY)) {
-            categoryPointer -= delta;
+            categoryPointer -= d;
             categoryPointer = Mth.clamp(categoryPointer, 0, ClientEmojiHandler.CATEGORIES.size() - 7);
             return true;
         }
         if (selectionArea.contains((int) mouseX, (int) mouseY)) {
-            selectionPointer -= delta;
+            selectionPointer -= d;
             selectionPointer = Mth.clamp(selectionPointer, 1, Math.max(1, getLineAmount() - 5));
             categoryPointer = Mth.clamp(Arrays.asList(ClientEmojiHandler.CATEGORIES).indexOf(getCategory(selectionPointer)), 0, ClientEmojiHandler.CATEGORIES.size() - 7);
             return true;

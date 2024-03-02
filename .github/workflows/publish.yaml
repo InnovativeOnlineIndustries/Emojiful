@@ -24,30 +24,43 @@ jobs:
       - name: build
         run: ./gradlew build
       - name: Publish Minecraft Mods Fabric
-        uses: Kir-Antipov/mc-publish@v2.1
+        uses: Kir-Antipov/mc-publish@v3.3.0
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: Fabric/build/libs/!(*-@(javadoc|sources)).jar
           files-secondary: Fabric/build/libs/*-@(javadoc|sources).jar
-          version-type: release
+          version-type: beta
           loaders: |
             fabric
             quilt
-          game-versions: 1.20.1
+          game-versions: 1.20.4
           java: 17
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20.4"
       - name: Publish Minecraft Mods Forge
-        uses: Kir-Antipov/mc-publish@v2.1
+        uses: Kir-Antipov/mc-publish@v3.3.0
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: Forge/build/libs/!(*-@(javadoc|sources)).jar
           files-secondary: Forge/build/libs/*-@(javadoc|sources).jar
-          version-type: release
+          version-type: beta
           loaders: forge
-          game-versions: 1.20.1
+          game-versions: 1.20.4
           java: 17
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20.4"
+      - name: Publish Minecraft Mods NeoForge
+        uses: Kir-Antipov/mc-publish@v3.3.0
+        with:
+          curseforge-id: 284324
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files-primary: NeoForge/build/libs/!(*-@(javadoc|sources)).jar
+          files-secondary: NeoForge/build/libs/*-@(javadoc|sources).jar
+          version-type: beta
+          loaders: forge
+          game-versions: 1.20.4
+          java: 17
+          name: ""
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20.4"

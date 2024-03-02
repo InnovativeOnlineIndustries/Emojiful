@@ -1,32 +1,30 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
-        maven { url = 'https://maven.parchmentmc.org' }
         gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net' }
+
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.+', changing: true
         classpath 'org.spongepowered:mixingradle:0.7.+'
-        classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.2'
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'com.github.johnrengelman.shadow'
 
+jarJar.enable()
 
 archivesBaseName = "${build_file_name}-Forge-${minecraft_version}"
 
 minecraft {
     accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
-    mappings channel: 'parchment', version: "${parchment_version}-${parchment_minecraft_version}"
+    mappings channel: 'official', version: minecraft_version
+    copyIdeResources = true
     runs {
         client {
             workingDirectory project.file('run')
@@ -76,51 +74,54 @@ minecraft {
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
-configurations {
-    shade
-    implementation.extendsFrom shade
+
+tasks.jarJar.configure {
+    archiveClassifier.set("")
+    mustRunAfter("reobfJar")
 }
 
-sourcesJar {
-    from project(":Common").sourceSets.main.allSource
+tasks.named("build").configure {
+    dependsOn("jarJar")
 }
+
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":Common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
-    minecraftLibrary 'com.esotericsoftware.yamlbeans:yamlbeans:1.15'
-    shade 'com.esotericsoftware.yamlbeans:yamlbeans:1.15'
+    implementation group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "1.17"
+    jarJar group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "[1.17]"
 }
 
 
-shadowJar {
-    configurations = [project.configurations.shade]
-    classifier = ""
-    relocate 'com.esoteric.yamlbeans', 'com.hrznstudio.emojiful.shaded.yamlbeans'
-    finalizedBy 'reobfShadowJar'
-}
-
-assemble.dependsOn shadowJar
-
-reobf {
-    shadowJar {}
-}
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     source(project(":Common").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+    source(project(":Common").sourceSets.main.allJava)
+}
+tasks.named("sourcesJar", Jar) {
+    from(project(":Common").sourceSets.main.allSource)
 }
 
 processResources {
     from project(":Common").sourceSets.main.resources
 }
 
-
 mixin {
     add sourceSets.main, "emojiful.refmap.json"
     config "emojiful.mixins.json"
 }
 
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}
+
+
+
 
 jar.finalizedBy('reobfJar')
+
 

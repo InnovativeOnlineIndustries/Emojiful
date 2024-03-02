@@ -19,10 +19,16 @@ pluginManagement {
             url = 'https://maven.quiltmc.org/repository/snapshot'
         }
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url = 'https://maven.neoforged.net/releases' }
+        maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
         gradlePluginPortal()
     }
 }
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
 
 rootProject.name = 'Emojiful'
-include("Common", "Fabric", "Forge")
+include("Common", "Fabric", "NeoForge", "Forge")

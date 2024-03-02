@@ -24,8 +24,8 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     modImplementation "maven.modrinth:midnightlib:1.0.0-fabric"
     include "maven.modrinth:midnightlib:1.1.0-fabric"
-    implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
-    include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+    implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
+    include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
 }
 
 loom {

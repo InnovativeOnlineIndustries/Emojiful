@@ -12,13 +12,11 @@ import net.minecraft.world.level.Level;
 
 public class EmojiRecipe implements Recipe<Container> {
 
-    private final ResourceLocation recipeName;
     private final String category;
     private final String name;
     private final String url;
 
-    public EmojiRecipe(ResourceLocation recipeName, String category, String name, String url) {
-        this.recipeName = recipeName;
+    public EmojiRecipe(String category, String name, String url) {
         this.category = category;
         this.name = name;
         this.url = url;
@@ -45,11 +43,6 @@ public class EmojiRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return recipeName;
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return Services.PLATFORM.getRecipeSerializer();
     }
@@ -57,10 +50,6 @@ public class EmojiRecipe implements Recipe<Container> {
     @Override
     public RecipeType<?> getType() {
         return Services.PLATFORM.getRecipeType();
-    }
-
-    public ResourceLocation getRecipeName() {
-        return recipeName;
     }
 
     public String getCategory() {
