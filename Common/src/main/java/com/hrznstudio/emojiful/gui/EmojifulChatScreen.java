@@ -44,9 +44,6 @@ public class EmojifulChatScreen extends ChatScreen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
             return true;
-        if (CommonClass.shouldKeyBeIgnored(keyCode)){
-            return true;
-        }
         if (emojiSelectionGui != null && emojiSelectionGui.keyPressed(keyCode, scanCode, modifiers)){
             return true;
         }
