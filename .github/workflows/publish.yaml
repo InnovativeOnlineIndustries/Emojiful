@@ -62,7 +62,7 @@ jobs:
             NeoForge/build/libs/!(*-@(javadoc|sources)).jar
             NeoForge/build/libs/*-@(javadoc|sources).jar
           version-type: beta
-          loaders: forge
+          loaders: neoforge
           game-versions: 1.20.4
           java: 17
           name: ""
