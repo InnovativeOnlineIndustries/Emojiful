@@ -18,7 +18,7 @@ license="MIT"
 [[dependencies.emojiful]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20.1,)"
+    versionRange="[1.20.4,)"
     ordering="NONE"
     side="CLIENT"
 
