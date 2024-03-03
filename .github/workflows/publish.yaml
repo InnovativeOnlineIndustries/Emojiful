@@ -28,6 +28,8 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          modrinth-id: 72GXx2MO
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: |
             Fabric/build/libs/!(*-@(javadoc|sources)).jar
             Fabric/build/libs/*-@(javadoc|sources).jar
@@ -44,6 +46,8 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          modrinth-id: 72GXx2MO
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: |
             Forge/build/libs/!(*-@(javadoc|sources)).jar
             Forge/build/libs/*-@(javadoc|sources).jar
@@ -58,6 +62,8 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          modrinth-id: 72GXx2MO
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: |
             NeoForge/build/libs/!(*-@(javadoc|sources)).jar
             NeoForge/build/libs/*-@(javadoc|sources).jar
