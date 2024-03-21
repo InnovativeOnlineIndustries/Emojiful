@@ -1,12 +1,9 @@
 package com.hrznstudio.emojiful.gui;
 
-import com.hrznstudio.emojiful.CommonClass;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.platform.Services;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
-import org.lwjgl.glfw.GLFW;
 
 public class EmojifulChatScreen extends ChatScreen {
 
