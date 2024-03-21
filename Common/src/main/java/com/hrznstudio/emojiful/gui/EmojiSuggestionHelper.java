@@ -2,7 +2,6 @@ package com.hrznstudio.emojiful.gui;
 
 import com.google.common.base.Strings;
 import com.hrznstudio.emojiful.ClientEmojiHandler;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;

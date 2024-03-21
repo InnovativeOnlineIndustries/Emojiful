@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.5-SNAPSHOT'
     id 'idea'
 }
 
@@ -22,8 +22,8 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     implementation project(":Common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
-    modImplementation "maven.modrinth:midnightlib:1.0.0-fabric"
-    include "maven.modrinth:midnightlib:1.1.0-fabric"
+    modImplementation "maven.modrinth:midnightlib:1.5.3-fabric"
+    include "maven.modrinth:midnightlib:1.5.3-fabric"
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
     include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
 }
