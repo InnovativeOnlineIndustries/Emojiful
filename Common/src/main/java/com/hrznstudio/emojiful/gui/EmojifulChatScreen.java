@@ -35,7 +35,6 @@ public class EmojifulChatScreen extends ChatScreen {
             emojiSelectionGui.mouseMoved(x, j);
             emojiSelectionGui.render(guiGraphics);
         }
-
     }
 
 

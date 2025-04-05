@@ -5,6 +5,7 @@ import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.platform.Services;
+import com.hrznstudio.emojiful.render.EmojiFontHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -54,7 +55,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
         this.categorySelectionArea = new Rect2i(this.selectionArea.getX(), this.selectionArea.getY() + 20, 22, this.selectionArea.getHeight() - 20);
         this.emojiInfoArea = new Rect2i(this.selectionArea.getX() + 22, this.selectionArea.getY() + this.selectionArea.getHeight() - 20, this.selectionArea.getWidth() - 22, 20);
         this.textFieldRectangle = new Rect2i(selectionArea.getX() + 6, selectionArea.getY() + 6, selectionArea.getWidth() - 12, 10);
-        this.fieldWidget = new EditBox(ClientEmojiHandler.oldFontRenderer, textFieldRectangle.getX(), textFieldRectangle.getY(), textFieldRectangle.getWidth(), textFieldRectangle.getHeight(), MutableComponent.create(new PlainTextContents.LiteralContents("")));
+        this.fieldWidget = new EditBox(Minecraft.getInstance().font, textFieldRectangle.getX(), textFieldRectangle.getY(), textFieldRectangle.getWidth(), textFieldRectangle.getHeight(), MutableComponent.create(new PlainTextContents.LiteralContents("")));
         this.fieldWidget.setEditable(true);
         this.fieldWidget.setVisible(true);
         this.filteredEmojis = new ArrayList<>();
@@ -78,7 +79,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
                 StringBuilder builder = new StringBuilder();
                 lastEmoji.strings.forEach(s -> builder.append(s).append(" "));
                 float textScale = 0.5f;
-                List<FormattedCharSequence> iTextPropertiesList = ClientEmojiHandler.oldFontRenderer.split(FormattedText.of(builder.toString()), (int) ((emojiInfoArea.getWidth() - 18) * (1 / textScale)));
+                List<FormattedCharSequence> iTextPropertiesList = Minecraft.getInstance().font.split(FormattedText.of(builder.toString()), (int) ((emojiInfoArea.getWidth() - 18) * (1 / textScale)));
                 float i = -iTextPropertiesList.size() / 2;
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().scale(textScale, textScale, textScale);
@@ -88,7 +89,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
                         stringBuilder.append((char) ch);
                         return true;
                     });
-                    guiGraphics.drawString(ClientEmojiHandler.oldFontRenderer, stringBuilder.toString(), (int) ((emojiInfoArea.getX() + 15) * (1 / textScale)), (int) ((emojiInfoArea.getY() + 8 + 4 * i) * (1 / textScale)), 0x969696);
+                    guiGraphics.drawString(Minecraft.getInstance().font, EmojiFontHelper.SCAPED_STRING + stringBuilder.toString(), (int) ((emojiInfoArea.getX() + 15) * (1 / textScale)), (int) ((emojiInfoArea.getY() + 8 + 4 * i) * (1 / textScale)), 0x969696);
                     ++i;
                 }
                 guiGraphics.pose().scale(1, 1, 1);

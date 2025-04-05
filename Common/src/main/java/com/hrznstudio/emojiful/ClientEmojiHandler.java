@@ -6,14 +6,7 @@ import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.api.EmojiFromTwitmoji;
 import com.hrznstudio.emojiful.platform.Services;
-import com.hrznstudio.emojiful.render.EmojiFontRenderer;
 import com.hrznstudio.emojiful.util.ProfanityFilter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.blockentity.HangingSignRenderer;
-import net.minecraft.client.renderer.blockentity.SignRenderer;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.io.StringReader;
 import java.util.*;
@@ -21,17 +14,17 @@ import java.util.stream.Collectors;
 
 public class ClientEmojiHandler {
     public static final List<EmojiCategory> CATEGORIES = new ArrayList<>();
-    public static Font oldFontRenderer;
     public static List<String> ALL_EMOJIS = new ArrayList<>();
     public static HashMap<EmojiCategory, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
     public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
     public static int lineAmount;
 
     public static void setup() {
-        preInitEmojis();
-        initEmojis();
-        indexEmojis();
-        Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
+        new Thread(() -> {
+            preInitEmojis();
+            indexEmojis();
+            Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
+        }).start();
     }
 
     public static void indexEmojis() {
@@ -76,6 +69,7 @@ public class ClientEmojiHandler {
                 CATEGORIES.add(new EmojiCategory(category.replace(".yml", ""), false));
                 List<Emoji> emojis = CommonClass.readCategory(category);
                 emojis.forEach(emoji -> emoji.location = CommonClass.cleanURL(emoji.location));
+                emojis.forEach(emoji -> emoji.name = "custom_" + emoji.name);
                 Constants.EMOJI_LIST.addAll(emojis);
                 Constants.EMOJI_MAP.put(category.replace(".yml", ""), emojis);
             }
@@ -90,7 +84,7 @@ public class ClientEmojiHandler {
             for (JsonElement element : CommonClass.readJsonFromUrl("https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json").getAsJsonArray()) {
                 if (element.getAsJsonObject().get("has_img_twitter").getAsBoolean()) {
                     EmojiFromTwitmoji emoji = new EmojiFromTwitmoji();
-                    emoji.name = element.getAsJsonObject().get("short_name").getAsString();
+                    emoji.name = "twemojis_" + element.getAsJsonObject().get("short_name").getAsString();
                     emoji.location = element.getAsJsonObject().get("image").getAsString();
                     emoji.sort = element.getAsJsonObject().get("sort_order").getAsInt();
                     element.getAsJsonObject().get("short_names").getAsJsonArray().forEach(jsonElement -> emoji.strings.add(":" + jsonElement.getAsString() + ":"));
@@ -115,23 +109,6 @@ public class ClientEmojiHandler {
         }
     }
 
-    private static void initEmojis() {
-        if (!Constants.error) {
-            oldFontRenderer = Minecraft.getInstance().font;
-            Minecraft.getInstance().font = new EmojiFontRenderer(Minecraft.getInstance().font);
-            Minecraft.getInstance().getEntityRenderDispatcher().font = Minecraft.getInstance().font;
-            BlockEntityRenderers.register(BlockEntityType.SIGN, p_173571_ -> {
-                SignRenderer signRenderer = new SignRenderer(p_173571_);
-                signRenderer.font = Minecraft.getInstance().font;
-                return signRenderer;
-            });
-            BlockEntityRenderers.register(BlockEntityType.HANGING_SIGN, p_173571_ -> {
-                HangingSignRenderer signRenderer = new HangingSignRenderer(p_173571_);
-                signRenderer.font = Minecraft.getInstance().font;
-                return signRenderer;
-            });
-        }
-    }
 
 }
 

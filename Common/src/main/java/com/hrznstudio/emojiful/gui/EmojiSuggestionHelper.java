@@ -2,7 +2,7 @@ package com.hrznstudio.emojiful.gui;
 
 import com.google.common.base.Strings;
 import com.hrznstudio.emojiful.ClientEmojiHandler;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.hrznstudio.emojiful.render.EmojiFontHelper;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -102,7 +102,7 @@ public class EmojiSuggestionHelper extends IDrawableGuiListener {
             final Suggestions suggestions = this.suggestionsFuture.join();
             if (!suggestions.getList().isEmpty()) {
                 for (final Suggestion suggestion : suggestions.getList())
-                    i = Math.max(i, ClientEmojiHandler.oldFontRenderer.width(suggestion.getText()));
+                    i = Math.max(i, Minecraft.getInstance().font.width(EmojiFontHelper.SCAPED_STRING + suggestion.getText()));
                 final int j = Minecraft.getInstance().font.width(this.chatScreen.input.getValue().substring(0, this.chatScreen.input.getCursorPosition() - suggestions.getRange().getLength() + 2));
                 this.suggestions = new EmojiSuggestions(j, this.chatScreen.height - 12, i, suggestions);
             }
@@ -134,19 +134,20 @@ public class EmojiSuggestionHelper extends IDrawableGuiListener {
 
         public EmojiSuggestions(int x, int y, int areaWidth, Suggestions suggestions) {
             this.suggestions = suggestions;
-            int height = Math.min(suggestions.getList().size(), 10) * (ClientEmojiHandler.oldFontRenderer.lineHeight + 3);
+            int height = Math.min(suggestions.getList().size(), 10) * (Minecraft.getInstance().font.lineHeight + 3);
             this.area = new Rect2i(x - 1, y - 3 - height, areaWidth, height);
             this.currentText = EmojiSuggestionHelper.this.chatScreen.input.getValue();
             setIndex(0);
         }
 
         public void render(GuiGraphics guiGraphics) {
+            guiGraphics.pose().translate(0,0, 100);
             for (int i = 0; i < Math.min(this.suggestions.getList().size(), 10); ++i) {
                 int pos = (this.index + i) % this.suggestions.getList().size();
                 final Suggestion suggestion = this.suggestions.getList().get(pos);
-                guiGraphics.fill(this.area.getX(), this.area.getY() + 12 * i, this.area.getX() + this.area.getWidth() + 15, this.area.getY() + 12 * i + 12, 0xD0000000);
+                guiGraphics.fill(this.area.getX(), this.area.getY() + 12 * i, this.area.getX() + this.area.getWidth(), this.area.getY() + 12 * i + 12, 0xD0000000);
                 guiGraphics.drawString(Minecraft.getInstance().font, suggestion.getText(), this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
-                guiGraphics.drawString(ClientEmojiHandler.oldFontRenderer, suggestion.getText(), 12 + this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
+                guiGraphics.drawString(Minecraft.getInstance().font, EmojiFontHelper.SCAPED_STRING + suggestion.getText(), 12 + this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
             }
         }
 
