@@ -37,8 +37,6 @@ public class EmojifulChatScreen extends ChatScreen {
         }
     }
 
-
-
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
@@ -51,7 +49,8 @@ public class EmojifulChatScreen extends ChatScreen {
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollDelta, double d) {
-        return super.mouseScrolled(x, y, scrollDelta, d) && (emojiSelectionGui != null) && emojiSelectionGui.mouseScrolled(x, y, scrollDelta, d);
+        if (emojiSelectionGui != null) return emojiSelectionGui.mouseScrolled(x, y, scrollDelta, d);
+        return super.mouseScrolled(x, y, scrollDelta, d);
     }
 
     @Override
