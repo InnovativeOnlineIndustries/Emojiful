@@ -1,0 +1,23 @@
+{
+  "emojiful.midnightconfig.title" : "Emojiful",
+  "emojiful.midnightconfig.enableRenderEmoji" : "Emoji Oluşturmayı Etkinleştir",
+  "emojiful.midnightconfig.renderEmoji" : "Emoji Oluşturma",
+  "emojiful.midnightconfig.showEmojiSelector" : "Sohbet metin satırında Emoji Seçimi GUI'sini etkinleştirin",
+  "emojiful.midnightconfig.emojiSelector" : "Emoji Seçici",
+  "emojiful.midnightconfig.emojiAutocomplete" : "Emoji Otomatik Tamamlama",
+  "emojiful.midnightconfig.loadGifEmojis" : "Animasyonlu emojileri yükleyin; devre dışı bırakılırsa bunlar hareketsiz bir görüntü olacaktır",
+  "emojiful.midnightconfig.gifEmojis" : "GIF emojileri",
+  "emojiful.midnightconfig.shortEmojiReplacement" : ":) gibi emojilerin kısa versiyonlarını :smile: ile değiştirin, böylece emoji olarak oluşturulabilirler",
+  "emojiful.midnightconfig.emojiReplacement" : "Kısa Emoji Değiştirme",
+  "emojiful.midnightconfig.emojiTypes" : "Emoji Türleri",
+  "emojiful.midnightconfig.loadTwemoji" : "Twitter ve Discord gibi sitelerde kullanılan Twemojileri yükler",
+  "emojiful.midnightconfig.enableLoadTwemoji" : "Twemoji'yi Yükle",
+  "emojiful.midnightconfig.enableLoadCustom" : "Emojiful tarafından sağlanan özel emojileri yükler",
+  "emojiful.midnightconfig.loadCustom" : "Özel Emojileri Yükle",
+  "emojiful.midnightconfig.enableLoadDatapack" : "Katıldığınız sunucu tarafından sağlanan veri paketi emojilerini yükler",
+  "emojiful.midnightconfig.loadDatapack" : "Sunucu veri paketlerini yükle",
+  "emojiful.midnightconfig.enableProfanityFilter" : "Küfür Filtresini etkinleştirin, bu kötü kelimeleri emojiyle değiştirecektir",
+  "emojiful.midnightconfig.profanityFilter" : "Küfür Filtresi",
+  "emojiful.midnightconfig.profanityFilterString" : "Küfür filtresi için değiştirilebilir kelime",
+  "emojiful.midnightconfig.profanityFilterReplacement" : "Değiştirilebilir kelime"
+}
