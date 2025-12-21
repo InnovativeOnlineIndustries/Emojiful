@@ -190,6 +190,13 @@ public class CommonClass {
     public static void onRecipesUpdated(RecipeManager manager) {
         ClientEmojiHandler.CATEGORIES.removeIf(EmojiCategory::worldBased);
         Constants.EMOJI_LIST.removeIf(Emoji::worldBased);
+        // lambda so we dont iterate twice
+        Constants.EMOJI_MAP.entrySet().removeIf(e -> {
+            // first wipe datapack emojis
+            e.getValue().removeIf(Emoji::worldBased);
+            // then let the category be wiped if no emojis left in it
+            return e.getKey().isEmpty();
+        });
         if (Services.CONFIG.loadDatapack()) {
             RecipeType<EmojiRecipe> emojiRecipeRecipeType = Services.PLATFORM.getRecipeType();
             List<EmojiRecipe> emojiList = manager.getAllRecipesFor(emojiRecipeRecipeType).stream().map(RecipeHolder::value).toList();
