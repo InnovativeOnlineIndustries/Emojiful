@@ -31,6 +31,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
     private final Rect2i categorySelectionArea;
     private final Rect2i emojiInfoArea;
     private final Rect2i textFieldRectangle;
+    private final int categoriesPerScroll = 7;
     private int selectionPointer;
     private int categoryPointer;
     private int openSelectionAreaEmoji;
@@ -98,7 +99,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
             progressY = (int) (((this.categorySelectionArea.getHeight() - 10) / ((double) ClientEmojiHandler.CATEGORIES.size() - 7)) * (categoryPointer));
             drawRectangle(guiGraphics, new Rect2i(this.categorySelectionArea.getX() + this.categorySelectionArea.getWidth() - 2, this.categorySelectionArea.getY() + progressY + 2, 1, 5), 0xff525252);
             EmojiCategory firstCategory = getCategory(selectionPointer);
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < Math.min(categoriesPerScroll, Constants.EMOJI_MAP.size()); i++) {
                 int selCategory = i + categoryPointer;
                 if (selCategory < ClientEmojiHandler.CATEGORIES.size()) {
                     EmojiCategory category = ClientEmojiHandler.CATEGORIES.get(selCategory);
@@ -128,7 +129,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
         if (this.showingSelectionArea) {
             fieldWidget.setFocused(textFieldRectangle.contains((int) mouseX, (int) mouseY));
             if (categorySelectionArea.contains((int) mouseX, (int) mouseY)) {
-                for (int i = 0; i < 7; i++) {
+                for (int i = 0; i < Math.min(categoriesPerScroll, Constants.EMOJI_MAP.size()); i++) {
                     int selCategory = i + categoryPointer;
                     if (selCategory < ClientEmojiHandler.CATEGORIES.size()) {
                         Rect2i rec = new Rect2i(categorySelectionArea.getX() + 6, categorySelectionArea.getY() + 6 + i * 12, 11, 11);
@@ -145,7 +146,7 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
                 return true;
             }
             if (selectionArea.contains((int) mouseX, (int) mouseY)) {
-                for (int line = 0; line < 6; line++) {
+                for (int line = 0; line < Math.min(categoriesPerScroll, Constants.EMOJI_MAP.size()) - 1; line++) {
                     Object object = getLineToDraw(line + selectionPointer);
                     if (object instanceof Emoji[]) {
                         Emoji[] emojis = (Emoji[]) object;
@@ -178,13 +179,13 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta, double d) {
         if (categorySelectionArea.contains((int) mouseX, (int) mouseY)) {
             categoryPointer -= d;
-            categoryPointer = Mth.clamp(categoryPointer, 0, ClientEmojiHandler.CATEGORIES.size() - 7);
+            categoryPointer = Mth.clamp(categoryPointer, 0, ClientEmojiHandler.CATEGORIES.size() - Math.min(categoriesPerScroll, Constants.EMOJI_MAP.size()));
             return true;
         }
         if (selectionArea.contains((int) mouseX, (int) mouseY)) {
             selectionPointer -= d;
             selectionPointer = Mth.clamp(selectionPointer, 1, Math.max(1, getLineAmount() - 5));
-            categoryPointer = Mth.clamp(Arrays.asList(ClientEmojiHandler.CATEGORIES).indexOf(getCategory(selectionPointer)), 0, ClientEmojiHandler.CATEGORIES.size() - 7);
+            categoryPointer = Mth.clamp(Arrays.asList(ClientEmojiHandler.CATEGORIES).indexOf(getCategory(selectionPointer)), 0, ClientEmojiHandler.CATEGORIES.size() - Math.min(categoriesPerScroll, Constants.EMOJI_MAP.size()));
             return true;
         }
         return false;
