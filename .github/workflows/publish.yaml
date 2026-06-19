@@ -19,6 +19,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "25"
+          cache: gradle
       - name: make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
