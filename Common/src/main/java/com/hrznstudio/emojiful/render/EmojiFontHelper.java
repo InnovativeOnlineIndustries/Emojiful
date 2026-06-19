@@ -3,226 +3,351 @@ package com.hrznstudio.emojiful.render;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.platform.Services;
-import com.hrznstudio.emojiful.util.EmojiUtil;
-import com.mojang.blaze3d.font.GlyphInfo;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.netty.util.internal.StringUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
-import net.minecraft.client.gui.font.glyphs.EmptyGlyph;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.FormattedCharSink;
-import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class EmojiFontHelper {
+public final class EmojiFontHelper {
+    public static final String SCAPED_STRING = "\\\\\\\\";
+    public static final int PLACEHOLDER = 0x2603;
+    public static final float EMOJI_ADVANCE = 10.0F;
+    public static final ThreadLocal<Boolean> BYPASS = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Deque<Map<Integer, Emoji>>> ACTIVE_EMOJIS =
+            ThreadLocal.withInitial(ArrayDeque::new);
+    private static final String WRAPPED_EMOJI_PREFIX = "emojiful:wrapped/";
+    private static final AtomicInteger NEXT_WRAPPED_EMOJI = new AtomicInteger();
+    private static final Map<String, Emoji> WRAPPED_EMOJIS = new ConcurrentHashMap<>();
 
-    public static final Vector3f SHADOW_OFFSET = new Vector3f(0.0F, 0.0F, 0.03F);
-    public static LoadingCache<String, Pair<String, HashMap<Integer, Emoji>>> RECENT_STRINGS = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(new CacheLoader<String, Pair<String, HashMap<Integer, Emoji>>>() {
-        @Override
-        public Pair<String, HashMap<Integer, Emoji>> load(String key) throws Exception {
-            return getEmojiFormattedString(key);
-        }
-    });
-    public static String SCAPED_STRING = "\\\\\\\\";
-    //<+(\w)+:+(\w)+>
-
-    public EmojiFontHelper() {
-
-    }
-
-    public static Pair<String, HashMap<Integer, Emoji>> getEmojiFormattedString(String text) {
-        HashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
-        if (Services.CONFIG.renderEmoji() && !StringUtil.isNullOrEmpty(text)) {
-            String unformattedText = ChatFormatting.stripFormatting(text);
-            if (StringUtil.isNullOrEmpty(unformattedText))
-                return Pair.of(text, emojis);
-            if (text.startsWith(SCAPED_STRING)){
-                return Pair.of(text, emojis);
-            }
-            for (Emoji emoji : Constants.EMOJI_LIST) {
-                Pattern pattern = emoji.getRegex();
-                Matcher matcher = pattern.matcher(unformattedText);
-                while (matcher.find()) {
-                    if (!matcher.group().isEmpty()) {
-                        String emojiText = matcher.group();
-                        int index = text.indexOf(emojiText);
-                        emojis.put(index, emoji);
-                        HashMap<Integer, Emoji> clean = new LinkedHashMap<>();
-                        for (Integer integer : new ArrayList<>(emojis.keySet())) {
-                            if (integer > index) {
-                                Emoji e = emojis.get(integer);
-                                emojis.remove(integer);
-                                clean.put(integer - emojiText.length() + 1, e);
-                            }
+    public static final LoadingCache<String, Pair<String, HashMap<Integer, Emoji>>> RECENT_STRINGS =
+            CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(
+                    new CacheLoader<>() {
+                        @Override
+                        public Pair<String, HashMap<Integer, Emoji>> load(String key) {
+                            ParsedText parsed = parseUncached(key);
+                            return Pair.of(parsed.text(), new LinkedHashMap<>(parsed.emojis()));
                         }
-                        emojis.putAll(clean);
-                        unformattedText = unformattedText.replaceFirst(Pattern.quote(emojiText), "\u2603");
-                        text = text.replaceFirst("(?i)" + Pattern.quote(emojiText), "\u2603");
                     }
-                }
-            }
-        }
-        return Pair.of(text, emojis);
+            );
+
+    private EmojiFontHelper() {
     }
 
-    public static class CharacterProcessor implements FormattedCharSequence {
-
-        public final int pos;
-        public final Style style;
-        public final int character;
-
-        public CharacterProcessor(int pos, Style style, int character) {
-            this.pos = pos;
-            this.style = style;
-            this.character = character;
+    public static ParsedText parse(String text) {
+        if (text == null) {
+            return new ParsedText(null, new LinkedHashMap<>());
         }
-
-        @Override
-        public boolean accept(FormattedCharSink iCharacterConsumer) {
-            return iCharacterConsumer.accept(pos, style, character);
+        try {
+            Pair<String, HashMap<Integer, Emoji>> parsed = RECENT_STRINGS.get(text);
+            return new ParsedText(parsed.getLeft(), new LinkedHashMap<>(parsed.getRight()));
+        } catch (ExecutionException exception) {
+            Constants.LOG.error("Could not parse emoji text", exception);
+            return new ParsedText(text, new LinkedHashMap<>());
         }
     }
 
-    public static class EmojiCharacterRenderer implements FormattedCharSink {
-        final MultiBufferSource buffer;
-        private final boolean dropShadow;
-        private final float dimFactor;
-        private final float r;
-        private final float g;
-        private final float b;
-        private final float a;
-        private final Matrix4f matrix;
-        private final boolean seeThrough;
-        private final int packedLight;
-        private float x;
-        private final float y;
-        private final HashMap<Integer, Emoji> emojis;
-        @Nullable
-        private List<BakedGlyph.Effect> effects;
-
-        public EmojiCharacterRenderer(HashMap<Integer, Emoji> emojis, MultiBufferSource p_i232250_2_, float p_i232250_3_, float p_i232250_4_, int p_i232250_5_, boolean p_i232250_6_, Matrix4f p_i232250_7_, boolean p_i232250_8_, int p_i232250_9_) {
-            this.buffer = p_i232250_2_;
-            this.emojis = emojis;
-            this.x = p_i232250_3_;
-            this.y = p_i232250_4_;
-            this.dropShadow = p_i232250_6_;
-            this.dimFactor = p_i232250_6_ ? 0.25F : 1.0F;
-            this.r = (float) (p_i232250_5_ >> 16 & 255) / 255.0F * this.dimFactor;
-            this.g = (float) (p_i232250_5_ >> 8 & 255) / 255.0F * this.dimFactor;
-            this.b = (float) (p_i232250_5_ & 255) / 255.0F * this.dimFactor;
-            this.a = (float) (p_i232250_5_ >> 24 & 255) / 255.0F;
-            this.matrix = p_i232250_7_;
-            this.seeThrough = p_i232250_8_;
-            this.packedLight = p_i232250_9_;
+    private static ParsedText parseUncached(String text) {
+        LinkedHashMap<Integer, Emoji> emojis = new LinkedHashMap<>();
+        if (StringUtil.isNullOrEmpty(text)) {
+            return new ParsedText(text, emojis);
+        }
+        if (text.startsWith(SCAPED_STRING)) {
+            return new ParsedText(text.substring(SCAPED_STRING.length()), emojis);
+        }
+        if (!Services.CONFIG.renderEmoji() || Constants.EMOJI_LIST.isEmpty()) {
+            return new ParsedText(text, emojis);
         }
 
-        private void addEffect(BakedGlyph.Effect p_238442_1_) {
-            if (this.effects == null) {
-                this.effects = Lists.newArrayList();
+        StringBuilder result = new StringBuilder(text.length());
+        int cursor = 0;
+        while (cursor < text.length()) {
+            Match best = findNext(text, cursor);
+            if (best == null) {
+                result.append(text, cursor, text.length());
+                break;
             }
 
-            this.effects.add(p_238442_1_);
+            result.append(text, cursor, best.start());
+            int placeholderPosition = result.length();
+            result.appendCodePoint(PLACEHOLDER);
+            emojis.put(placeholderPosition, best.emoji());
+            cursor = best.end();
+        }
+        return new ParsedText(result.toString(), emojis);
+    }
+
+    private static Match findNext(String text, int cursor) {
+        Match best = null;
+        for (Emoji emoji : Constants.EMOJI_LIST) {
+            Matcher matcher = emoji.getRegex().matcher(text);
+            matcher.region(cursor, text.length());
+            if (!matcher.find() || matcher.start() == matcher.end()) {
+                continue;
+            }
+            if (best == null
+                    || matcher.start() < best.start()
+                    || matcher.start() == best.start() && matcher.end() > best.end()) {
+                best = new Match(matcher.start(), matcher.end(), emoji);
+            }
+        }
+        return best;
+    }
+
+    public static ParsedSequence parseSequence(FormattedCharSequence sequence) {
+        List<StyledCodePoint> input = new ArrayList<>();
+        StringBuilder plainText = new StringBuilder();
+        sequence.accept((position, style, codePoint) -> {
+            int start = plainText.length();
+            plainText.appendCodePoint(codePoint);
+            input.add(new StyledCodePoint(start, plainText.length(), style, codePoint));
+            return true;
+        });
+
+        String source = plainText.toString();
+        ParsedText parsed = parse(source);
+        if (parsed.text().equals(source)) {
+            return new ParsedSequence(sequence, parsed);
         }
 
-        public boolean accept(int pos, Style style, int charInt) {
-            FontSet font = Minecraft.getInstance().font.getFontSet(style.getFont());
-            if (Services.CONFIG.renderEmoji() && this.emojis.get(pos) != null) {
-                Emoji emoji = this.emojis.get(pos);
-                if (emoji != null) {
-                    if (!this.dropShadow) EmojiUtil.renderEmoji(emoji, this.x, this.y, matrix, buffer, packedLight);
-                    this.x += 10;
-                }
-            } else {
-                GlyphInfo iglyph = font.getGlyphInfo(charInt, Minecraft.getInstance().font.filterFishyGlyphs);
-                BakedGlyph texturedglyph = style.isObfuscated() && charInt != 32 ? font.getRandomGlyph(iglyph) : font.getGlyph(charInt);
-                boolean flag = style.isBold();
-                float f3 = this.a;
-                TextColor color = style.getColor();
-                float f;
-                float f1;
-                float f2;
-                if (color != null) {
-                    int i = color.getValue();
-                    f = (float) (i >> 16 & 255) / 255.0F * this.dimFactor;
-                    f1 = (float) (i >> 8 & 255) / 255.0F * this.dimFactor;
-                    f2 = (float) (i & 255) / 255.0F * this.dimFactor;
-                } else {
-                    f = this.r;
-                    f1 = this.g;
-                    f2 = this.b;
-                }
+        List<StyledCodePoint> output = new ArrayList<>();
+        int sourceOffset = source.startsWith(SCAPED_STRING) ? SCAPED_STRING.length() : 0;
+        int outputOffset = 0;
+        while (sourceOffset < source.length()) {
+            Match match = source.startsWith(SCAPED_STRING) ? null : findNext(source, sourceOffset);
+            int literalEnd = match == null ? source.length() : match.start();
+            while (sourceOffset < literalEnd) {
+                int codePoint = source.codePointAt(sourceOffset);
+                int count = Character.charCount(codePoint);
+                output.add(new StyledCodePoint(outputOffset, outputOffset + count, styleAt(input, sourceOffset), codePoint));
+                sourceOffset += count;
+                outputOffset += count;
+            }
+            if (match == null) {
+                break;
+            }
+            output.add(new StyledCodePoint(outputOffset, outputOffset + 1, styleAt(input, match.start()), PLACEHOLDER));
+            sourceOffset = match.end();
+            outputOffset++;
+        }
 
-                if (!(texturedglyph instanceof EmptyGlyph)) {
-                    float f5 = flag ? iglyph.getBoldOffset() : 0.0F;
-                    float f4 = this.dropShadow ? iglyph.getShadowOffset() : 0.0F;
-                    VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL));
-                    Minecraft.getInstance().font.renderChar(texturedglyph, flag, style.isItalic(), f5, this.x + f4, this.y + f4, this.matrix, ivertexbuilder, f, f1, f2, f3, this.packedLight);
+        FormattedCharSequence transformed = sink -> {
+            for (StyledCodePoint character : output) {
+                if (!sink.accept(character.start(), character.style(), character.codePoint())) {
+                    return false;
                 }
-
-                float f6 = iglyph.getAdvance(flag);
-                float f7 = this.dropShadow ? 1.0F : 0.0F;
-                if (style.isStrikethrough()) {
-                    this.addEffect(new BakedGlyph.Effect(this.x + f7 - 1.0F, this.y + f7 + 4.5F, this.x + f7 + f6, this.y + f7 + 4.5F - 1.0F, 0.01F, f, f1, f2, f3));
-                }
-
-                if (style.isUnderlined()) {
-                    this.addEffect(new BakedGlyph.Effect(this.x + f7 - 1.0F, this.y + f7 + 9.0F, this.x + f7 + f6, this.y + f7 + 9.0F - 1.0F, 0.01F, f, f1, f2, f3));
-                }
-
-                this.x += f6;
-                return true;
             }
             return true;
+        };
+        return new ParsedSequence(transformed, parsed);
+    }
+
+    public static FormattedText prepareForWrapping(FormattedText text) {
+        String source = text.getString();
+        ParsedText parsed = parse(source);
+        if (parsed.emojis().isEmpty()) {
+            return text;
         }
 
-        public float finish(int p_238441_1_, float p_238441_2_) {
-            if (p_238441_1_ != 0) {
-                float f = (float) (p_238441_1_ >> 24 & 255) / 255.0F;
-                float f1 = (float) (p_238441_1_ >> 16 & 255) / 255.0F;
-                float f2 = (float) (p_238441_1_ >> 8 & 255) / 255.0F;
-                float f3 = (float) (p_238441_1_ & 255) / 255.0F;
-                this.addEffect(new BakedGlyph.Effect(p_238441_2_ - 1.0F, this.y + 9.0F, this.x + 1.0F, this.y - 1.0F, 0.01F, f1, f2, f3, f));
+        List<StyledRange> styles = new ArrayList<>();
+        StringBuilder flattened = new StringBuilder();
+        text.visit((style, contents) -> {
+            int start = flattened.length();
+            flattened.append(contents);
+            styles.add(new StyledRange(start, flattened.length(), style));
+            return java.util.Optional.empty();
+        }, Style.EMPTY);
+
+        List<FormattedText> parts = new ArrayList<>();
+        int sourceOffset = 0;
+        int parsedOffset = 0;
+        while (parsedOffset < parsed.text().length()) {
+            Emoji emoji = parsed.emojis().get(parsedOffset);
+            if (emoji == null) {
+                int codePoint = parsed.text().codePointAt(parsedOffset);
+                int count = Character.charCount(codePoint);
+                parts.add(FormattedText.of(
+                        new String(Character.toChars(codePoint)),
+                        styleAtRange(styles, sourceOffset)
+                ));
+                sourceOffset += count;
+                parsedOffset += count;
+                continue;
             }
 
-            if (this.effects != null) {
-                FontSet fontSet = Minecraft.getInstance().font.getFontSet(Style.DEFAULT_FONT);
-                BakedGlyph texturedglyph = fontSet.whiteGlyph();
-                VertexConsumer ivertexbuilder = this.buffer.getBuffer(texturedglyph.renderType(this.seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL));
-
-                for (BakedGlyph.Effect texturedglyph$effect : this.effects) {
-                    texturedglyph.renderEffect(texturedglyph$effect, this.matrix, ivertexbuilder, this.packedLight);
-                }
+            Match match = findNext(source, sourceOffset);
+            if (match == null) {
+                break;
             }
+            if (match.start() > sourceOffset) {
+                String literal = source.substring(sourceOffset, match.start());
+                parts.add(FormattedText.of(literal, styleAtRange(styles, sourceOffset)));
+            }
+            Style emojiStyle = styleAtRange(styles, match.start())
+                    .withInsertion(registerWrappedEmoji(emoji));
+            parts.add(FormattedText.of(new String(Character.toChars(PLACEHOLDER)), emojiStyle));
+            sourceOffset = match.end();
+            parsedOffset++;
+        }
+        if (sourceOffset < source.length()) {
+            parts.add(FormattedText.of(source.substring(sourceOffset), styleAtRange(styles, sourceOffset)));
+        }
+        return FormattedText.composite(parts);
+    }
 
-            return this.x;
+    private static String registerWrappedEmoji(Emoji emoji) {
+        String token = WRAPPED_EMOJI_PREFIX + NEXT_WRAPPED_EMOJI.incrementAndGet();
+        WRAPPED_EMOJIS.put(token, emoji);
+        return token;
+    }
+
+    public static Emoji wrappedEmoji(Style style) {
+        String insertion = style.getInsertion();
+        return insertion != null && insertion.startsWith(WRAPPED_EMOJI_PREFIX)
+                ? WRAPPED_EMOJIS.get(insertion)
+                : null;
+    }
+
+    public static boolean isWrappedEmoji(int codePoint, Style style) {
+        return codePoint == PLACEHOLDER && wrappedEmoji(style) != null;
+    }
+
+    private static Style styleAt(List<StyledCodePoint> characters, int offset) {
+        for (StyledCodePoint character : characters) {
+            if (offset >= character.start() && offset < character.end()) {
+                return character.style();
+            }
+        }
+        return characters.isEmpty() ? Style.EMPTY : characters.get(characters.size() - 1).style();
+    }
+
+    private static Style styleAtRange(List<StyledRange> ranges, int offset) {
+        for (StyledRange range : ranges) {
+            if (offset >= range.start() && offset < range.end()) {
+                return range.style();
+            }
+        }
+        return ranges.isEmpty() ? Style.EMPTY : ranges.get(ranges.size() - 1).style();
+    }
+
+    public static void push(Map<Integer, Emoji> emojis) {
+        ACTIVE_EMOJIS.get().push(emojis);
+    }
+
+    public static void pop() {
+        Deque<Map<Integer, Emoji>> stack = ACTIVE_EMOJIS.get();
+        if (!stack.isEmpty()) {
+            stack.pop();
+        }
+        if (stack.isEmpty()) {
+            ACTIVE_EMOJIS.remove();
         }
     }
 
+    public static Emoji emojiAt(int position) {
+        Deque<Map<Integer, Emoji>> stack = ACTIVE_EMOJIS.get();
+        return stack.isEmpty() ? null : stack.peek().get(position);
+    }
+
+    public static boolean hasEmoji(String text) {
+        try {
+            Pair<String, HashMap<Integer, Emoji>> result = RECENT_STRINGS.get(text);
+            return !result.getRight().isEmpty() || !result.getLeft().equals(text);
+        } catch (ExecutionException exception) {
+            Constants.LOG.error("Could not parse emoji text", exception);
+            return false;
+        }
+    }
+
+    public static void clearCache() {
+        RECENT_STRINGS.invalidateAll();
+    }
+
+    public static int width(Font font, String original) {
+        ParsedText parsed = parse(original);
+        if (parsed.emojis().isEmpty()) {
+            if (parsed.text().equals(original)) {
+                return font.width(original);
+            }
+            return bypass(() -> font.width(parsed.text()));
+        }
+
+        float width = 0.0F;
+        int start = 0;
+        for (Integer position : parsed.emojis().keySet()) {
+            if (position > start) {
+                String literal = parsed.text().substring(start, position);
+                width += bypass(() -> font.width(literal));
+            }
+            width += EMOJI_ADVANCE;
+            start = position + Character.charCount(PLACEHOLDER);
+        }
+        if (start < parsed.text().length()) {
+            String literal = parsed.text().substring(start);
+            width += bypass(() -> font.width(literal));
+        }
+        return (int) Math.ceil(width);
+    }
+
+    public static int width(Font font, FormattedCharSequence original) {
+        ParsedSequence parsed = parseSequence(original);
+        if (parsed.parsed().emojis().isEmpty()) {
+            return bypass(() -> font.width(parsed.sequence()));
+        }
+
+        final float[] width = {0.0F};
+        parsed.sequence().accept((position, style, codePoint) -> {
+            if (parsed.parsed().emojis().containsKey(position)) {
+                width[0] += EMOJI_ADVANCE;
+            } else {
+                FormattedCharSequence character =
+                        FormattedCharSequence.forward(new String(Character.toChars(codePoint)), style);
+                width[0] += bypass(() -> font.width(character));
+            }
+            return true;
+        });
+        return (int) Math.ceil(width[0]);
+    }
+
+    private static <T> T bypass(java.util.function.Supplier<T> action) {
+        boolean previous = BYPASS.get();
+        BYPASS.set(true);
+        try {
+            return action.get();
+        } finally {
+            BYPASS.set(previous);
+        }
+    }
+
+    public record ParsedText(String text, LinkedHashMap<Integer, Emoji> emojis) {
+    }
+
+    public record ParsedSequence(FormattedCharSequence sequence, ParsedText parsed) {
+    }
+
+    private record Match(int start, int end, Emoji emoji) {
+    }
+
+    private record StyledCodePoint(int start, int end, Style style, int codePoint) {
+    }
+
+    private record StyledRange(int start, int end, Style style) {
+    }
 }

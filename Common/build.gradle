@@ -1,20 +1,22 @@
 plugins {
-    id 'java'
-    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version "${fabric_loom_version}"
     id 'maven-publish'
 }
 
-archivesBaseName = "${build_file_name}-Common-${minecraft_version}"
-
-minecraft {
-    version(minecraft_version)
-    accessWideners(project(":Common").file("src/main/resources/emojifulcommon.accesswidener"))
+base {
+    archivesName = "${build_file_name}-Common-${minecraft_version}"
 }
 
 dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    compileOnly "net.fabricmc:fabric-loader:${fabric_loader_version}"
     compileOnly("org.spongepowered:mixin:0.8.7")
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    compileOnly group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.15'
+    compileOnly group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/emojifulcommon.accesswidener")
 }
 
 
@@ -27,4 +29,3 @@ processResources {
         expand buildProps
     }
 }
-

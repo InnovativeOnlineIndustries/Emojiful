@@ -1,10 +1,6 @@
 package com.hrznstudio.emojiful.datapack;
 
 import com.hrznstudio.emojiful.platform.Services;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -16,7 +12,6 @@ public class EmojiRecipe extends CustomRecipe {
     private final String url;
 
     public EmojiRecipe(String category, String name, String url) {
-        super(CraftingBookCategory.MISC);
         this.category = category;
         this.name = name;
         this.url = url;
@@ -27,28 +22,13 @@ public class EmojiRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput craftingInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(CraftingInput craftingInput) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends CustomRecipe> getSerializer() {
         return Services.PLATFORM.getRecipeSerializer();
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return Services.PLATFORM.getRecipeType();
     }
 
     public String getCategory() {

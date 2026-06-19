@@ -11,13 +11,14 @@ jobs:
 
     steps:
       - name: checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: setup jdk 21
-        uses: actions/setup-java@v1
+        uses: gradle/actions/wrapper-validation@v4
+      - name: setup jdk 25
+        uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          distribution: temurin
+          java-version: "25"
       - name: make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
@@ -36,13 +37,11 @@ jobs:
           version-type: beta
           loaders: |
             fabric
-            quilt
           game-versions: |
-            1.21
-            1.21.1
-          java: 21
+            26.1.2
+          java: 25
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.21"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/26.1.2"
       - name: Publish Minecraft Mods NeoForge
         uses: Kir-Antipov/mc-publish@v3.3.0
         with:
@@ -51,13 +50,12 @@ jobs:
           modrinth-id: 72GXx2MO
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: |
-            NeoForge/build/libs/*-all.jar
-            NeoForge/build/libs/!(*-@(all)).jar
+            NeoForge/build/libs/!(*-@(javadoc|sources)).jar
+            NeoForge/build/libs/*-@(javadoc|sources).jar
           version-type: beta
           loaders: neoforge
           game-versions: |
-            1.21
-            1.21.1
-          java: 21
+            26.1.2
+          java: 25
           name: ""
-          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.21"
+          changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/26.1.2"

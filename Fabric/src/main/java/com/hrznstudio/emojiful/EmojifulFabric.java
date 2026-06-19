@@ -13,21 +13,17 @@ import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 
 public class EmojifulFabric implements ModInitializer {
 
 
-    public static final RecipeType<EmojiRecipe> EMOJI_RECIPE_TYPE = Registry.register(BuiltInRegistries.RECIPE_TYPE,
-            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "emoji_recipe_type"), new RecipeType<EmojiRecipe>() {
-                @Override
-                public String toString() {
-                    return "emoji_recipe_type";
-                }
-            });
-    public static final RecipeSerializer<EmojiRecipe> EMOJI_RECIPE_SERIALIZER = RecipeSerializer.register(Constants.MOD_ID + ":emoji_recipe", new EmojiRecipeSerializer());
+    public static final RecipeSerializer<EmojiRecipe> EMOJI_RECIPE_SERIALIZER = Registry.register(
+            BuiltInRegistries.RECIPE_SERIALIZER,
+            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "emoji_recipe"),
+            EmojiRecipeSerializer.INSTANCE
+    );
 
     @Override
     public void onInitialize() {
@@ -42,11 +38,11 @@ public class EmojifulFabric implements ModInitializer {
                 if (!(screen instanceof EmojifulChatScreen) && screen instanceof ChatScreen){
                     if (screen instanceof InBedChatScreen){
                         minecraft.screen = new EmojifulBedChatScreen();
-                        minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
+                        minecraft.screen.init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
                     }
                     else  {
                         minecraft.screen = new EmojifulChatScreen(((ChatScreen) screen).initial);
-                        minecraft.screen.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
+                        minecraft.screen.init(minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
                     }
                 }
                 else {

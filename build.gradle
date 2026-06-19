@@ -1,13 +1,8 @@
-plugins {
-    // Required for NeoGradle
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
-}
-
 subprojects {
     
     apply plugin: 'java'
     
-    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(25)
     java.withSourcesJar()
     java.withJavadocJar()
         
@@ -70,7 +65,7 @@ subprojects {
     tasks.withType(JavaCompile).configureEach {
     
         it.options.encoding = 'UTF-8'
-        it.options.release = 21
+        it.options.release = 25
     }
 
     // Disables Gradle's custom module metadata from being published to maven. The
@@ -85,8 +80,8 @@ subprojects {
             rootProject.file("buildOutput").mkdir()
         }
         var finalProjectName = project.getName().substring(0, 1).toUpperCase() + project.getName().substring(1)
-        var fileName = "${props.get("built_name")}-${finalProjectName}-${minecraft_version}-${props.get("version")}.jar"
-        var sourceFileName = "${props.get("built_name")}-${finalProjectName}-${minecraft_version}-${props.get("version")}-sources.jar"
+        var fileName = "${props.get("build_file_name")}-${finalProjectName}-${minecraft_version}-${props.get("version")}.jar"
+        var sourceFileName = "${props.get("build_file_name")}-${finalProjectName}-${minecraft_version}-${props.get("version")}-sources.jar"
         project.file("build/libs/${fileName}").renameTo(rootProject.file("buildOutput/${fileName}"))
         if (project.getName().equals("Forge")){
             project.file("build/libs/${sourceFileName}").renameTo(rootProject.file("buildOutput/${sourceFileName}"))

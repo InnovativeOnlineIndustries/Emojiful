@@ -9,7 +9,7 @@ config = "emojiful.mixins.json"
 
 [[mods]]
     modId="emojiful"
-    version="${file.jarVersion}"
+    version="${version}"
     displayName="Emojiful"
     authors="HRZN"
     description='''
@@ -20,13 +20,13 @@ config = "emojiful.mixins.json"
 [[dependencies.emojiful]]
     modId="minecraft"
     type="required"
-    versionRange="[1.21,)"
+    versionRange="[26.1.2]"
     ordering="NONE"
     side="CLIENT"
 
 [[dependencies.emojiful]]
     modId="neoforge"
     type="required"
-    versionRange="[21.0.84-beta,)"
+    versionRange="[26.1.2.76,)"
     ordering="NONE"
     side="CLIENT"

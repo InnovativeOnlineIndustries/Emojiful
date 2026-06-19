@@ -1,9 +1,11 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version "${fabric_loom_version}"
     id 'idea'
 }
 
-archivesBaseName = "${build_file_name}-Fabric-${minecraft_version}"
+base {
+    archivesName = "${build_file_name}-Fabric-${minecraft_version}"
+}
 
 repositories {
     maven {
@@ -13,17 +15,15 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.layered() {
-        officialMojangMappings()
-        //parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_version}@zip")
-    }
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    // Expose Common as an IntelliJ/Gradle module dependency. Common sources are
+    // still compiled into this loader's jar below, so this must not be packaged
+    // as a second nested copy.
     implementation project(":Common")
-    annotationProcessor("org.spongepowered:mixin:0.8.7-SNAPSHOT:processor")
-    modImplementation "maven.modrinth:midnightlib:1.5.7-fabric"
-    include "maven.modrinth:midnightlib:1.5.7-fabric"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    implementation "maven.modrinth:midnightlib:${midnightlib_version}"
+    include "maven.modrinth:midnightlib:${midnightlib_version}"
     implementation group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
     include group: 'com.esotericsoftware.yamlbeans', name: 'yamlbeans', version: '1.17'
 }
@@ -44,9 +44,6 @@ loom {
         }
     }
     accessWidenerPath = file("${project(':Common').projectDir.path}/src/main/resources/emojifulcommon.accesswidener")
-    mixin {
-        defaultRefmapName = "${mod_name}.refmap.json"
-    }
 }
 
 
@@ -59,7 +56,7 @@ processResources {
     }
 }
 
-tasks.withType(JavaCompile) {
+tasks.named("compileJava", JavaCompile) {
     source(project(":Common").sourceSets.main.allSource)
 }
 

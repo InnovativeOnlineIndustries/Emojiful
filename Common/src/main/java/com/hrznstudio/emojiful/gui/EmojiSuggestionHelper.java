@@ -8,8 +8,9 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.Rect2i;
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,8 +62,9 @@ public class EmojiSuggestionHelper extends IDrawableGuiListener {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.suggestions != null && this.suggestions.onKeyPressed(keyCode, scanCode, modifiers)) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        if (this.suggestions != null && this.suggestions.onKeyPressed(event)) {
             return true;
         } else if (keyCode == 258) {
             this.updateSuggestionList(false);
@@ -110,7 +112,7 @@ public class EmojiSuggestionHelper extends IDrawableGuiListener {
     }
 
     @Override
-    public void render(GuiGraphics matrixStack) {
+    public void extractRenderState(GuiGraphicsExtractor matrixStack, int mouseX, int mouseY, float partialTick) {
         if (this.suggestions != null) {
             this.suggestions.render(matrixStack);
         }
@@ -140,14 +142,14 @@ public class EmojiSuggestionHelper extends IDrawableGuiListener {
             setIndex(0);
         }
 
-        public void render(GuiGraphics guiGraphics) {
-            guiGraphics.pose().translate(0,0, 100);
+        public void render(GuiGraphicsExtractor guiGraphics) {
+            guiGraphics.nextStratum();
             for (int i = 0; i < Math.min(this.suggestions.getList().size(), 10); ++i) {
                 int pos = (this.index + i) % this.suggestions.getList().size();
                 final Suggestion suggestion = this.suggestions.getList().get(pos);
-                guiGraphics.fill(this.area.getX(), this.area.getY() + 12 * i, this.area.getX() + this.area.getWidth(), this.area.getY() + 12 * i + 12, 0xD0000000);
-                guiGraphics.drawString(Minecraft.getInstance().font, suggestion.getText(), this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
-                guiGraphics.drawString(Minecraft.getInstance().font, EmojiFontHelper.SCAPED_STRING + suggestion.getText(), 12 + this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
+                guiGraphics.fill(this.area.getX(), this.area.getY() + 12 * i, this.area.getX() + this.area.getWidth() + 14, this.area.getY() + 12 * i + 12, 0xD0000000);
+                guiGraphics.text(Minecraft.getInstance().font, suggestion.getText(), this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
+                guiGraphics.text(Minecraft.getInstance().font, EmojiFontHelper.SCAPED_STRING + suggestion.getText(), 12 + this.area.getX() + 1, this.area.getY() + 2 + 12 * i, pos == this.index ? 0xFFFFFF00 : 0xFFAAAAAA, true);
             }
         }
 
@@ -158,7 +160,8 @@ public class EmojiSuggestionHelper extends IDrawableGuiListener {
             EmojiSuggestionHelper.this.chatScreen.input.setSuggestion(trim(EmojiSuggestionHelper.this.chatScreen.input.getValue(), suggestions.getList().get(this.index).apply(currentText)));
         }
 
-        public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
+        public boolean onKeyPressed(KeyEvent event) {
+            int keyCode = event.key();
             if (keyCode == 265) {
                 offsetIndex(-1);
                 return true;

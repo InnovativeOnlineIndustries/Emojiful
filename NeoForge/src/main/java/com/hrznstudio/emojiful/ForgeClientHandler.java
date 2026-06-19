@@ -6,14 +6,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
+import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
 
 public class ForgeClientHandler {
 
-    public static void onRecipesUpdated(final RecipesUpdatedEvent event) {
-        CommonClass.onRecipesUpdated(event.getRecipeManager());
+    public static void onRecipesUpdated(final RecipesReceivedEvent event) {
+        if (!event.getRecipeMap().values().isEmpty()) {
+            CommonClass.onRecipesUpdated(event.getRecipeMap().values());
+        } else if (Minecraft.getInstance().getSingleplayerServer() != null) {
+            CommonClass.onRecipesUpdated(Minecraft.getInstance().getSingleplayerServer().getRecipeManager());
+        }
     }
 
     public static void hijackScreen(final ScreenEvent.Opening event) {

@@ -1,24 +1,19 @@
-buildscript {
-    dependencies {
-        classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.2'
-    }
-}
-
 plugins {
-    id 'net.neoforged.gradle.userdev' version '7.0.145'
+    id 'net.neoforged.moddev' version "${moddev_version}"
 }
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
 
-jarJar.enable()
+base {
+    archivesName = "${build_file_name}-Neoforge-${minecraft_version}"
+}
 
-archivesBaseName = "${build_file_name}-Neoforge-${minecraft_version}"
+neoForge {
+    version = neo_version
+    accessTransformers = project.files("src/main/resources/META-INF/accesstransformer.cfg")
 
-
-minecraft.accessTransformers.file file("src/main/resources/META-INF/accesstransformer.cfg")
-runs {
+    runs {
     // applies to all the run configs below
     configureEach {
         // Recommended logging data for a userdev environment
@@ -32,63 +27,47 @@ runs {
         // You can set various levels here.
         // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
         systemProperty 'forge.logging.console.level', 'debug'
-        modSource project.sourceSets.main
-
-        dependencies {
-            runtime "com.esotericsoftware.yamlbeans:yamlbeans:1.17"
-        }
     }
 
     client {
+        client()
         // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
     }
 
     server {
+        server()
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
         programArgument '--nogui'
     }
 
-    // This run config launches GameTestServer and runs all registered gametests, then exits.
-    // By default, the server will crash when no gametests are provided.
-    // The gametest system is also enabled by default for other run configs under the /test command.
-    gameTestServer {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+
     }
 
-    data {
-        // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
-        // workingDirectory project.file('run-data')
-
-        // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
     }
+}
+
+// Older IntelliJ/NeoGradle project metadata invokes this task after a Gradle
+// refresh. ModDevGradle renamed it to neoForgeIdeSync, so keep an alias to make
+// existing checkouts refresh cleanly without requiring users to delete .idea.
+tasks.register("idePostSync") {
+    group = "IDE tasks"
+    description = "Compatibility alias for the current NeoForge IDE synchronization task."
+    dependsOn(tasks.named("neoForgeIdeSync"))
 }
 
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 
-tasks.named('jarJar') {
-
-}
-
-tasks.named("build").configure {
-    dependsOn("jarJar")
-}
-
 dependencies {
-    implementation "net.neoforged:neoforge:${neo_version}"
     implementation group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "1.17"
-    jarJar group: "com.esotericsoftware.yamlbeans", name: "yamlbeans", version: "[1.17]"
+    jarJar "com.esotericsoftware.yamlbeans:yamlbeans:1.17"
     compileOnly project(":Common")
-}
-
-subsystems {
-    parchment {
-        minecraftVersion="1.21"
-        mappingsVersion="2024.07.07"
-    }
 }
 
 
@@ -110,5 +89,9 @@ tasks.named("sourcesJar", Jar) {
 
 processResources {
     from project(":Common").sourceSets.main.resources
+    inputs.property "version", project.version
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version
+    }
 }
 

@@ -4,8 +4,10 @@ package com.hrznstudio.emojiful.gui;
 import com.hrznstudio.emojiful.CommonClass;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.platform.Services;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import org.lwjgl.glfw.GLFW;
 
@@ -13,6 +15,10 @@ public class EmojifulBedChatScreen extends InBedChatScreen {
 
     private EmojiSelectionGui emojiSelectionGui;
     private EmojiSuggestionHelper emojiSuggestionHelper;
+
+    public EmojifulBedChatScreen() {
+        super("", false);
+    }
 
     @Override
     protected void init() {
@@ -25,24 +31,24 @@ public class EmojifulBedChatScreen extends InBedChatScreen {
 
 
     @Override
-    public void render(GuiGraphics guiGraphics, int x, int j, float partialTick) {
-        super.render(guiGraphics, x, j, partialTick);
-        if (emojiSuggestionHelper != null) emojiSuggestionHelper.render(guiGraphics);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int x, int y, float partialTick) {
+        super.extractRenderState(graphics, x, y, partialTick);
+        if (emojiSuggestionHelper != null) emojiSuggestionHelper.extractRenderState(graphics, x, y, partialTick);
         if (emojiSelectionGui != null) {
-            emojiSelectionGui.mouseMoved(x, j);
-            emojiSelectionGui.render(guiGraphics);
+            emojiSelectionGui.mouseMoved(x, y);
+            emojiSelectionGui.extractRenderState(graphics, x, y, partialTick);
         }
 
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers) && CommonClass.shouldKeyBeIgnored(keyCode)){
+    public boolean keyPressed(KeyEvent event) {
+        if (super.keyPressed(event) && CommonClass.shouldKeyBeIgnored(event.key())){
             return true;
         }
-        if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(keyCode, scanCode, modifiers))
+        if (emojiSuggestionHelper != null && emojiSuggestionHelper.keyPressed(event))
             return true;
-        return emojiSelectionGui != null && emojiSelectionGui.keyPressed(keyCode, scanCode, modifiers);
+        return emojiSelectionGui != null && emojiSelectionGui.keyPressed(event);
     }
 
     @Override
@@ -51,14 +57,14 @@ public class EmojifulBedChatScreen extends InBedChatScreen {
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
-        if (emojiSelectionGui != null) emojiSelectionGui.mouseClicked(x, y, button);
-        return super.mouseClicked(x, y, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (emojiSelectionGui != null && emojiSelectionGui.mouseClicked(event, doubleClick)) return true;
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean charTyped(char c, int i) {
-        return super.charTyped(c, i) && (emojiSelectionGui != null && emojiSelectionGui.charTyped(c, i));
+    public boolean charTyped(CharacterEvent event) {
+        return (emojiSelectionGui != null && emojiSelectionGui.charTyped(event)) || super.charTyped(event);
     }
 
 }

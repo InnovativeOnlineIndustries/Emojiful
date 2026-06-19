@@ -6,9 +6,7 @@ import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.datapack.EmojiRecipeSerializer;
 import com.hrznstudio.emojiful.platform.ForgeConfigHelper;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -27,14 +25,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class EmojifulNeoForge {
 
     public static DeferredRegister<RecipeSerializer<?>> RECIPE_SER = DeferredRegister.create(Registries.RECIPE_SERIALIZER, Constants.MOD_ID);
-    public static final DeferredHolder<RecipeSerializer<?>, EmojiRecipeSerializer> EMOJI_RECIPE_SERIALIZER = RECIPE_SER.register("emoji_recipe", EmojiRecipeSerializer::new);
-
-    public static DeferredRegister<RecipeType<?>> RECIPE_TYPE = DeferredRegister.create(Registries.RECIPE_TYPE, Constants.MOD_ID);
-    public static final DeferredHolder<RecipeType<?>, RecipeType<EmojiRecipe>> EMOJI_RECIPE_TYPE = RECIPE_TYPE.register("emoji_recipe_type", () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "emoji_recipe_type")));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EmojiRecipe>> EMOJI_RECIPE_SERIALIZER =
+            RECIPE_SER.register("emoji_recipe", () -> EmojiRecipeSerializer.INSTANCE);
 
     public EmojifulNeoForge(Dist dist, IEventBus modBus, ModContainer container) {
         RECIPE_SER.register(modBus);
-        RECIPE_TYPE.register(modBus);
         createAndLoadConfigs(container, ModConfig.Type.STARTUP, ForgeConfigHelper.setup(new ModConfigSpec.Builder()), "emojiful-client.toml");
         modBus.addListener(this::handleClientSetup);
     }

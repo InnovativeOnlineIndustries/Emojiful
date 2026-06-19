@@ -4,7 +4,6 @@ import com.hrznstudio.emojiful.EmojifulNeoForge;
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.services.IPlatformHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 
@@ -25,12 +24,7 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public boolean isDevelopmentEnvironment() {
 
-        return !FMLLoader.isProduction();
-    }
-
-    @Override
-    public RecipeType<EmojiRecipe> getRecipeType() {
-        return EmojifulNeoForge.EMOJI_RECIPE_TYPE.get();
+        return !FMLLoader.getCurrent().isProduction();
     }
 
     @Override
