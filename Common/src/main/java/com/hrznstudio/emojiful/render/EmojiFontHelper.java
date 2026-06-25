@@ -8,22 +8,27 @@ import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.platform.Services;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.ArrayDeque;
+import java.lang.reflect.Constructor;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
 public final class EmojiFontHelper {
@@ -31,11 +36,11 @@ public final class EmojiFontHelper {
     public static final int PLACEHOLDER = 0x2603;
     public static final float EMOJI_ADVANCE = 10.0F;
     public static final ThreadLocal<Boolean> BYPASS = ThreadLocal.withInitial(() -> false);
+    private static final Constructor<Style> STYLE_CONSTRUCTOR = findStyleConstructor();
     private static final ThreadLocal<Deque<Map<Integer, Emoji>>> ACTIVE_EMOJIS =
             ThreadLocal.withInitial(ArrayDeque::new);
-    private static final String WRAPPED_EMOJI_PREFIX = "emojiful:wrapped/";
-    private static final AtomicInteger NEXT_WRAPPED_EMOJI = new AtomicInteger();
-    private static final Map<String, Emoji> WRAPPED_EMOJIS = new ConcurrentHashMap<>();
+    private static final Map<Style, Emoji> WRAPPED_EMOJIS =
+            Collections.synchronizedMap(new IdentityHashMap<>());
 
     public static final LoadingCache<String, Pair<String, HashMap<Integer, Emoji>>> RECENT_STRINGS =
             CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build(
@@ -49,6 +54,29 @@ public final class EmojiFontHelper {
             );
 
     private EmojiFontHelper() {
+    }
+
+    private static Constructor<Style> findStyleConstructor() {
+        try {
+            Constructor<Style> constructor = Style.class.getDeclaredConstructor(
+                    TextColor.class,
+                    Integer.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    ClickEvent.class,
+                    HoverEvent.class,
+                    String.class,
+                    FontDescription.class
+            );
+            constructor.setAccessible(true);
+            return constructor;
+        } catch (ReflectiveOperationException exception) {
+            Constants.LOG.error("Could not access Minecraft text style constructor", exception);
+            return null;
+        }
     }
 
     public static ParsedText parse(String text) {
@@ -166,63 +194,67 @@ public final class EmojiFontHelper {
             return text;
         }
 
-        List<StyledRange> styles = new ArrayList<>();
-        StringBuilder flattened = new StringBuilder();
+        List<FormattedText> parts = new ArrayList<>();
         text.visit((style, contents) -> {
-            int start = flattened.length();
-            flattened.append(contents);
-            styles.add(new StyledRange(start, flattened.length(), style));
+            addWrappedParts(parts, contents, style);
             return java.util.Optional.empty();
         }, Style.EMPTY);
-
-        List<FormattedText> parts = new ArrayList<>();
-        int sourceOffset = 0;
-        int parsedOffset = 0;
-        while (parsedOffset < parsed.text().length()) {
-            Emoji emoji = parsed.emojis().get(parsedOffset);
-            if (emoji == null) {
-                int codePoint = parsed.text().codePointAt(parsedOffset);
-                int count = Character.charCount(codePoint);
-                parts.add(FormattedText.of(
-                        new String(Character.toChars(codePoint)),
-                        styleAtRange(styles, sourceOffset)
-                ));
-                sourceOffset += count;
-                parsedOffset += count;
-                continue;
-            }
-
-            Match match = findNext(source, sourceOffset);
-            if (match == null) {
-                break;
-            }
-            if (match.start() > sourceOffset) {
-                String literal = source.substring(sourceOffset, match.start());
-                parts.add(FormattedText.of(literal, styleAtRange(styles, sourceOffset)));
-            }
-            Style emojiStyle = styleAtRange(styles, match.start())
-                    .withInsertion(registerWrappedEmoji(emoji));
-            parts.add(FormattedText.of(new String(Character.toChars(PLACEHOLDER)), emojiStyle));
-            sourceOffset = match.end();
-            parsedOffset++;
-        }
-        if (sourceOffset < source.length()) {
-            parts.add(FormattedText.of(source.substring(sourceOffset), styleAtRange(styles, sourceOffset)));
-        }
         return FormattedText.composite(parts);
     }
 
-    private static String registerWrappedEmoji(Emoji emoji) {
-        String token = WRAPPED_EMOJI_PREFIX + NEXT_WRAPPED_EMOJI.incrementAndGet();
-        WRAPPED_EMOJIS.put(token, emoji);
-        return token;
+    private static void addWrappedParts(List<FormattedText> parts, String contents, Style style) {
+        if (StringUtil.isNullOrEmpty(contents) || contents.startsWith(SCAPED_STRING)) {
+            parts.add(FormattedText.of(contents, style));
+            return;
+        }
+
+        int cursor = 0;
+        while (cursor < contents.length()) {
+            Match match = findNext(contents, cursor);
+            if (match == null) {
+                parts.add(FormattedText.of(contents.substring(cursor), style));
+                return;
+            }
+            if (match.start() > cursor) {
+                parts.add(FormattedText.of(contents.substring(cursor, match.start()), style));
+            }
+            parts.add(FormattedText.of(new String(Character.toChars(PLACEHOLDER)), registerWrappedEmoji(style, match.emoji())));
+            cursor = match.end();
+        }
+    }
+
+    private static Style registerWrappedEmoji(Style style, Emoji emoji) {
+        Style marker = cloneStyle(style);
+        WRAPPED_EMOJIS.put(marker, emoji);
+        return marker;
+    }
+
+    private static Style cloneStyle(Style style) {
+        if (STYLE_CONSTRUCTOR == null) {
+            return style;
+        }
+        try {
+            return STYLE_CONSTRUCTOR.newInstance(
+                    style.getColor(),
+                    style.getShadowColor(),
+                    style.isBold() ? Boolean.TRUE : null,
+                    style.isItalic() ? Boolean.TRUE : null,
+                    style.isUnderlined() ? Boolean.TRUE : null,
+                    style.isStrikethrough() ? Boolean.TRUE : null,
+                    style.isObfuscated() ? Boolean.TRUE : null,
+                    style.getClickEvent(),
+                    style.getHoverEvent(),
+                    style.getInsertion(),
+                    style.getFont()
+            );
+        } catch (ReflectiveOperationException exception) {
+            Constants.LOG.error("Could not clone Minecraft text style", exception);
+            return style;
+        }
     }
 
     public static Emoji wrappedEmoji(Style style) {
-        String insertion = style.getInsertion();
-        return insertion != null && insertion.startsWith(WRAPPED_EMOJI_PREFIX)
-                ? WRAPPED_EMOJIS.get(insertion)
-                : null;
+        return WRAPPED_EMOJIS.get(style);
     }
 
     public static boolean isWrappedEmoji(int codePoint, Style style) {
@@ -236,15 +268,6 @@ public final class EmojiFontHelper {
             }
         }
         return characters.isEmpty() ? Style.EMPTY : characters.get(characters.size() - 1).style();
-    }
-
-    private static Style styleAtRange(List<StyledRange> ranges, int offset) {
-        for (StyledRange range : ranges) {
-            if (offset >= range.start() && offset < range.end()) {
-                return range.style();
-            }
-        }
-        return ranges.isEmpty() ? Style.EMPTY : ranges.get(ranges.size() - 1).style();
     }
 
     public static void push(Map<Integer, Emoji> emojis) {
@@ -348,6 +371,4 @@ public final class EmojiFontHelper {
     private record StyledCodePoint(int start, int end, Style style, int codePoint) {
     }
 
-    private record StyledRange(int start, int end, Style style) {
-    }
 }
