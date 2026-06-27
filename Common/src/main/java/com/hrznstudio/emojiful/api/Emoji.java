@@ -95,7 +95,7 @@ public class Emoji implements Predicate<String> {
 
     public Pattern getRegex() {
         if (regexPattern != null) return regexPattern;
-        regexPattern = Pattern.compile(getRegexString());
+        regexPattern = Pattern.compile(getRegexString(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         return regexPattern;
     }
 

@@ -12,6 +12,7 @@ import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.Services;
+import com.hrznstudio.emojiful.render.EmojiFontHelper;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -215,6 +216,7 @@ public class CommonClass {
                 }
             }
             ClientEmojiHandler.indexEmojis();
+            EmojiFontHelper.clearCache();
         }
     }
 

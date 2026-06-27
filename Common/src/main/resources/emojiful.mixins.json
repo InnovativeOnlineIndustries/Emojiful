@@ -8,8 +8,10 @@
 
   ],
   "client": [
+    "ComponentRenderUtilsMixin",
     "MinecraftEmojifulMixin",
-    "FontRendererMixin"
+    "FontRendererMixin",
+    "StringSplitterMixin"
   ],
   "injectors": {
     "defaultRequire": 1

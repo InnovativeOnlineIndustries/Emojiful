@@ -6,6 +6,7 @@ import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.api.EmojiFromTwitmoji;
 import com.hrznstudio.emojiful.platform.Services;
+import com.hrznstudio.emojiful.render.EmojiFontHelper;
 import com.hrznstudio.emojiful.util.ProfanityFilter;
 
 import java.io.StringReader;
@@ -23,11 +24,13 @@ public class ClientEmojiHandler {
         new Thread(() -> {
             preInitEmojis();
             indexEmojis();
+            EmojiFontHelper.clearCache();
             Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
         }).start();
     }
 
     public static void indexEmojis() {
+        lineAmount = 0;
         ALL_EMOJIS = Constants.EMOJI_LIST.stream().map(emoji -> emoji.strings).flatMap(Collection::stream).collect(Collectors.toList());
         SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
         for (EmojiCategory category : CATEGORIES) {
@@ -111,4 +114,3 @@ public class ClientEmojiHandler {
 
 
 }
-
