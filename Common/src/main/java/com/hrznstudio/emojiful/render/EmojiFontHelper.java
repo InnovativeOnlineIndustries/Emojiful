@@ -326,6 +326,12 @@ public class EmojiFontHelper {
     }
 
     public static int width(Font font, String original) {
+        // Font#width(String) accepts null and treats it as an empty string. Keep
+        // that vanilla contract before using the cache, which rejects null keys.
+        if (original == null) {
+            return 0;
+        }
+
         Pair<String, HashMap<Integer, Emoji>> parsed;
         try {
             parsed = RECENT_STRINGS.get(original);
