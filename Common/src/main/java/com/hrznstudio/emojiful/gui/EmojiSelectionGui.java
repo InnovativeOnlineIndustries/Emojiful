@@ -275,6 +275,9 @@ public class EmojiSelectionGui extends IDrawableGuiListener {
         if (!fieldWidget.getValue().isEmpty()) {
             selectionPointer = 1;
             filteredEmojis = new ArrayList<>();
+            if (!ClientEmojiHandler.areEmojisLoaded()) {
+                return;
+            }
             List<Emoji> emojis = Constants.EMOJI_LIST.stream().filter(emoji -> emoji.strings.stream().anyMatch(s -> s.toLowerCase().contains(fieldWidget.getValue().toLowerCase()))).collect(Collectors.toList());
             Emoji[] array = new Emoji[9];
             int i = 0;

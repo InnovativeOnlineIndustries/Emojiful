@@ -3,6 +3,7 @@ package com.hrznstudio.emojiful.render;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.hrznstudio.emojiful.ClientEmojiHandler;
 import com.hrznstudio.emojiful.Constants;
 import com.hrznstudio.emojiful.api.Emoji;
 import com.hrznstudio.emojiful.platform.Services;
@@ -100,7 +101,7 @@ public final class EmojiFontHelper {
         if (text.startsWith(SCAPED_STRING)) {
             return new ParsedText(text.substring(SCAPED_STRING.length()), emojis);
         }
-        if (!Services.CONFIG.renderEmoji() || Constants.EMOJI_LIST.isEmpty()) {
+        if (!Services.CONFIG.renderEmoji() || !ClientEmojiHandler.areEmojisLoaded() || Constants.EMOJI_LIST.isEmpty()) {
             return new ParsedText(text, emojis);
         }
 
@@ -123,6 +124,10 @@ public final class EmojiFontHelper {
     }
 
     private static Match findNext(String text, int cursor) {
+        if (!ClientEmojiHandler.areEmojisLoaded()) {
+            return null;
+        }
+
         Match best = null;
         for (Emoji emoji : Constants.EMOJI_LIST) {
             Matcher matcher = emoji.getRegex().matcher(text);
@@ -290,6 +295,10 @@ public final class EmojiFontHelper {
     }
 
     public static boolean hasEmoji(String text) {
+        if (text == null) {
+            return false;
+        }
+
         try {
             Pair<String, HashMap<Integer, Emoji>> result = RECENT_STRINGS.get(text);
             return !result.getRight().isEmpty() || !result.getLeft().equals(text);
@@ -304,6 +313,10 @@ public final class EmojiFontHelper {
     }
 
     public static int width(Font font, String original) {
+        if (original == null) {
+            return 0;
+        }
+
         ParsedText parsed = parse(original);
         if (parsed.emojis().isEmpty()) {
             if (parsed.text().equals(original)) {

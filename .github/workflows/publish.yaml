@@ -26,7 +26,7 @@ jobs:
       - name: build
         run: ./gradlew build
       - name: Publish Minecraft Mods Fabric
-        uses: Kir-Antipov/mc-publish@v3.3.0
+        uses: Kir-Antipov/mc-publish@v3.3.1
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -36,6 +36,7 @@ jobs:
             Fabric/build/libs/!(*-@(javadoc|sources)).jar
             Fabric/build/libs/*-@(javadoc|sources).jar
           version-type: beta
+          environment: client | server
           loaders: |
             fabric
           game-versions: |
@@ -44,7 +45,7 @@ jobs:
           name: ""
           changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/26.1.2"
       - name: Publish Minecraft Mods NeoForge
-        uses: Kir-Antipov/mc-publish@v3.3.0
+        uses: Kir-Antipov/mc-publish@v3.3.1
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -54,6 +55,7 @@ jobs:
             NeoForge/build/libs/!(*-@(javadoc|sources)).jar
             NeoForge/build/libs/*-@(javadoc|sources).jar
           version-type: beta
+          environment: client | server
           loaders: neoforge
           game-versions: |
             26.1.2

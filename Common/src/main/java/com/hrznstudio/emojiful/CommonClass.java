@@ -12,7 +12,6 @@ import com.hrznstudio.emojiful.api.EmojiCategory;
 import com.hrznstudio.emojiful.api.EmojiFromGithub;
 import com.hrznstudio.emojiful.datapack.EmojiRecipe;
 import com.hrznstudio.emojiful.platform.Services;
-import com.hrznstudio.emojiful.render.EmojiFontHelper;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -193,30 +192,34 @@ public class CommonClass {
     }
 
     public static void onRecipesUpdated(Collection<RecipeHolder<?>> recipes) {
-        ClientEmojiHandler.CATEGORIES.removeIf(EmojiCategory::worldBased);
-        Constants.EMOJI_LIST.removeIf(Emoji::worldBased);
-        if (Services.CONFIG.loadDatapack()) {
-            List<EmojiRecipe> emojiList = recipes.stream()
-                    .map(RecipeHolder::value)
-                    .filter(EmojiRecipe.class::isInstance)
-                    .map(EmojiRecipe.class::cast)
-                    .toList();
-            for (EmojiRecipe emojiRecipe : emojiList) {
-                EmojiFromGithub emoji = new EmojiFromGithub();
-                emoji.name = emojiRecipe.getName();
-                emoji.strings = new ArrayList<>();
-                emoji.strings.add(":" + emojiRecipe.getName() + ":");
-                emoji.location = emojiRecipe.getName();
-                emoji.url = emojiRecipe.getUrl();
-                emoji.worldBased = true;
-                Constants.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
-                Constants.EMOJI_LIST.add(emoji);
-                if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory().toLowerCase()))) {
-                    ClientEmojiHandler.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+        ClientEmojiHandler.beginEmojiLoad();
+        try {
+            ClientEmojiHandler.CATEGORIES.removeIf(EmojiCategory::worldBased);
+            Constants.EMOJI_LIST.removeIf(Emoji::worldBased);
+            if (Services.CONFIG.loadDatapack()) {
+                List<EmojiRecipe> emojiList = recipes.stream()
+                        .map(RecipeHolder::value)
+                        .filter(EmojiRecipe.class::isInstance)
+                        .map(EmojiRecipe.class::cast)
+                        .toList();
+                for (EmojiRecipe emojiRecipe : emojiList) {
+                    EmojiFromGithub emoji = new EmojiFromGithub();
+                    emoji.name = emojiRecipe.getName();
+                    emoji.strings = new ArrayList<>();
+                    emoji.strings.add(":" + emojiRecipe.getName() + ":");
+                    emoji.location = emojiRecipe.getName();
+                    emoji.url = emojiRecipe.getUrl();
+                    emoji.worldBased = true;
+                    Constants.EMOJI_MAP.computeIfAbsent(emojiRecipe.getCategory(), s -> new ArrayList<>()).add(emoji);
+                    Constants.EMOJI_LIST.add(emoji);
+                    if (ClientEmojiHandler.CATEGORIES.stream().noneMatch(emojiCategory -> emojiCategory.name().equalsIgnoreCase(emojiRecipe.getCategory().toLowerCase()))) {
+                        ClientEmojiHandler.CATEGORIES.add(0, new EmojiCategory(emojiRecipe.getCategory(), true));
+                    }
                 }
+                ClientEmojiHandler.indexEmojis();
             }
-            ClientEmojiHandler.indexEmojis();
-            EmojiFontHelper.clearCache();
+        } finally {
+            ClientEmojiHandler.finishEmojiLoad();
         }
     }
 

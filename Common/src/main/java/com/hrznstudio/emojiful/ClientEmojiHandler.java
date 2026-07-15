@@ -11,6 +11,7 @@ import com.hrznstudio.emojiful.util.ProfanityFilter;
 
 import java.io.StringReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ClientEmojiHandler {
@@ -19,14 +20,38 @@ public class ClientEmojiHandler {
     public static HashMap<EmojiCategory, List<Emoji[]>> SORTED_EMOJIS_FOR_SELECTION = new LinkedHashMap<>();
     public static List<Emoji> EMOJI_WITH_TEXTS = new ArrayList<>();
     public static int lineAmount;
+    private static final AtomicInteger EMOJI_LOADS_IN_PROGRESS = new AtomicInteger();
+    private static volatile boolean EMOJIS_LOADED;
 
     public static void setup() {
         new Thread(() -> {
-            preInitEmojis();
-            indexEmojis();
-            EmojiFontHelper.clearCache();
-            Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
+            beginEmojiLoad();
+            try {
+                preInitEmojis();
+                indexEmojis();
+                Constants.LOG.info("Loaded " + Constants.EMOJI_LIST.size() + " emojis");
+            } finally {
+                finishEmojiLoad();
+            }
         }).start();
+    }
+
+    public static boolean areEmojisLoaded() {
+        return EMOJIS_LOADED && EMOJI_LOADS_IN_PROGRESS.get() == 0;
+    }
+
+    public static void beginEmojiLoad() {
+        EMOJIS_LOADED = false;
+        EMOJI_LOADS_IN_PROGRESS.incrementAndGet();
+        EmojiFontHelper.clearCache();
+    }
+
+    public static void finishEmojiLoad() {
+        if (EMOJI_LOADS_IN_PROGRESS.decrementAndGet() <= 0) {
+            EMOJI_LOADS_IN_PROGRESS.set(0);
+            EmojiFontHelper.clearCache();
+            EMOJIS_LOADED = true;
+        }
     }
 
     public static void indexEmojis() {
