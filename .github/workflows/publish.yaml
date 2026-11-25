@@ -24,7 +24,7 @@ jobs:
       - name: build
         run: ./gradlew build
       - name: Publish Minecraft Mods Fabric
-        uses: Kir-Antipov/mc-publish@v2.1
+        uses: Kir-Antipov/mc-publish@v3.3.1
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -35,17 +35,19 @@ jobs:
             fabric
             quilt
           game-versions: 1.20.1
+          environment: client | server
           java: 17
           name: ""
           changelog: "https://github.com/InnovativeOnlineIndustries/Emojiful/commits/1.20"
       - name: Publish Minecraft Mods Forge
-        uses: Kir-Antipov/mc-publish@v2.1
+        uses: Kir-Antipov/mc-publish@v3.3.1
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           files-primary: Forge/build/libs/!(*-@(javadoc|sources)).jar
           files-secondary: Forge/build/libs/*-@(javadoc|sources).jar
           version-type: release
+          environment: client | server
           loaders: forge
           game-versions: 1.20.1
           java: 17
