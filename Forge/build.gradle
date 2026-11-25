@@ -122,5 +122,8 @@ mixin {
 }
 
 
-jar.finalizedBy('reobfJar')
+jar {
+    destinationDirectory = layout.buildDirectory.dir('devlibs')
+    finalizedBy 'reobfJar'
+}
 
