@@ -6,7 +6,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.54'
         classpath 'org.parchmentmc:librarian:1.+'
         classpath 'org.spongepowered:mixingradle:0.7.+'
         classpath 'gradle.plugin.com.github.johnrengelman:shadow:7.1.2'
@@ -96,7 +96,7 @@ dependencies {
 
 shadowJar {
     configurations = [project.configurations.shade]
-    classifier = ""
+    archiveClassifier = ""
     relocate 'com.esoteric.yamlbeans', 'com.hrznstudio.emojiful.shaded.yamlbeans'
     finalizedBy 'reobfShadowJar'
 }
