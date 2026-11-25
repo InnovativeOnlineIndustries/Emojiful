@@ -144,7 +144,7 @@ public class Emoji implements Predicate<String> {
     }
 
     public File getCache() {
-        return new File("emojiful/cache/" + name + "-" + version);
+        return EmojiCache.resolve(name, version);
     }
 
     public void loadTextureFrames(List<Pair<BufferedImage, Integer>> frameImages) {
