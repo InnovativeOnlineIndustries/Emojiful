@@ -28,8 +28,9 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: Fabric/build/libs/!(*-@(javadoc|sources)).jar
-          files-secondary: Fabric/build/libs/*-@(javadoc|sources).jar
+          files: |
+            Fabric/build/libs/!(*-@(javadoc|sources)).jar
+            Fabric/build/libs/*-@(javadoc|sources).jar
           version-type: release
           loaders: |
             fabric
@@ -44,8 +45,9 @@ jobs:
         with:
           curseforge-id: 284324
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files-primary: Forge/build/libs/!(*-@(javadoc|sources)).jar
-          files-secondary: Forge/build/libs/*-@(javadoc|sources).jar
+          files: |
+            Forge/build/libs/!(*-@(javadoc|sources)).jar
+            Forge/build/libs/*-@(javadoc|sources).jar
           version-type: release
           environment: client | server
           loaders: forge
